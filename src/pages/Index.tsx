@@ -244,20 +244,15 @@ const Index = () => {
                     </Button>
                   </th>
                   <th className="text-right px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
-                    <div className="flex flex-col items-end gap-0.5">
-                      <Button
-                        variant="ghost"
-                        onClick={() => handleSort("price")}
-                        className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto"
-                        style={{ color: "hsl(var(--text-tertiary))" }}
-                      >
-                        Einzelpreis
-                        <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
-                      </Button>
-                      <span className="text-xs font-normal normal-case" style={{ color: "hsl(var(--text-tertiary))" }}>
-                        (Netto)
-                      </span>
-                    </div>
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSort("price")}
+                      className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto"
+                      style={{ color: "hsl(var(--text-tertiary))" }}
+                    >
+                      Einzelpreis
+                      <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
+                    </Button>
                   </th>
                   <th className="text-center px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
                     Bericht
