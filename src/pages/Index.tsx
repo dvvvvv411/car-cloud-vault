@@ -80,9 +80,13 @@ const Index = () => {
         {/* Modern Header with Logo - Always Visible */}
         <div className="mb-8 md:mb-10 lg:mb-12 animate-fade-in">
           <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6 mb-4 md:mb-6">
-            {/* Logo */}
+            {/* Logo und Badge */}
             <div className="flex items-start gap-3">
               <img src={kbsLogo} alt="KBS Kanzlei Logo" className="h-16 md:h-20 lg:h-24 w-auto" />
+              {/* Badge - nur auf Mobile/Tablet sichtbar */}
+              <Badge variant="secondary" className="lg:hidden text-xs sm:text-sm md:text-base px-3 md:px-4 py-1 md:py-1.5 font-semibold mt-1">
+                Az: 502 IN 14/25
+              </Badge>
             </div>
             
             <div className="hidden md:block h-16 lg:h-20 w-px bg-[hsl(var(--divider))]"></div>
