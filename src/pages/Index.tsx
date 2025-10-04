@@ -355,6 +355,44 @@ const Index = () => {
         <LawyerContactCard />
       </div>
 
+      {/* Fixed Info Box - No Binding Order */}
+      {selectedVehicles.length > 0 && (
+        <div className="fixed bottom-[100px] left-0 right-0 z-40 px-8">
+          <div className="max-w-[1400px] mx-auto">
+            <div className="glassmorphism rounded-2xl p-6 bg-accent/20 border-2 border-accent">
+              <div className="flex items-start gap-3">
+                <div className="rounded-full bg-accent/30 p-2 mt-0.5">
+                  <svg
+                    className="w-5 h-5 text-accent"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-accent mb-2">
+                    Keine verbindliche Bestellung
+                  </h4>
+                  <p className="text-sm text-muted-foreground">
+                    Sie geben hiermit keine verbindliche Bestellung auf. Dies ist eine
+                    unverbindliche Anfrage für die ausgewählten Positionen. Nach
+                    Absenden der Anfrage wird sich unser Rechtsanwalt kostenlos mit
+                    Ihnen in Verbindung setzen, um alle Details zu besprechen.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Sticky Selection/Submit Footer - Always Visible */}
       {selectedVehicles.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 glassmorphism border-t shadow-lg animate-fade-in z-50" style={{ borderColor: "hsl(var(--divider))" }}>

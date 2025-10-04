@@ -15,7 +15,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "./ui/form";
 import { useToast } from "@/hooks/use-toast";
 
@@ -34,9 +33,6 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
 }) => {
   const { toast } = useToast();
   const form = useForm<InquiryFormData>({
-    resolver: zodResolver(inquirySchema),
-    mode: "onSubmit",
-    reValidateMode: "onChange",
     defaultValues: {
       customerType: "private",
       companyName: "",
@@ -66,6 +62,29 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
   };
 
   const onSubmit = (data: InquiryFormData) => {
+    // Manual validation - check if required fields are filled
+    const requiredFields = [
+      data.firstName,
+      data.lastName,
+      data.street,
+      data.zipCode,
+      data.city,
+      data.email,
+      data.phone,
+    ];
+
+    if (data.customerType === "business") {
+      requiredFields.push(data.companyName);
+    }
+
+    if (requiredFields.some((field) => !field || field.trim() === "")) {
+      toast({
+        title: "Bitte alle Pflichtfelder ausfüllen",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const totalPrice = selectedVehicleData.reduce((sum, v) => sum + v.price, 0);
     
     console.log("Inquiry submitted:", {
@@ -85,7 +104,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
   };
 
   return (
-    <div className="w-full animate-fade-in mb-24">
+    <div className="w-full animate-fade-in mb-[200px]">
       {/* Back Button */}
       <Button
         variant="ghost"
@@ -97,7 +116,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
       </Button>
 
       {/* Two Column Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 relative">
         {/* Left Column: Selected Vehicles */}
         <div className="self-start">
           <h2 className="text-2xl font-bold text-foreground mb-4">
@@ -115,7 +134,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
               </thead>
               <tbody>
                 {selectedVehicleData.map((vehicle) => (
-                  <tr key={vehicle.chassis} className="border-b border-white/10 last:border-b-0 hover:bg-white/5 transition-colors">
+                  <tr key={vehicle.chassis} className="border-b-2 border-white/30 last:border-b-0 hover:bg-white/5 transition-colors">
                     <td className="p-4 text-foreground">{vehicle.brand}</td>
                     <td className="p-4 text-foreground">{vehicle.model}</td>
                     <td className="p-4 text-muted-foreground text-sm">{vehicle.chassis}</td>
@@ -126,6 +145,9 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
             </table>
           </div>
         </div>
+
+        {/* Vertical Divider */}
+        <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px bg-white/20" />
 
         {/* Right Column: Contact Form */}
         <div className="self-start">
@@ -162,7 +184,6 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                         </div>
                       </RadioGroup>
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -182,7 +203,6 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -203,7 +223,6 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -221,7 +240,6 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -241,7 +259,6 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -256,7 +273,6 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                       <FormControl>
                         <Input placeholder="PLZ" className="h-12" {...field} />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -270,7 +286,6 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                       <FormControl>
                         <Input placeholder="Stadt" className="h-12" {...field} />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -292,7 +307,6 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -311,7 +325,6 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                           {...field}
                         />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -332,40 +345,12 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-
-              {/* Submit Button */}
-              <div className="flex justify-end mt-6">
-                <Button type="submit" size="lg" className="w-full md:w-auto">
-                  Anfrage absenden
-                </Button>
-              </div>
             </form>
           </Form>
-        </div>
-      </div>
-
-      {/* Info Box - After Form */}
-      <div className="mt-8 mb-8 bg-accent/20 border-2 border-accent rounded-lg p-6">
-        <div className="flex gap-4 items-start">
-          <div className="flex-shrink-0 mt-1">
-            <Info className="h-6 w-6 text-accent" />
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-foreground mb-2">
-              Keine verbindliche Bestellung
-            </h3>
-            <p className="text-base text-foreground/90 leading-relaxed">
-              Sie geben hiermit <strong>keine verbindliche Bestellung</strong> auf. 
-              Dies ist eine unverbindliche Anfrage für die ausgewählten Positionen. 
-              Nach Absenden der Anfrage wird sich unser Rechtsanwalt kostenlos mit 
-              Ihnen in Verbindung setzen, um alle Details zu besprechen.
-            </p>
-          </div>
         </div>
       </div>
     </div>
