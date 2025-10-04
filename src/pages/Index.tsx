@@ -96,8 +96,8 @@ const Index = () => {
                 {/* Drawer für Mobile/Tablet */}
                 <Drawer open={isBeschlusskDrawerOpen} onOpenChange={setIsBeschlusskDrawerOpen}>
                   <DrawerTrigger asChild>
-                    <div className="relative group lg:hidden">
-                      <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[6rem] md:h-[7rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105" />
+                    <div className="relative group lg:hidden w-full md:w-auto">
+                      <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[6rem] md:h-[7rem] w-full md:w-auto object-cover md:object-none cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105" />
                       <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
                         <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
                       </div>
