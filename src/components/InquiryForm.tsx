@@ -87,7 +87,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
       <Button
         variant="ghost"
         onClick={onBack}
-        className="mb-6 text-foreground hover:text-primary transition-colors"
+        className="mb-6 text-foreground hover:text-primary transition-colors w-full sm:w-auto h-12"
       >
         <ChevronLeft className="h-5 w-5 mr-2" />
         Zurück zur Übersicht
@@ -97,16 +97,45 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-8 relative">
         {/* Left Column: Selected Vehicles */}
         <div className="self-start">
-          <h2 className="text-xl md:text-2xl font-bold text-foreground mb-3 md:mb-4">
+          <h2 className="text-lg md:text-2xl font-bold text-foreground mb-3 md:mb-4">
             Ihre ausgewählten Fahrzeuge ({selectedVehicleData.length})
           </h2>
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg overflow-hidden">
+          
+          {/* Mobile: Card View */}
+          <div className="lg:hidden space-y-3">
+            {selectedVehicleData.map((vehicle) => (
+              <div key={vehicle.chassis} className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="font-semibold text-foreground text-base">{vehicle.brand}</p>
+                    <p className="text-sm text-muted-foreground">{vehicle.model}</p>
+                  </div>
+                  <p className="font-bold text-primary text-lg">{formatPrice(vehicle.price)}</p>
+                </div>
+                <p className="text-xs text-muted-foreground">FIN: {vehicle.chassis}</p>
+              </div>
+            ))}
+            
+            {/* Gesamtpreis Card */}
+            <div className="bg-white/10 backdrop-blur-md border border-primary/30 rounded-lg p-4">
+              <div className="flex justify-between items-center">
+                <p className="font-semibold text-foreground">Gesamtpreis:</p>
+                <p className="font-bold text-primary text-xl">
+                  {formatPrice(selectedVehicleData.reduce((sum, v) => sum + v.price, 0))}
+                </p>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">Alle Preise exkl. MwSt.</p>
+            </div>
+          </div>
+
+          {/* Desktop: Table View */}
+          <div className="hidden lg:block bg-white/10 backdrop-blur-md border border-white/20 rounded-lg overflow-hidden">
             <table className="w-full">
               <thead>
                 <tr className="border-b" style={{ borderColor: "hsl(var(--divider))" }}>
                   <th className="text-left p-2 md:p-4 text-xs md:text-sm font-semibold text-foreground">Marke</th>
                   <th className="text-left p-2 md:p-4 text-xs md:text-sm font-semibold text-foreground">Modell</th>
-                  <th className="text-left p-2 md:p-4 text-xs md:text-sm font-semibold text-foreground hidden sm:table-cell">Fahrgestell-Nr.</th>
+                  <th className="text-left p-2 md:p-4 text-xs md:text-sm font-semibold text-foreground">Fahrgestell-Nr.</th>
                   <th className="text-right p-2 md:p-4 text-xs md:text-sm font-semibold text-foreground">Preis</th>
                 </tr>
               </thead>
@@ -115,18 +144,15 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                   <tr key={vehicle.chassis} className="border-b hover:bg-white/5 transition-colors" style={{ borderColor: "hsl(var(--divider))" }}>
                     <td className="p-2 md:p-4 text-sm md:text-base text-foreground">{vehicle.brand}</td>
                     <td className="p-2 md:p-4 text-sm md:text-base text-foreground">{vehicle.model}</td>
-                    <td className="p-2 md:p-4 text-muted-foreground text-xs md:text-sm hidden sm:table-cell">{vehicle.chassis}</td>
+                    <td className="p-2 md:p-4 text-muted-foreground text-xs md:text-sm">{vehicle.chassis}</td>
                     <td className="p-2 md:p-4 text-right font-semibold text-primary text-sm md:text-base">{formatPrice(vehicle.price)}</td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
                 <tr className="border-t bg-white/5" style={{ borderColor: "hsl(var(--divider))" }}>
-                  <td colSpan={3} className="p-2 md:p-4 text-right font-semibold text-foreground text-sm md:text-base hidden sm:table-cell">
+                  <td colSpan={3} className="p-2 md:p-4 text-right font-semibold text-foreground text-sm md:text-base">
                     Gesamtpreis:
-                  </td>
-                  <td colSpan={3} className="p-2 md:p-4 text-right font-semibold text-foreground text-sm md:text-base sm:hidden">
-                    Gesamt:
                   </td>
                   <td className="p-2 md:p-4 text-right font-bold text-primary text-base md:text-lg">
                     {formatPrice(selectedVehicleData.reduce((sum, v) => sum + v.price, 0))}
@@ -147,24 +173,24 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
 
         {/* Right Column: Contact Form */}
         <div className="self-start">
-          <h2 className="text-xl md:text-2xl font-bold text-foreground mb-3 md:mb-4">
+          <h2 className="text-lg md:text-2xl font-bold text-foreground mb-3 md:mb-4">
             Ihre Kontaktdaten
           </h2>
           <Form {...form}>
-            <form id="inquiry-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
-            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-4 md:p-6">
+            <form id="inquiry-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 md:space-y-6">
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-5 md:p-6">
               {/* Customer Type */}
               <FormField
                 control={form.control}
                 name="customerType"
                 render={({ field }) => (
                   <FormItem className="mb-6">
-                    <FormLabel>Kundentyp *</FormLabel>
+                    <FormLabel className="text-sm md:text-base">Kundentyp *</FormLabel>
                     <FormControl>
                       <RadioGroup
                         onValueChange={field.onChange}
                         defaultValue={field.value}
-                        className="flex gap-4"
+                        className="flex gap-6"
                       >
                         <div className="flex items-center space-x-2">
                           <RadioGroupItem value="private" id="private" />
@@ -193,11 +219,11 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                   name="companyName"
                   render={({ field }) => (
                     <FormItem className="mb-4">
-                      <FormLabel>Unternehmensname *</FormLabel>
+                      <FormLabel className="text-sm md:text-base">Unternehmensname *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Ihr Unternehmensname"
-                          className="h-10 md:h-12"
+                          className="h-12"
                           {...field}
                         />
                       </FormControl>
@@ -213,11 +239,11 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                   name="firstName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Vorname *</FormLabel>
+                      <FormLabel className="text-sm md:text-base">Vorname *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Vorname"
-                          className="h-10 md:h-12"
+                          className="h-12"
                           {...field}
                         />
                       </FormControl>
@@ -230,11 +256,11 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                   name="lastName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nachname *</FormLabel>
+                      <FormLabel className="text-sm md:text-base">Nachname *</FormLabel>
                       <FormControl>
                         <Input
                           placeholder="Nachname"
-                          className="h-10 md:h-12"
+                          className="h-12"
                           {...field}
                         />
                       </FormControl>
@@ -249,11 +275,11 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                 name="street"
                 render={({ field }) => (
                   <FormItem className="mb-4">
-                    <FormLabel>Straße + Hausnummer *</FormLabel>
+                    <FormLabel className="text-sm md:text-base">Straße + Hausnummer *</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Straße und Hausnummer"
-                        className="h-10 md:h-12"
+                        className="h-12"
                         {...field}
                       />
                     </FormControl>
@@ -267,9 +293,9 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                   name="zipCode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>PLZ *</FormLabel>
+                      <FormLabel className="text-sm md:text-base">PLZ *</FormLabel>
                       <FormControl>
-                        <Input placeholder="PLZ" className="h-10 md:h-12" {...field} />
+                        <Input placeholder="PLZ" className="h-12" {...field} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -280,9 +306,9 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                   name="city"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Stadt *</FormLabel>
+                      <FormLabel className="text-sm md:text-base">Stadt *</FormLabel>
                       <FormControl>
-                        <Input placeholder="Stadt" className="h-10 md:h-12" {...field} />
+                        <Input placeholder="Stadt" className="h-12" {...field} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -298,12 +324,12 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>E-Mail *</FormLabel>
+                      <FormLabel className="text-sm md:text-base">E-Mail *</FormLabel>
                       <FormControl>
                         <Input
                           type="email"
                           placeholder="ihre@email.de"
-                          className="h-10 md:h-12"
+                          className="h-12"
                           {...field}
                         />
                       </FormControl>
@@ -316,12 +342,12 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                   name="phone"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Telefonnummer *</FormLabel>
+                      <FormLabel className="text-sm md:text-base">Telefonnummer *</FormLabel>
                       <FormControl>
                         <Input
                           type="tel"
                           placeholder="+49 123 456789"
-                          className="h-10 md:h-12"
+                          className="h-12"
                           {...field}
                         />
                       </FormControl>
@@ -336,7 +362,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                 name="message"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mitteilung (optional)</FormLabel>
+                    <FormLabel className="text-sm md:text-base">Mitteilung (optional)</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Ihre Nachricht an uns..."
