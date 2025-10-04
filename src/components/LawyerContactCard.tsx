@@ -5,17 +5,10 @@ import lawyerAvatar from "@/assets/mark-steh.png";
 const LawyerContactCard = () => {
   return (
     <div className="hidden xl:block fixed bottom-0 right-[max(1rem,calc(((100vw-1400px)/4)-266px))] w-[500px] bg-[#003e7e] text-white rounded-t-full pt-20 pb-8 px-10 shadow-2xl z-[60]">
-      {/* Profile Image & Name - Side by Side Layout */}
-      <div className="flex items-center justify-center gap-6 mb-6">
-        <img 
-          src={lawyerAvatar} 
-          alt="Rechtsanwalt Mark Steh" 
-          className="w-32 h-32 rounded-full object-cover shadow-lg"
-        />
-        <div>
-          <p className="text-base text-white/80 mb-1">Rechtsanwalt</p>
-          <h3 className="text-3xl font-bold">Mark Steh</h3>
-        </div>
+      {/* Name & Title - Centered */}
+      <div className="text-center mb-6">
+        <p className="text-base text-white/80 mb-1">Rechtsanwalt</p>
+        <h3 className="text-3xl font-bold">Mark Steh</h3>
       </div>
 
       {/* Divider */}
@@ -33,10 +26,15 @@ const LawyerContactCard = () => {
         
         <div className="flex items-start gap-3">
           <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5 text-white/70" />
-          <div className="leading-relaxed text-white/80">
+          <div className="leading-relaxed text-white/80 flex-1">
             <p>Speldorfer Str. 2</p>
             <p>40239 Düsseldorf</p>
           </div>
+          <img 
+            src={lawyerAvatar} 
+            alt="Rechtsanwalt Mark Steh" 
+            className="w-20 h-20 rounded-full object-cover shadow-lg flex-shrink-0"
+          />
         </div>
       </div>
 
