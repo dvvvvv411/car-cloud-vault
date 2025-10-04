@@ -1,9 +1,8 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, Info } from "lucide-react";
+import { Info, X } from "lucide-react";
 import { Vehicle } from "@/hooks/useVehicles";
-import { VehicleInquiryCard } from "./VehicleInquiryCard";
 import { inquirySchema, InquiryFormData } from "@/lib/validation/inquirySchema";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -34,6 +33,8 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
   const { toast } = useToast();
   const form = useForm<InquiryFormData>({
     resolver: zodResolver(inquirySchema),
+    mode: "onSubmit",
+    reValidateMode: "onChange",
     defaultValues: {
       customerType: "private",
       companyName: "",
@@ -88,37 +89,45 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
         <h2 className="text-2xl font-bold text-foreground mb-4">
           Ihre ausgewählten Fahrzeuge ({selectedVehicleData.length})
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {selectedVehicleData.map((vehicle) => (
-            <VehicleInquiryCard
-              key={vehicle.chassis}
-              vehicle={vehicle}
-              onRemove={onRemoveVehicle}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Info Box */}
-      <div className="mb-8 bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 flex gap-3">
-        <Info className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
-        <div className="text-sm text-foreground">
-          <p className="font-semibold mb-1">
-            Keine verbindliche Bestellung
-          </p>
-          <p className="text-muted-foreground">
-            Sie geben hiermit <strong>keine verbindliche Bestellung</strong>{" "}
-            auf. Dies ist eine unverbindliche Anfrage für die ausgewählten
-            Positionen. Nach Absenden der Anfrage wird sich unser Rechtsanwalt
-            kostenlos mit Ihnen in Verbindung setzen, um alle Details zu
-            besprechen.
-          </p>
+        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg overflow-hidden">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-white/20">
+                <th className="text-left p-4 text-sm font-semibold text-foreground">Marke</th>
+                <th className="text-left p-4 text-sm font-semibold text-foreground">Modell</th>
+                <th className="text-left p-4 text-sm font-semibold text-foreground">Fahrgestell-Nr.</th>
+                <th className="text-right p-4 text-sm font-semibold text-foreground">Einzelpreis</th>
+                <th className="w-12"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {selectedVehicleData.map((vehicle) => (
+                <tr key={vehicle.chassis} className="border-b border-white/10 last:border-b-0 hover:bg-white/5 transition-colors">
+                  <td className="p-4 text-foreground">{vehicle.brand}</td>
+                  <td className="p-4 text-foreground">{vehicle.model}</td>
+                  <td className="p-4 text-muted-foreground text-sm">{vehicle.chassis}</td>
+                  <td className="p-4 text-right font-semibold text-primary">{formatPrice(vehicle.price)}</td>
+                  <td className="p-4">
+                    <button
+                      onClick={() => onRemoveVehicle(vehicle.chassis)}
+                      className="p-1 rounded-full hover:bg-destructive/20 text-destructive transition-colors"
+                      aria-label="Fahrzeug entfernen"
+                      type="button"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
       {/* Contact Form */}
-      <Form {...form}>
-        <form id="inquiry-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <div className="max-w-3xl mx-auto">
+        <Form {...form}>
+          <form id="inquiry-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-6">
             <h3 className="text-xl font-semibold text-foreground mb-6">
               Ihre Kontaktdaten
@@ -322,12 +331,33 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                     />
                   </FormControl>
                   <FormMessage />
-            </FormItem>
-          )}
-        />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </form>
+        </Form>
       </div>
-    </form>
-  </Form>
-</div>
+
+      {/* Info Box - After Form */}
+      <div className="max-w-4xl mx-auto mt-8 mb-8 bg-accent/20 border-2 border-accent rounded-lg p-6">
+        <div className="flex gap-4 items-start">
+          <div className="flex-shrink-0 mt-1">
+            <Info className="h-6 w-6 text-accent" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-foreground mb-2">
+              Keine verbindliche Bestellung
+            </h3>
+            <p className="text-base text-foreground/90 leading-relaxed">
+              Sie geben hiermit <strong>keine verbindliche Bestellung</strong> auf. 
+              Dies ist eine unverbindliche Anfrage für die ausgewählten Positionen. 
+              Nach Absenden der Anfrage wird sich unser Rechtsanwalt kostenlos mit 
+              Ihnen in Verbindung setzen, um alle Details zu besprechen.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
