@@ -154,7 +154,7 @@ const Index = () => {
               className="h-16 w-auto"
             />
             <div className="h-12 w-px bg-[hsl(var(--divider))]"></div>
-            <div className="flex-1 relative">
+            <div className="flex-1 relative min-h-[8rem]">
               <div className="absolute top-0 right-0 flex items-center gap-4">
                 <Badge variant="secondary" className="text-base px-4 py-1.5">
                   {vehicles.length} Fahrzeuge
