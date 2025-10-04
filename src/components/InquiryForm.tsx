@@ -23,16 +23,12 @@ import { useToast } from "@/hooks/use-toast";
 interface InquiryFormProps {
   selectedVehicles: string[];
   vehicles: Vehicle[];
-  totalPrice: number;
-  onBack: () => void;
   onRemoveVehicle: (chassis: string) => void;
 }
 
 export const InquiryForm: React.FC<InquiryFormProps> = ({
   selectedVehicles,
   vehicles,
-  totalPrice,
-  onBack,
   onRemoveVehicle,
 }) => {
   const { toast } = useToast();
@@ -67,6 +63,8 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
   };
 
   const onSubmit = (data: InquiryFormData) => {
+    const totalPrice = selectedVehicleData.reduce((sum, v) => sum + v.price, 0);
+    
     console.log("Inquiry submitted:", {
       formData: data,
       selectedVehicles: selectedVehicleData,
@@ -79,22 +77,12 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
         "Vielen Dank für Ihre Anfrage. Unser Rechtsanwalt wird sich in Kürze bei Ihnen melden.",
     });
 
-    // Optional: Reset and return
+    // Reset form
     form.reset();
-    onBack();
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-8 animate-fade-in">
-      <Button
-        variant="ghost"
-        onClick={onBack}
-        className="mb-6 hover:bg-white/10"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Zurück zur Übersicht
-      </Button>
-
+    <div className="w-full animate-fade-in mb-24">
       {/* Selected Vehicles Overview */}
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-foreground mb-4">
@@ -130,7 +118,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
 
       {/* Contact Form */}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form id="inquiry-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-6">
             <h3 className="text-xl font-semibold text-foreground mb-6">
               Ihre Kontaktdaten
@@ -334,33 +322,12 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                     />
                   </FormControl>
                   <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
-
-          {/* Sticky Footer with Total and Submit */}
-          <div className="sticky bottom-0 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-4 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="text-center md:text-left">
-              <p className="text-sm text-muted-foreground">
-                Gesamtbetrag (exkl. MwSt.)
-              </p>
-              <p className="text-2xl font-bold text-primary">
-                {formatPrice(totalPrice)}
-              </p>
-            </div>
-
-            <Button
-              type="submit"
-              size="lg"
-              className="w-full md:w-auto min-w-[250px]"
-              disabled={selectedVehicleData.length === 0}
-            >
-              Jetzt unverbindlich anfragen
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </div>
+            </FormItem>
+          )}
+        />
+      </div>
+    </form>
+  </Form>
+</div>
   );
 };
