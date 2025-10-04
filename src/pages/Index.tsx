@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Drawer, DrawerClose, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import LawyerContactCard from "@/components/LawyerContactCard";
 import { InquiryForm } from "@/components/InquiryForm";
 import kbsLogo from "@/assets/kbs_blue.png";
@@ -450,7 +451,7 @@ const Index = () => {
       </div>
 
       {/* Fixed Info Box - No Binding Order */}
-      {showInquiryForm && selectedVehicles.length > 0 && <div className="fixed bottom-[140px] md:bottom-[160px] left-0 right-0 z-40 px-4 md:px-6 lg:px-8">
+      {showInquiryForm && selectedVehicles.length > 0 && <div className="hidden lg:block fixed bottom-[140px] md:bottom-[160px] left-0 right-0 z-40 px-4 md:px-6 lg:px-8">
           <div className="max-w-[1400px] mx-auto">
             <div className="glassmorphism rounded-2xl p-4 md:p-6 bg-accent/20 border-2 border-accent">
               <div className="flex items-start gap-2 md:gap-3">
@@ -500,13 +501,50 @@ const Index = () => {
                   </p>
                 </div>
               </div>
-              {!showInquiryForm ? <Button size="lg" className="gap-2" onClick={() => setShowInquiryForm(true)}>
-                  Weiter zur Anfrage
-                  <ChevronRight className="h-5 w-5" />
-                </Button> : <Button type="submit" form="inquiry-form" size="lg" className="gap-2">
-                  Jetzt unverbindlich anfragen
-                  <ChevronRight className="h-5 w-5" />
-                </Button>}
+              
+              {/* Mobile: Info-Icon + Button */}
+              {showInquiryForm && (
+                <div className="flex items-center gap-3 lg:hidden w-full">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="rounded-full bg-accent/30 p-2.5 hover:bg-accent/50 transition-colors flex-shrink-0">
+                        <svg className="w-5 h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[calc(100vw-2rem)] max-w-md" side="top" align="end">
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-foreground text-sm">
+                          Keine verbindliche Bestellung
+                        </h4>
+                        <p className="text-xs text-muted-foreground">
+                          Sie geben hiermit keine verbindliche Bestellung auf. Dies ist eine
+                          unverbindliche Anfrage für die ausgewählten Positionen. Nach
+                          Absenden der Anfrage wird sich unser Rechtsanwalt kostenlos mit
+                          Ihnen in Verbindung setzen, um alle Details zu besprechen.
+                        </p>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                  
+                  <Button type="submit" form="inquiry-form" size="lg" className="gap-2 flex-1">
+                    Jetzt unverbindlich anfragen
+                    <ChevronRight className="h-5 w-5" />
+                  </Button>
+                </div>
+              )}
+              
+              {/* Desktop: Standard Buttons */}
+              <div className={showInquiryForm ? "hidden lg:block" : ""}>
+                {!showInquiryForm ? <Button size="lg" className="gap-2" onClick={() => setShowInquiryForm(true)}>
+                    Weiter zur Anfrage
+                    <ChevronRight className="h-5 w-5" />
+                  </Button> : <Button type="submit" form="inquiry-form" size="lg" className="gap-2">
+                    Jetzt unverbindlich anfragen
+                    <ChevronRight className="h-5 w-5" />
+                  </Button>}
+              </div>
             </div>
           </div>
         </div>}
