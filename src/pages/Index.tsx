@@ -156,14 +156,9 @@ const Index = () => {
             <div className="h-20 w-px bg-[hsl(var(--divider))]"></div>
             <div className="flex-1 relative min-h-[8rem]">
               <div className="absolute top-0 right-0 flex items-center gap-4">
-                <div className="flex flex-col gap-2 items-end">
-                  <Badge variant="secondary" className="text-lg px-6 py-2 font-semibold">
-                    TZ-West GmbH
-                  </Badge>
-                  <Badge variant="secondary" className="text-lg px-6 py-2 font-semibold">
-                    Az: 502 IN 14/25
-                  </Badge>
-                </div>
+                <Badge variant="secondary" className="text-lg px-6 py-2 font-semibold">
+                  Az: 502 IN 14/25
+                </Badge>
                 <Dialog>
                   <DialogTrigger asChild>
                     <div className="relative group">
@@ -192,7 +187,7 @@ const Index = () => {
                 </h1>
               </div>
               <p className="text-xl" style={{ color: "hsl(var(--text-secondary))" }}>
-                Übersicht an verfügbaren Positionen aus der Bestandsliste
+                Übersicht an verfügbaren Positionen aus der Insolvenzmasse der TZ-West GmbH
               </p>
             </div>
           </div>
