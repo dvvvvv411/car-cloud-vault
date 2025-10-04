@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Search, ArrowUpDown, ChevronRight } from "lucide-react";
+import { Search, ArrowUpDown, ChevronRight, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -157,9 +157,27 @@ const Index = () => {
                 <h1 className="text-4xl font-light tracking-tight" style={{ color: "hsl(var(--text-primary))" }}>
                   Fahrzeugbestand
                 </h1>
-                <Badge variant="secondary" className="text-base px-4 py-1.5">
-                  {vehicles.length} Fahrzeuge
-                </Badge>
+                <div className="flex items-center gap-4">
+                  <Badge variant="secondary" className="text-base px-4 py-1.5">
+                    {vehicles.length} Fahrzeuge
+                  </Badge>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        className="h-12 w-12 rounded-full bg-[#003e7e] hover:bg-[#003e7e]/90 shadow-md hover:shadow-lg hover:scale-105 transition-all p-0"
+                        onClick={() => {
+                          // TODO: Open Gerichtsbeschluss PDF
+                          console.log("Opening Gerichtsbeschluss PDF");
+                        }}
+                      >
+                        <FileText className="h-5 w-5 text-white" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Gerichtsbeschluss anzeigen</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
               </div>
               <p className="text-lg" style={{ color: "hsl(var(--text-secondary))" }}>
                 Verwalten und durchsuchen Sie Ihren Fahrzeugbestand
