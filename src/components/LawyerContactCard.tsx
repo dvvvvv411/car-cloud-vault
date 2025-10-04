@@ -1,24 +1,24 @@
 import { useState } from "react";
 import { Phone, Mail, Building2, MapPin, ExternalLink, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { X } from "lucide-react";
 import lawyerAvatar from "@/assets/mark-steh.png";
 
 const LawyerContactCard = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  return (
-    <div className={`hidden xl:block fixed bottom-0 right-[max(1rem,calc(((100vw-1400px)/4)-266px))] w-[500px] bg-[#003e7e] text-white rounded-t-full shadow-2xl z-[60] transition-all duration-300 ${isCollapsed ? 'h-12 pt-2 pb-2 px-10' : 'pt-20 pb-8 px-10'}`}>
-      {/* Collapse Button */}
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center justify-center transition-all z-10 hover:scale-110"
-        aria-label={isCollapsed ? "Card erweitern" : "Card minimieren"}
-      >
-        {isCollapsed ? <ChevronUp className="w-6 h-6" /> : <ChevronDown className="w-6 h-6" />}
-      </button>
-
-      {/* Content - only visible when not collapsed */}
-      <div className={`transition-opacity duration-300 ${isCollapsed ? 'opacity-0 invisible h-0 overflow-hidden' : 'opacity-100 visible'}`}>
+  // Contact Card Content Component (reusable for both desktop and mobile)
+  const ContactContent = () => (
+    <>
       {/* Profile Image & Name - Side by Side Layout */}
       <div className="flex items-center justify-center gap-6 mb-6">
         <img 
@@ -85,7 +85,7 @@ const LawyerContactCard = () => {
       <div className="space-y-3">
         <a href="tel:+492115426220" className="block">
           <Button 
-            className="w-full bg-white text-[#003e7e] hover:bg-white/90 font-semibold shadow-lg hover:shadow-xl transition-all"
+            className="w-full bg-white text-[#003e7e] hover:bg-white/90 font-semibold shadow-lg hover:shadow-xl transition-all min-h-12"
             size="lg"
           >
             <Phone className="w-5 h-5 mr-2" />
@@ -95,7 +95,7 @@ const LawyerContactCard = () => {
         
         <a href="https://kbs-kanzlei.de" target="_blank" rel="noopener noreferrer" className="block">
           <Button 
-            className="w-full bg-[#C5A572] text-white hover:bg-[#B4954F] font-semibold shadow-lg hover:shadow-xl transition-all"
+            className="w-full bg-[#C5A572] text-white hover:bg-[#B4954F] font-semibold shadow-lg hover:shadow-xl transition-all min-h-12"
             size="lg"
           >
             <ExternalLink className="w-5 h-5 mr-2" />
@@ -103,8 +103,58 @@ const LawyerContactCard = () => {
           </Button>
         </a>
       </div>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile/Tablet: Floating Contact Button + Drawer */}
+      <div className="block xl:hidden">
+        <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+          <DrawerTrigger asChild>
+            <button
+              className="fixed top-4 right-4 z-[70] bg-[#003e7e] text-white rounded-full p-4 shadow-2xl hover:bg-[#002d5c] transition-all hover:scale-110"
+              aria-label="Kontakt öffnen"
+            >
+              <Phone className="w-6 h-6" />
+            </button>
+          </DrawerTrigger>
+          <DrawerContent className="bg-[#003e7e] text-white border-t-4 border-white/20 max-h-[90vh]">
+            <DrawerHeader className="relative">
+              <DrawerTitle className="text-2xl font-bold text-center">Rechtsanwalt kontaktieren</DrawerTitle>
+              <DrawerClose asChild>
+                <button
+                  className="absolute top-2 right-2 p-2 hover:bg-white/10 rounded-full transition-colors"
+                  aria-label="Schließen"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </DrawerClose>
+            </DrawerHeader>
+            <div className="px-6 pb-8 overflow-y-auto">
+              <ContactContent />
+            </div>
+          </DrawerContent>
+        </Drawer>
       </div>
-    </div>
+
+      {/* Desktop: Fixed Card at Bottom Right */}
+      <div className={`hidden xl:block fixed bottom-0 right-[max(1rem,calc(((100vw-1400px)/4)-266px))] w-[500px] bg-[#003e7e] text-white rounded-t-full shadow-2xl z-[60] transition-all duration-300 ${isCollapsed ? 'h-12 pt-2 pb-2 px-10' : 'pt-20 pb-8 px-10'}`}>
+      {/* Collapse Button */}
+      <button
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center justify-center transition-all z-10 hover:scale-110"
+        aria-label={isCollapsed ? "Card erweitern" : "Card minimieren"}
+      >
+        {isCollapsed ? <ChevronUp className="w-6 h-6" /> : <ChevronDown className="w-6 h-6" />}
+      </button>
+
+        {/* Content - only visible when not collapsed */}
+        <div className={`transition-opacity duration-300 ${isCollapsed ? 'opacity-0 invisible h-0 overflow-hidden' : 'opacity-100 visible'}`}>
+          <ContactContent />
+        </div>
+      </div>
+    </>
   );
 };
 
