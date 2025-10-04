@@ -1,7 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Info, X } from "lucide-react";
+import { Info, ChevronLeft } from "lucide-react";
 import { Vehicle } from "@/hooks/useVehicles";
 import { inquirySchema, InquiryFormData } from "@/lib/validation/inquirySchema";
 import { Button } from "./ui/button";
@@ -23,12 +23,14 @@ interface InquiryFormProps {
   selectedVehicles: string[];
   vehicles: Vehicle[];
   onRemoveVehicle: (chassis: string) => void;
+  onBack: () => void;
 }
 
 export const InquiryForm: React.FC<InquiryFormProps> = ({
   selectedVehicles,
   vehicles,
   onRemoveVehicle,
+  onBack,
 }) => {
   const { toast } = useToast();
   const form = useForm<InquiryFormData>({
@@ -84,6 +86,16 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
 
   return (
     <div className="w-full animate-fade-in mb-24">
+      {/* Back Button */}
+      <Button
+        variant="ghost"
+        onClick={onBack}
+        className="mb-6 text-foreground hover:text-primary transition-colors"
+      >
+        <ChevronLeft className="h-5 w-5 mr-2" />
+        Zurück zur Übersicht
+      </Button>
+
       {/* Selected Vehicles Overview */}
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-foreground mb-4">
@@ -97,7 +109,6 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                 <th className="text-left p-4 text-sm font-semibold text-foreground">Modell</th>
                 <th className="text-left p-4 text-sm font-semibold text-foreground">Fahrgestell-Nr.</th>
                 <th className="text-right p-4 text-sm font-semibold text-foreground">Einzelpreis</th>
-                <th className="w-12"></th>
               </tr>
             </thead>
             <tbody>
@@ -107,16 +118,6 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                   <td className="p-4 text-foreground">{vehicle.model}</td>
                   <td className="p-4 text-muted-foreground text-sm">{vehicle.chassis}</td>
                   <td className="p-4 text-right font-semibold text-primary">{formatPrice(vehicle.price)}</td>
-                  <td className="p-4">
-                    <button
-                      onClick={() => onRemoveVehicle(vehicle.chassis)}
-                      className="p-1 rounded-full hover:bg-destructive/20 text-destructive transition-colors"
-                      aria-label="Fahrzeug entfernen"
-                      type="button"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </td>
                 </tr>
               ))}
             </tbody>
@@ -125,7 +126,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
       </div>
 
       {/* Contact Form */}
-      <div className="max-w-3xl mx-auto">
+      <div>
         <Form {...form}>
           <form id="inquiry-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-6">
@@ -340,7 +341,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
       </div>
 
       {/* Info Box - After Form */}
-      <div className="max-w-4xl mx-auto mt-8 mb-8 bg-accent/20 border-2 border-accent rounded-lg p-6">
+      <div className="mt-8 mb-8 bg-accent/20 border-2 border-accent rounded-lg p-6">
         <div className="flex gap-4 items-start">
           <div className="flex-shrink-0 mt-1">
             <Info className="h-6 w-6 text-accent" />

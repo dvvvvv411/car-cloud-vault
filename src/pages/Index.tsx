@@ -347,6 +347,7 @@ const Index = () => {
             selectedVehicles={selectedVehicles}
             vehicles={vehicles}
             onRemoveVehicle={toggleVehicleSelection}
+            onBack={() => setShowInquiryForm(false)}
           />
         )}
 
