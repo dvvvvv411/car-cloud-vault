@@ -160,7 +160,7 @@ const Index = () => {
                   <Badge variant="secondary" className="text-lg px-6 py-2 font-semibold">
                     TZ-West GmbH
                   </Badge>
-                  <Badge variant="outline" className="text-sm px-4 py-1.5 font-medium">
+                  <Badge variant="secondary" className="text-lg px-6 py-2 font-semibold">
                     Az: 502 IN 14/25
                   </Badge>
                 </div>
