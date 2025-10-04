@@ -1,6 +1,7 @@
 import { Phone, Mail, Building2, MapPin, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import lawyerAvatar from "@/assets/mark-steh.png";
+import awardsBanner from "@/assets/awards-banner.png";
 
 const LawyerContactCard = () => {
   return (
@@ -33,10 +34,15 @@ const LawyerContactCard = () => {
         
         <div className="flex items-start gap-3">
           <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5 text-white/70" />
-          <div className="leading-relaxed text-white/80">
+          <div className="leading-relaxed text-white/80 flex-1">
             <p>Speldorfer Str. 2</p>
             <p>40239 Düsseldorf</p>
           </div>
+          <img 
+            src={awardsBanner} 
+            alt="Auszeichnungen" 
+            className="h-12 w-auto object-contain"
+          />
         </div>
       </div>
 
