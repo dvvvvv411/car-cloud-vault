@@ -156,8 +156,8 @@ const Index = () => {
             <div className="h-20 w-px bg-[hsl(var(--divider))]"></div>
             <div className="flex-1 relative min-h-[8rem]">
               <div className="absolute top-0 right-0 flex items-center gap-4">
-                <Badge variant="secondary" className="text-base px-4 py-1.5">
-                  {vehicles.length} Fahrzeuge
+                <Badge variant="secondary" className="text-lg px-6 py-2 font-semibold">
+                  TZ-West GmbH
                 </Badge>
                 <Dialog>
                   <DialogTrigger asChild>
