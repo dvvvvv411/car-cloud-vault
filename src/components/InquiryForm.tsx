@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Info, ChevronLeft } from "lucide-react";
+import { Info, ChevronLeft, ChevronDown } from "lucide-react";
 import { Vehicle } from "@/hooks/useVehicles";
 import { inquirySchema, InquiryFormData } from "@/lib/validation/inquirySchema";
 import { Button } from "./ui/button";
@@ -10,6 +10,7 @@ import { Textarea } from "./ui/textarea";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import {
   Form,
   FormControl,
@@ -33,6 +34,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
   onBack,
 }) => {
   const { toast } = useToast();
+  const [isVehiclesOpen, setIsVehiclesOpen] = useState(false);
   const form = useForm<InquiryFormData>({
     defaultValues: {
       customerType: "private",
@@ -97,39 +99,60 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-8 relative">
         {/* Left Column: Selected Vehicles */}
         <div className="self-start">
-          <h2 className="text-lg md:text-2xl font-bold text-foreground mb-3 md:mb-4">
-            Ihre ausgewählten Fahrzeuge ({selectedVehicleData.length})
-          </h2>
-          
-          {/* Mobile: Card View */}
-          <div className="lg:hidden space-y-3">
-            {selectedVehicleData.map((vehicle) => (
-              <div key={vehicle.chassis} className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <p className="font-semibold text-foreground text-base">{vehicle.brand}</p>
-                    <p className="text-sm text-muted-foreground">{vehicle.model}</p>
+          {/* Mobile: Collapsible Version */}
+          <div className="lg:hidden">
+            <Collapsible open={isVehiclesOpen} onOpenChange={setIsVehiclesOpen}>
+              <CollapsibleTrigger className="w-full">
+                <div className="flex items-center justify-between bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-4 hover:bg-white/5 transition-colors">
+                  <h2 className="text-lg font-bold text-foreground">
+                    Ihre ausgewählten Fahrzeuge ({selectedVehicleData.length})
+                  </h2>
+                  <div className="flex items-center gap-2">
+                    <p className="font-bold text-primary text-lg">
+                      {formatPrice(selectedVehicleData.reduce((sum, v) => sum + v.price, 0))}
+                    </p>
+                    <ChevronDown className={`h-5 w-5 text-foreground transition-transform duration-200 ${isVehiclesOpen ? 'rotate-180' : ''}`} />
                   </div>
-                  <p className="font-bold text-primary text-lg">{formatPrice(vehicle.price)}</p>
                 </div>
-                <p className="text-xs text-muted-foreground">FIN: {vehicle.chassis}</p>
-              </div>
-            ))}
-            
-            {/* Gesamtpreis Card */}
-            <div className="bg-white/10 backdrop-blur-md border border-primary/30 rounded-lg p-4">
-              <div className="flex justify-between items-center">
-                <p className="font-semibold text-foreground">Gesamtpreis:</p>
-                <p className="font-bold text-primary text-xl">
-                  {formatPrice(selectedVehicleData.reduce((sum, v) => sum + v.price, 0))}
-                </p>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">Alle Preise exkl. MwSt.</p>
-            </div>
+              </CollapsibleTrigger>
+              
+              <CollapsibleContent className="mt-3">
+                <div className="space-y-3">
+                  {selectedVehicleData.map((vehicle) => (
+                    <div key={vehicle.chassis} className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="font-semibold text-foreground text-base">{vehicle.brand}</p>
+                          <p className="text-sm text-muted-foreground">{vehicle.model}</p>
+                        </div>
+                        <p className="font-bold text-primary text-lg">{formatPrice(vehicle.price)}</p>
+                      </div>
+                      <p className="text-xs text-muted-foreground">FIN: {vehicle.chassis}</p>
+                    </div>
+                  ))}
+                  
+                  {/* Gesamtpreis Card */}
+                  <div className="bg-white/10 backdrop-blur-md border border-primary/30 rounded-lg p-4">
+                    <div className="flex justify-between items-center">
+                      <p className="font-semibold text-foreground">Gesamtpreis:</p>
+                      <p className="font-bold text-primary text-xl">
+                        {formatPrice(selectedVehicleData.reduce((sum, v) => sum + v.price, 0))}
+                      </p>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">Alle Preise exkl. MwSt.</p>
+                  </div>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           </div>
-
+          
           {/* Desktop: Table View */}
-          <div className="hidden lg:block bg-white/10 backdrop-blur-md border border-white/20 rounded-lg overflow-hidden">
+          <div className="hidden lg:block">
+            <h2 className="text-lg md:text-2xl font-bold text-foreground mb-3 md:mb-4">
+              Ihre ausgewählten Fahrzeuge ({selectedVehicleData.length})
+            </h2>
+
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg overflow-hidden">
             <table className="w-full">
               <thead>
                 <tr className="border-b" style={{ borderColor: "hsl(var(--divider))" }}>
@@ -165,6 +188,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                 </tr>
               </tfoot>
             </table>
+            </div>
           </div>
         </div>
 
