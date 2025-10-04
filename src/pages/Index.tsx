@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Search, ArrowUpDown, ChevronRight, FileText } from "lucide-react";
+import { Search, ArrowUpDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import LawyerContactCard from "@/components/LawyerContactCard";
 import kbsLogo from "@/assets/kbs_blue.png";
 import demoVehicle from "@/assets/demo-vehicle.png";
+import beschlussImage from "@/assets/beschluss.png";
 import dekraLogoWhite from "@/assets/dekra-logo-white.png";
 
 interface Vehicle {
@@ -161,22 +163,22 @@ const Index = () => {
                   <Badge variant="secondary" className="text-base px-4 py-1.5">
                     {vehicles.length} Fahrzeuge
                   </Badge>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        className="h-12 w-12 rounded-full bg-[#003e7e] hover:bg-[#003e7e]/90 shadow-md hover:shadow-lg hover:scale-105 transition-all p-0"
-                        onClick={() => {
-                          // TODO: Open Gerichtsbeschluss PDF
-                          console.log("Opening Gerichtsbeschluss PDF");
-                        }}
-                      >
-                        <FileText className="h-5 w-5 text-white" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Gerichtsbeschluss anzeigen</p>
-                    </TooltipContent>
-                  </Tooltip>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <img 
+                        src={beschlussImage} 
+                        alt="Gerichtsbeschluss" 
+                        className="h-[4.5rem] w-auto cursor-pointer rounded border border-border shadow-sm hover:shadow-md transition-all hover:scale-105"
+                      />
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+                      <img 
+                        src={beschlussImage} 
+                        alt="Gerichtsbeschluss" 
+                        className="w-full h-auto"
+                      />
+                    </DialogContent>
+                  </Dialog>
                 </div>
               </div>
               <p className="text-lg" style={{ color: "hsl(var(--text-secondary))" }}>
