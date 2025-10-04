@@ -165,11 +165,13 @@ const Index = () => {
                   </Badge>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <img 
-                        src={beschlussImage} 
-                        alt="Gerichtsbeschluss" 
-                        className="h-[4.5rem] w-auto cursor-pointer rounded border border-border shadow-sm hover:shadow-md transition-all hover:scale-105"
-                      />
+                      <div className="relative h-[4.5rem] w-32">
+                        <img 
+                          src={beschlussImage} 
+                          alt="Gerichtsbeschluss" 
+                          className="absolute top-0 right-0 h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all hover:scale-105 z-10"
+                        />
+                      </div>
                     </DialogTrigger>
                     <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
                       <img 
