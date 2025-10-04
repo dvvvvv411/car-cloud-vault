@@ -112,7 +112,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
               </thead>
               <tbody>
                 {selectedVehicleData.map((vehicle) => (
-                  <tr key={vehicle.chassis} className="hover:bg-white/5 transition-colors">
+                  <tr key={vehicle.chassis} className="border-b hover:bg-white/5 transition-colors" style={{ borderColor: "hsl(var(--divider))" }}>
                     <td className="p-4 text-foreground">{vehicle.brand}</td>
                     <td className="p-4 text-foreground">{vehicle.model}</td>
                     <td className="p-4 text-muted-foreground text-sm">{vehicle.chassis}</td>
