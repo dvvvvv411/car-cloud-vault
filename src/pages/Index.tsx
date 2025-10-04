@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import kbsLogo from "@/assets/kbs_blue.png";
 import demoVehicle from "@/assets/demo-vehicle.png";
-import dekraLogo from "@/assets/dekra-logo.png";
+import dekraLogoWhite from "@/assets/dekra-logo-white.png";
 
 interface Vehicle {
   brand: string;
@@ -329,14 +329,14 @@ const Index = () => {
                             <Button
                               variant="outline"
                               size="icon"
-                              className="h-12 w-12 rounded-lg border-2 border-[#005037] hover:bg-[#005037]/10 shadow-sm hover:shadow-md transition-all"
+                              className="h-14 w-20 rounded-lg bg-[#005313] hover:bg-[#005313]/90 border-0 shadow-md hover:shadow-lg transition-all flex items-center justify-center"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 // TODO: Open DEKRA report
                                 console.log("Opening DEKRA report for:", vehicle.reportNr);
                               }}
                             >
-                              <img src={dekraLogo} alt="DEKRA" className="h-8 w-auto" />
+                              <img src={dekraLogoWhite} alt="DEKRA" className="h-10 w-auto object-contain" />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
