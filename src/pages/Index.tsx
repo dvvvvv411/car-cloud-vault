@@ -151,9 +151,9 @@ const Index = () => {
             <img 
               src={kbsLogo} 
               alt="KBS Kanzlei Logo" 
-              className="h-16 w-auto"
+              className="h-24 w-auto"
             />
-            <div className="h-12 w-px bg-[hsl(var(--divider))]"></div>
+            <div className="h-20 w-px bg-[hsl(var(--divider))]"></div>
             <div className="flex-1 relative min-h-[8rem]">
               <div className="absolute top-0 right-0 flex items-center gap-4">
                 <Badge variant="secondary" className="text-base px-4 py-1.5">
@@ -182,11 +182,11 @@ const Index = () => {
                 </Dialog>
               </div>
               <div className="mb-2">
-                <h1 className="text-4xl font-light tracking-tight" style={{ color: "hsl(var(--text-primary))" }}>
+                <h1 className="text-5xl font-light tracking-tight" style={{ color: "hsl(var(--text-primary))" }}>
                   Fahrzeugbestand
                 </h1>
               </div>
-              <p className="text-lg" style={{ color: "hsl(var(--text-secondary))" }}>
+              <p className="text-xl" style={{ color: "hsl(var(--text-secondary))" }}>
                 Verwalten und durchsuchen Sie Ihren Fahrzeugbestand
               </p>
             </div>
