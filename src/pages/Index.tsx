@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { getBrandLogo } from "@/components/brand-logos/BrandLogos";
+import kbsLogo from "@/assets/kbs_blue.png";
 
 interface Vehicle {
   brand: string;
@@ -110,19 +111,29 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-[1400px] mx-auto px-8 py-12">
-        {/* Modern Header */}
+        {/* Modern Header with Logo */}
         <div className="mb-12 animate-fade-in">
-          <div className="flex items-center justify-between mb-3">
-            <h1 className="text-4xl font-light tracking-tight" style={{ color: "hsl(var(--text-primary))" }}>
-              Fahrzeugbestand
-            </h1>
-            <Badge variant="secondary" className="text-base px-4 py-1.5">
-              {vehicles.length} Fahrzeuge
-            </Badge>
+          <div className="flex items-center gap-6 mb-6">
+            <img 
+              src={kbsLogo} 
+              alt="KBS Kanzlei Logo" 
+              className="h-16 w-auto"
+            />
+            <div className="h-12 w-px bg-[hsl(var(--divider))]"></div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between mb-2">
+                <h1 className="text-4xl font-light tracking-tight" style={{ color: "hsl(var(--text-primary))" }}>
+                  Fahrzeugbestand
+                </h1>
+                <Badge variant="secondary" className="text-base px-4 py-1.5">
+                  {vehicles.length} Fahrzeuge
+                </Badge>
+              </div>
+              <p className="text-lg" style={{ color: "hsl(var(--text-secondary))" }}>
+                Verwalten und durchsuchen Sie Ihren Fahrzeugbestand
+              </p>
+            </div>
           </div>
-          <p className="text-lg" style={{ color: "hsl(var(--text-secondary))" }}>
-            Verwalten und durchsuchen Sie Ihren Fahrzeugbestand
-          </p>
         </div>
 
         {/* Glassmorphism Search Bar */}
