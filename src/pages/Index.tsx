@@ -165,13 +165,13 @@ const Index = () => {
                   </Badge>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <div className="relative h-[4.5rem] w-32 group">
+                      <div className="relative group">
                         <img 
                           src={beschlussImage} 
                           alt="Gerichtsbeschluss" 
-                          className="absolute top-0 right-0 h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105 z-10"
+                          className="h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105"
                         />
-                        <div className="absolute top-0 right-0 h-[8rem] w-auto rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center z-20 pointer-events-none">
+                        <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
                           <Eye className="h-10 w-10 text-white" />
                         </div>
                       </div>
