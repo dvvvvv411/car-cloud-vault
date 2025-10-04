@@ -77,14 +77,20 @@ const Index = () => {
       <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8 lg:py-12">
         {/* Modern Header with Logo - Always Visible */}
         <div className="mb-8 md:mb-10 lg:mb-12 animate-fade-in">
-          <div className="flex flex-col md:flex-row items-start md:items-start gap-4 md:gap-6 mb-4 md:mb-6">
-            <img src={kbsLogo} alt="KBS Kanzlei Logo" className="h-16 md:h-20 lg:h-24 w-auto" />
+          <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6 mb-4 md:mb-6">
+            {/* Logo und Badge zusammen - oben ausgerichtet */}
+            <div className="flex items-start gap-3">
+              <img src={kbsLogo} alt="KBS Kanzlei Logo" className="h-16 md:h-20 lg:h-24 w-auto" />
+              <Badge variant="secondary" className="text-xs sm:text-sm md:text-base px-3 md:px-4 py-1 md:py-1.5 font-semibold mt-1">
+                Az: 502 IN 14/25
+              </Badge>
+            </div>
+            
             <div className="hidden md:block h-16 lg:h-20 w-px bg-[hsl(var(--divider))]"></div>
+            
             <div className="flex-1 relative min-h-[6rem] md:min-h-[8rem] w-full">
-              <div className="flex flex-col sm:flex-row sm:absolute sm:top-0 sm:right-0 items-start sm:items-center gap-3 md:gap-4 mb-4 sm:mb-0">
-                <Badge variant="secondary" className="text-sm md:text-base lg:text-lg px-4 md:px-5 lg:px-6 py-1.5 md:py-2 font-semibold">
-                  Az: 502 IN 14/25
-                </Badge>
+              {/* Beschluss image - rechts oben auf Desktop */}
+              <div className="sm:absolute sm:top-0 sm:right-0 mb-4 sm:mb-0">
                 <Dialog>
                   <DialogTrigger asChild>
                     <div className="relative group">
@@ -99,6 +105,7 @@ const Index = () => {
                   </DialogContent>
                 </Dialog>
               </div>
+              
               <div className="mb-2">
                 <h1 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight" style={{
                 color: "hsl(var(--text-primary))"
