@@ -132,7 +132,6 @@ All colors MUST be HSL.
   }
   
   .hover-lift:hover {
-    transform: scale(1.005);
     box-shadow: var(--shadow-hover);
   }
 }
