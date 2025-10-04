@@ -11,10 +11,10 @@ const LawyerContactCard = () => {
       {/* Collapse Button */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute top-2 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all z-10"
+        className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center justify-center transition-all z-10 hover:scale-110"
         aria-label={isCollapsed ? "Card erweitern" : "Card minimieren"}
       >
-        {isCollapsed ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        {isCollapsed ? <ChevronUp className="w-6 h-6" /> : <ChevronDown className="w-6 h-6" />}
       </button>
 
       {/* Content - only visible when not collapsed */}
