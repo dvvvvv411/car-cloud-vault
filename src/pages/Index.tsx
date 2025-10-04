@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import LawyerContactCard from "@/components/LawyerContactCard";
 import kbsLogo from "@/assets/kbs_blue.png";
 import demoVehicle from "@/assets/demo-vehicle.png";
 import dekraLogoWhite from "@/assets/dekra-logo-white.png";
@@ -140,7 +141,7 @@ const Index = () => {
     !allSelected;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
       <div className="max-w-[1400px] mx-auto px-8 py-12">
         {/* Modern Header with Logo */}
         <div className="mb-12 animate-fade-in">
@@ -385,6 +386,9 @@ const Index = () => {
           </div>
         </div>
       )}
+      
+      {/* Lawyer Contact Card - Desktop Only */}
+      <LawyerContactCard />
     </div>
   );
 };
