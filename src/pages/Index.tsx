@@ -272,8 +272,9 @@ const Index = () => {
                         borderColor: "hsl(var(--divider))",
                         animationDelay: `${0.3 + index * 0.05}s`
                       }}
+                      onClick={() => toggleVehicleSelection(vehicle.chassis)}
                     >
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4" onClick={(e) => e.stopPropagation()}>
                         <Checkbox
                           checked={isSelected}
                           onCheckedChange={() => toggleVehicleSelection(vehicle.chassis)}
