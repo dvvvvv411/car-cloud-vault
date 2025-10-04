@@ -129,6 +129,11 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                     {formatPrice(selectedVehicleData.reduce((sum, v) => sum + v.price, 0))}
                   </td>
                 </tr>
+                <tr>
+                  <td colSpan={4} className="px-4 pb-4 pt-2 text-right text-sm text-muted-foreground">
+                    Alle Preise exkl. MwSt.
+                  </td>
+                </tr>
               </tfoot>
             </table>
           </div>
