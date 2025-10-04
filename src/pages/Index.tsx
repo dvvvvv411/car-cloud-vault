@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Search, ArrowUpDown, ChevronRight, Eye, Phone } from "lucide-react";
+import { Search, ArrowUpDown, ChevronRight, Eye, Phone, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
+import { Drawer, DrawerClose, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import LawyerContactCard from "@/components/LawyerContactCard";
 import { InquiryForm } from "@/components/InquiryForm";
 import kbsLogo from "@/assets/kbs_blue.png";
@@ -102,12 +102,12 @@ const Index = () => {
                       </div>
                     </div>
                   </DrawerTrigger>
-                  <DrawerContent className="h-[95vh]">
-                    <DrawerHeader>
-                      <DrawerTitle>Gerichtsbeschluss</DrawerTitle>
-                    </DrawerHeader>
-                    <div className="flex-1 overflow-auto p-4">
-                      <img src={beschlussImage} alt="Gerichtsbeschluss" className="w-full h-auto" />
+                  <DrawerContent className="h-screen rounded-none mt-0 border-0 bg-black p-0">
+                    <DrawerClose className="fixed top-4 right-4 z-[60] rounded-full bg-black/50 p-2 text-white hover:bg-black/70 transition-colors">
+                      <X className="h-6 w-6" />
+                    </DrawerClose>
+                    <div className="h-full w-full flex items-center justify-center">
+                      <img src={beschlussImage} alt="Gerichtsbeschluss" className="max-h-full max-w-full object-contain" />
                     </div>
                   </DrawerContent>
                 </Drawer>
