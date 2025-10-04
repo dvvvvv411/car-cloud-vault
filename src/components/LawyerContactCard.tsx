@@ -1,76 +1,53 @@
-import { Phone, Mail, ExternalLink } from "lucide-react";
+import { Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import lawyerAvatar from "@/assets/mark-steh.png";
 
 const LawyerContactCard = () => {
   return (
-    <div className="hidden xl:block fixed bottom-8 right-[max(1rem,calc(((100vw-1400px)/4)-266px))] w-[520px] glassmorphism backdrop-blur-xl bg-white/95 rounded-3xl p-10 shadow-2xl border border-white/20 z-[60] hover:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] transition-all duration-300">
-      {/* Profile Image */}
-      <div className="flex justify-center mb-8">
+    <div className="hidden xl:block fixed bottom-8 right-[max(1rem,calc(((100vw-1400px)/4)-190px))] w-[380px] glassmorphism backdrop-blur-2xl bg-white/90 rounded-2xl p-8 shadow-[0_8px_32px_-4px_rgba(0,112,243,0.08)] border border-primary/10 z-[60] hover:shadow-[0_12px_48px_-8px_rgba(0,112,243,0.12)] transition-all duration-300">
+      
+      {/* Avatar - klein & clean */}
+      <div className="flex justify-center mb-6">
         <img 
           src={lawyerAvatar} 
           alt="Rechtsanwalt Mark Steh" 
-          className="w-40 h-40 rounded-full object-cover shadow-2xl ring-4 ring-white/50 hover:ring-[#C5A572]/30 transition-all duration-300 hover:scale-105"
+          className="w-28 h-28 rounded-full object-cover ring-2 ring-primary/10 hover:ring-primary/20 transition-all duration-300 hover:scale-105"
         />
       </div>
       
-      {/* Professional Title & Name */}
-      <div className="text-center mb-8">
-        <p className="text-sm text-muted-foreground mb-2 font-light tracking-wide uppercase">Rechtsanwalt</p>
-        <h3 className="text-4xl font-bold text-foreground mb-1">Mark Steh</h3>
+      {/* Name - kompakt */}
+      <div className="text-center mb-6">
+        <p className="text-xs text-muted-foreground mb-1 font-light tracking-wide uppercase">Rechtsanwalt</p>
+        <h3 className="text-xl font-normal text-foreground">Mark Steh</h3>
       </div>
       
-      {/* Law Firm Information */}
-      <div className="text-center mb-8 space-y-1">
-        <p className="font-semibold text-foreground text-lg">KBS Rechtsanwälte</p>
-        <p className="text-muted-foreground text-sm font-light">Küpper Bredehöft Schwencker PartG</p>
-        <p className="text-muted-foreground text-sm font-light mt-2">Speldorfer Str. 2 · 40239 Düsseldorf</p>
+      {/* Phone - highlight */}
+      <div className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl p-6 mb-6 border border-primary/15">
+        <a 
+          href="tel:+492115426220"
+          className="text-3xl font-semibold text-foreground hover:text-primary transition-colors block text-center"
+        >
+          0211 54262200
+        </a>
       </div>
       
-      {/* Contact Information */}
-      <div className="mb-8 flex justify-center">
+      {/* CTA - nur einer */}
+      <a href="tel:+492115426220">
+        <Button 
+          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl h-12 text-base font-medium shadow-lg shadow-primary/10"
+        >
+          <Phone className="w-4 h-4 mr-2" />
+          Jetzt anrufen
+        </Button>
+      </a>
+      
+      {/* Email - dezent */}
+      <div className="mt-4 text-center">
         <a 
           href="mailto:m.steh@kbs-kanzlei.de"
-          className="flex items-center gap-2 text-muted-foreground hover:text-[#C5A572] transition-colors group"
+          className="text-xs text-muted-foreground hover:text-primary transition-colors"
         >
-          <Mail className="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform" />
-          <span className="text-sm font-light">m.steh@kbs-kanzlei.de</span>
-        </a>
-      </div>
-
-      {/* Dominant Phone Number Display */}
-      <div className="bg-gradient-to-br from-[#C5A572]/10 to-[#B4954F]/5 rounded-2xl p-8 mb-8 border border-[#C5A572]/20">
-        <div className="flex flex-col items-center gap-4">
-          <Phone className="w-8 h-8 text-[#C5A572]" />
-          <a 
-            href="tel:+492115426220"
-            className="text-4xl font-bold text-foreground hover:text-[#C5A572] transition-colors"
-          >
-            0211 54262200
-          </a>
-        </div>
-      </div>
-      
-      {/* CTA Buttons */}
-      <div className="space-y-3">
-        <a href="tel:+492115426220" className="block">
-          <Button 
-            className="w-full bg-foreground text-background hover:bg-foreground/90 font-semibold shadow-lg hover:shadow-xl transition-all rounded-xl h-12"
-            size="lg"
-          >
-            <Phone className="w-5 h-5 mr-2" />
-            Jetzt anrufen
-          </Button>
-        </a>
-        
-        <a href="https://kbs-kanzlei.de" target="_blank" rel="noopener noreferrer" className="block">
-          <Button 
-            className="w-full bg-[#C5A572] text-white hover:bg-[#B4954F] font-semibold shadow-lg hover:shadow-xl transition-all rounded-xl h-12"
-            size="lg"
-          >
-            <ExternalLink className="w-5 h-5 mr-2" />
-            Zur Anwaltskanzlei
-          </Button>
+          m.steh@kbs-kanzlei.de
         </a>
       </div>
     </div>
