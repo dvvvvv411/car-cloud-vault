@@ -103,7 +103,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg overflow-hidden">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-white/20">
+                <tr className="border-b" style={{ borderColor: "hsl(var(--divider))" }}>
                   <th className="text-left p-4 text-sm font-semibold text-foreground">Marke</th>
                   <th className="text-left p-4 text-sm font-semibold text-foreground">Modell</th>
                   <th className="text-left p-4 text-sm font-semibold text-foreground">Fahrgestell-Nr.</th>
@@ -121,7 +121,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                 ))}
               </tbody>
               <tfoot>
-                <tr className="border-t border-white/30 bg-white/5">
+                <tr className="border-t bg-white/5" style={{ borderColor: "hsl(var(--divider))" }}>
                   <td colSpan={3} className="p-4 text-right font-semibold text-foreground">
                     Gesamtpreis:
                   </td>
@@ -135,7 +135,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
         </div>
 
         {/* Vertical Divider */}
-        <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent" />
+        <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-px" style={{ backgroundColor: "hsl(var(--divider))" }} />
 
         {/* Right Column: Contact Form */}
         <div className="self-start">
@@ -176,7 +176,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                 )}
               />
 
-              <Separator className="my-6 bg-white/10" />
+              <Separator className="my-6" style={{ backgroundColor: "hsl(var(--divider))" }} />
 
               {/* Company Name (conditional) */}
               {customerType === "business" && (
@@ -281,7 +281,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                 />
               </div>
 
-              <Separator className="my-6 bg-white/10" />
+              <Separator className="my-6" style={{ backgroundColor: "hsl(var(--divider))" }} />
 
               {/* Contact Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
