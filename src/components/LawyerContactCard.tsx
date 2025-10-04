@@ -1,6 +1,6 @@
 import { Phone, Mail, Building2, MapPin, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import lawyerAvatar from "@/assets/lawyer-avatar-placeholder.png";
+import lawyerAvatar from "@/assets/mark-steh.png";
 
 const LawyerContactCard = () => {
   return (
