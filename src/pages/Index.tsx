@@ -11,66 +11,10 @@ import kbsLogo from "@/assets/kbs_blue.png";
 import demoVehicle from "@/assets/demo-vehicle.png";
 import beschlussImage from "@/assets/beschluss.png";
 import dekraLogoWhite from "@/assets/dekra-logo-white.png";
-
-interface Vehicle {
-  brand: string;
-  model: string;
-  chassis: string;
-  reportNr: string;
-  firstRegistration: string;
-  kilometers: number;
-  price: number;
-}
-
-const vehicles: Vehicle[] = [
-  {
-    brand: "BMW",
-    model: "X5 M Competition",
-    chassis: "WBSJU010709K42232",
-    reportNr: "0993",
-    firstRegistration: "01/22",
-    kilometers: 79935,
-    price: 41230.00,
-  },
-  {
-    brand: "Volkswagen",
-    model: "T6 2.0 TDI Kombi lang (50)",
-    chassis: "WV2ZZZ7HZHH140678",
-    reportNr: "1135",
-    firstRegistration: "04/17",
-    kilometers: 115621,
-    price: 5009.90,
-  },
-  {
-    brand: "Volkswagen",
-    model: "T6.1 2.0 TDI Kombi L1H1 FWD",
-    chassis: "WV2ZZZ7HZLX010470",
-    reportNr: "2519",
-    firstRegistration: "03/20",
-    kilometers: 82751,
-    price: 10311.00,
-  },
-  {
-    brand: "Volkswagen",
-    model: "T6 2.0 TSI Kasten",
-    chassis: "WV1ZZZ7HZKH038702",
-    reportNr: "3367",
-    firstRegistration: "11/18",
-    kilometers: 85461,
-    price: 8654.80,
-  },
-  {
-    brand: "Volkswagen",
-    model: "T6.1 2.0 TDI Kombi L1H1 FWD",
-    chassis: "WV2ZZZ7HZLX009005",
-    reportNr: "3864",
-    firstRegistration: "02/20",
-    kilometers: 84613,
-    price: 10066.70,
-  },
-];
+import { useVehicles, type Vehicle } from "@/hooks/useVehicles";
 
 const Index = () => {
+  const { data: vehicles = [], isLoading } = useVehicles();
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState<{
     key: keyof Vehicle | null;
@@ -101,6 +45,14 @@ const Index = () => {
         current.key === key && current.direction === "asc" ? "desc" : "asc",
     }));
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-lg" style={{ color: "hsl(var(--text-secondary))" }}>Lade Fahrzeuge...</p>
+      </div>
+    );
+  }
 
   const filteredAndSortedVehicles = vehicles
     .filter(
@@ -250,7 +202,7 @@ const Index = () => {
                   <th className="text-left px-3 py-4 text-sm font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
                     <Button
                       variant="ghost"
-                      onClick={() => handleSort("firstRegistration")}
+                      onClick={() => handleSort("first_registration")}
                       className="hover:bg-transparent p-0 h-auto font-medium -ml-2"
                       style={{ color: "hsl(var(--text-tertiary))" }}
                     >
@@ -309,7 +261,7 @@ const Index = () => {
                       <td className="px-6 py-4">
                         <div className="w-24 h-16 rounded-lg overflow-hidden bg-muted">
                           <img 
-                            src={demoVehicle} 
+                            src={vehicle.image_url || demoVehicle} 
                             alt={`${vehicle.brand} ${vehicle.model}`}
                             className="w-full h-full object-cover"
                           />
@@ -332,12 +284,12 @@ const Index = () => {
                       </td>
                       <td className="px-6 py-5">
                         <span className="text-base" style={{ color: "hsl(var(--text-secondary))" }}>
-                          {vehicle.reportNr}
+                          {vehicle.report_nr}
                         </span>
                       </td>
                       <td className="px-3 py-5">
                         <span className="text-base" style={{ color: "hsl(var(--text-secondary))" }}>
-                          {vehicle.firstRegistration}
+                          {vehicle.first_registration}
                         </span>
                       </td>
                       <td className="px-3 py-5 text-right">
@@ -357,8 +309,9 @@ const Index = () => {
                               className="h-14 w-28 rounded-lg bg-[#018c4f] hover:bg-[#018c4f]/90 border-0 shadow-md hover:shadow-lg transition-all flex items-center justify-center px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#018c4f] focus-visible:ring-offset-2"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                // TODO: Open DEKRA report
-                                console.log("Opening DEKRA report for:", vehicle.reportNr);
+                                if (vehicle.dekra_url) {
+                                  window.open(vehicle.dekra_url, "_blank");
+                                }
                               }}
                             >
                               <img src={dekraLogoWhite} alt="DEKRA" className="h-10 w-auto object-contain" />

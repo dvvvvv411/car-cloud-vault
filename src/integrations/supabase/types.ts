@@ -14,7 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      vehicles: {
+        Row: {
+          brand: string
+          chassis: string
+          created_at: string | null
+          dekra_url: string | null
+          first_registration: string
+          id: string
+          image_url: string | null
+          kilometers: number
+          model: string
+          price: number
+          report_nr: string
+          updated_at: string | null
+        }
+        Insert: {
+          brand: string
+          chassis: string
+          created_at?: string | null
+          dekra_url?: string | null
+          first_registration: string
+          id?: string
+          image_url?: string | null
+          kilometers: number
+          model: string
+          price: number
+          report_nr: string
+          updated_at?: string | null
+        }
+        Update: {
+          brand?: string
+          chassis?: string
+          created_at?: string | null
+          dekra_url?: string | null
+          first_registration?: string
+          id?: string
+          image_url?: string | null
+          kilometers?: number
+          model?: string
+          price?: number
+          report_nr?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
