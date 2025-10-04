@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import kbsLogo from "@/assets/kbs_blue.png";
 import demoVehicle from "@/assets/demo-vehicle.png";
+import dekraLogo from "@/assets/dekra-logo.png";
 
 interface Vehicle {
   brand: string;
@@ -252,6 +253,9 @@ const Index = () => {
                       <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
                     </Button>
                   </th>
+                  <th className="text-center px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
+                    Bericht
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -317,6 +321,21 @@ const Index = () => {
                         <span className="text-lg font-semibold" style={{ color: "hsl(var(--text-primary))" }}>
                           {formatPrice(vehicle.price)}
                         </span>
+                      </td>
+                      <td className="px-6 py-5 text-center">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-2 hover:bg-primary/10"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // TODO: Open DEKRA report
+                            console.log("Opening DEKRA report for:", vehicle.reportNr);
+                          }}
+                        >
+                          <img src={dekraLogo} alt="DEKRA" className="h-4 w-auto" />
+                          Bericht öffnen
+                        </Button>
                       </td>
                     </tr>
                   );
