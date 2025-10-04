@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Search, ArrowUpDown, Gauge, Calendar, FileText, Euro, Car } from "lucide-react";
+import { Search, ArrowUpDown, Gauge, Calendar, FileText, Euro } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { getBrandLogo } from "@/components/brand-logos/BrandLogos";
 import kbsLogo from "@/assets/kbs_blue.png";
+import demoVehicle from "@/assets/demo-vehicle.png";
 
 interface Vehicle {
   brand: string;
@@ -158,15 +157,7 @@ const Index = () => {
               <thead>
                 <tr className="border-b" style={{ borderColor: "hsl(var(--divider))" }}>
                   <th className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleSort("brand")}
-                      className="hover:bg-transparent p-0 h-auto font-medium -ml-2"
-                      style={{ color: "hsl(var(--text-tertiary))" }}
-                    >
-                      Marke
-                      <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
-                    </Button>
+                    Fahrzeug
                   </th>
                   <th className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
                     <Button
@@ -222,7 +213,6 @@ const Index = () => {
               </thead>
               <tbody>
                 {filteredAndSortedVehicles.map((vehicle, index) => {
-                  const LogoComponent = getBrandLogo(vehicle.brand);
                   return (
                     <tr
                       key={index}
@@ -232,60 +222,49 @@ const Index = () => {
                         animationDelay: `${0.3 + index * 0.05}s`
                       }}
                     >
-                      <td className="px-6 py-5">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-12 w-12 bg-white border border-[hsl(var(--divider))]">
-                            <LogoComponent className="h-full w-full p-1" />
-                          </Avatar>
-                          <span className="font-medium" style={{ color: "hsl(var(--text-primary))" }}>
-                            {vehicle.brand}
-                          </span>
+                      <td className="px-6 py-4">
+                        <div className="w-24 h-16 rounded-lg overflow-hidden bg-muted">
+                          <img 
+                            src={demoVehicle} 
+                            alt={`${vehicle.brand} ${vehicle.model}`}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
                       </td>
                       <td className="px-6 py-5">
-                        <span className="text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
-                          {vehicle.model}
+                        <div>
+                          <div className="font-medium text-sm" style={{ color: "hsl(var(--text-primary))" }}>
+                            {vehicle.brand}
+                          </div>
+                          <div className="text-sm mt-0.5" style={{ color: "hsl(var(--text-secondary))" }}>
+                            {vehicle.model}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <span className="text-sm font-mono" style={{ color: "hsl(var(--text-secondary))" }}>
+                          {vehicle.chassis}
                         </span>
                       </td>
                       <td className="px-6 py-5">
-                        <div className="flex items-center gap-2">
-                          <Car className="h-4 w-4" style={{ color: "hsl(var(--text-tertiary))" }} />
-                          <span className="text-sm font-mono" style={{ color: "hsl(var(--text-secondary))" }}>
-                            {vehicle.chassis}
-                          </span>
-                        </div>
+                        <span className="text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
+                          {vehicle.reportNr}
+                        </span>
                       </td>
                       <td className="px-6 py-5">
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-4 w-4" style={{ color: "hsl(var(--text-tertiary))" }} />
-                          <span className="text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
-                            {vehicle.reportNr}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-5">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4" style={{ color: "hsl(var(--text-tertiary))" }} />
-                          <span className="text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
-                            {vehicle.firstRegistration}
-                          </span>
-                        </div>
+                        <span className="text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
+                          {vehicle.firstRegistration}
+                        </span>
                       </td>
                       <td className="px-6 py-5 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Gauge className="h-4 w-4" style={{ color: "hsl(var(--text-tertiary))" }} />
-                          <span className="text-sm font-medium" style={{ color: "hsl(var(--text-primary))" }}>
-                            {formatKilometers(vehicle.kilometers)}
-                          </span>
-                        </div>
+                        <span className="text-sm font-medium" style={{ color: "hsl(var(--text-primary))" }}>
+                          {formatKilometers(vehicle.kilometers)}
+                        </span>
                       </td>
                       <td className="px-6 py-5 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Euro className="h-4 w-4" style={{ color: "hsl(var(--text-tertiary))" }} />
-                          <span className="text-base font-semibold" style={{ color: "hsl(var(--text-primary))" }}>
-                            {formatPrice(vehicle.price)}
-                          </span>
-                        </div>
+                        <span className="text-base font-semibold" style={{ color: "hsl(var(--text-primary))" }}>
+                          {formatPrice(vehicle.price)}
+                        </span>
                       </td>
                     </tr>
                   );
