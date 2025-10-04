@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Search, ArrowUpDown, Gauge, Calendar, FileText, Euro, Car } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { getBrandLogo } from "@/components/brand-logos/BrandLogos";
 
 interface Vehicle {
   brand: string;
@@ -105,16 +106,6 @@ const Index = () => {
     return new Intl.NumberFormat("de-DE").format(km);
   };
 
-  const getBrandIcon = (brand: string) => {
-    const brandLower = brand.toLowerCase();
-    if (brandLower.includes("bmw")) {
-      return { bg: "bg-blue-500", text: "BMW" };
-    }
-    if (brandLower.includes("volkswagen")) {
-      return { bg: "bg-sky-500", text: "VW" };
-    }
-    return { bg: "bg-gray-400", text: brand.substring(0, 2).toUpperCase() };
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -220,7 +211,7 @@ const Index = () => {
               </thead>
               <tbody>
                 {filteredAndSortedVehicles.map((vehicle, index) => {
-                  const brandInfo = getBrandIcon(vehicle.brand);
+                  const LogoComponent = getBrandLogo(vehicle.brand);
                   return (
                     <tr
                       key={index}
@@ -232,10 +223,8 @@ const Index = () => {
                     >
                       <td className="px-6 py-5">
                         <div className="flex items-center gap-3">
-                          <Avatar className="h-10 w-10">
-                            <AvatarFallback className={`${brandInfo.bg} text-white text-xs font-semibold`}>
-                              {brandInfo.text}
-                            </AvatarFallback>
+                          <Avatar className="h-12 w-12 bg-white border border-[hsl(var(--divider))]">
+                            <LogoComponent className="h-full w-full p-1" />
                           </Avatar>
                           <span className="font-medium" style={{ color: "hsl(var(--text-primary))" }}>
                             {vehicle.brand}
