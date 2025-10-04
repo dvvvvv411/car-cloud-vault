@@ -147,7 +147,7 @@ const Index = () => {
       <div className="max-w-[1400px] mx-auto px-8 py-12">
         {/* Modern Header with Logo */}
         <div className="mb-12 animate-fade-in">
-          <div className="flex items-center gap-6 mb-6">
+          <div className="flex items-start gap-6 mb-6">
             <img 
               src={kbsLogo} 
               alt="KBS Kanzlei Logo" 
