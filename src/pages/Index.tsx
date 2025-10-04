@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Search, ArrowUpDown } from "lucide-react";
+import { Search, ArrowUpDown, Gauge, Calendar, FileText, Euro, Car } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 interface Vehicle {
   brand: string;
@@ -103,130 +105,199 @@ const Index = () => {
     return new Intl.NumberFormat("de-DE").format(km);
   };
 
+  const getBrandIcon = (brand: string) => {
+    const brandLower = brand.toLowerCase();
+    if (brandLower.includes("bmw")) {
+      return { bg: "bg-blue-500", text: "BMW" };
+    }
+    if (brandLower.includes("volkswagen")) {
+      return { bg: "bg-sky-500", text: "VW" };
+    }
+    return { bg: "bg-gray-400", text: brand.substring(0, 2).toUpperCase() };
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-foreground mb-2">
-            Fahrzeugbestand
-          </h1>
-          <p className="text-muted-foreground">
+      <div className="max-w-[1400px] mx-auto px-8 py-12">
+        {/* Modern Header */}
+        <div className="mb-12 animate-fade-in">
+          <div className="flex items-center justify-between mb-3">
+            <h1 className="text-4xl font-light tracking-tight" style={{ color: "hsl(var(--text-primary))" }}>
+              Fahrzeugbestand
+            </h1>
+            <Badge variant="secondary" className="text-base px-4 py-1.5">
+              {vehicles.length} Fahrzeuge
+            </Badge>
+          </div>
+          <p className="text-lg" style={{ color: "hsl(var(--text-secondary))" }}>
             Verwalten und durchsuchen Sie Ihren Fahrzeugbestand
           </p>
         </div>
 
-        <div className="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
-          <div className="p-6 border-b border-border">
+        {/* Glassmorphism Search Bar */}
+        <div className="mb-8 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+          <div className="glassmorphism rounded-2xl p-4 shadow-sm">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5" style={{ color: "hsl(var(--text-tertiary))" }} />
               <Input
                 placeholder="Suche nach Marke, Modell oder Fahrgestell-Nr..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-background border-input"
+                className="pl-12 h-12 text-base border-0 bg-transparent focus-visible:ring-1 focus-visible:ring-primary"
               />
             </div>
           </div>
+        </div>
 
+        {/* Modern Table */}
+        <div className="animate-fade-in" style={{ animationDelay: "0.2s" }}>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-muted/50">
-                <tr>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-foreground">
+              <thead>
+                <tr className="border-b" style={{ borderColor: "hsl(var(--divider))" }}>
+                  <th className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
                     <Button
                       variant="ghost"
                       onClick={() => handleSort("brand")}
-                      className="hover:bg-transparent p-0 h-auto font-medium"
+                      className="hover:bg-transparent p-0 h-auto font-medium -ml-2"
+                      style={{ color: "hsl(var(--text-tertiary))" }}
                     >
                       Marke
-                      <ArrowUpDown className="ml-2 h-4 w-4" />
+                      <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
                     </Button>
                   </th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-foreground">
+                  <th className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
                     <Button
                       variant="ghost"
                       onClick={() => handleSort("model")}
-                      className="hover:bg-transparent p-0 h-auto font-medium"
+                      className="hover:bg-transparent p-0 h-auto font-medium -ml-2"
+                      style={{ color: "hsl(var(--text-tertiary))" }}
                     >
                       Modell
-                      <ArrowUpDown className="ml-2 h-4 w-4" />
+                      <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
                     </Button>
                   </th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-foreground">
+                  <th className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
                     Fahrgestell-Nr.
                   </th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-foreground">
-                    DEKRA / Bericht-Nr.
+                  <th className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
+                    Bericht-Nr.
                   </th>
-                  <th className="text-left px-6 py-4 text-sm font-medium text-foreground">
+                  <th className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
                     <Button
                       variant="ghost"
                       onClick={() => handleSort("firstRegistration")}
-                      className="hover:bg-transparent p-0 h-auto font-medium"
+                      className="hover:bg-transparent p-0 h-auto font-medium -ml-2"
+                      style={{ color: "hsl(var(--text-tertiary))" }}
                     >
                       Erstzulassung
-                      <ArrowUpDown className="ml-2 h-4 w-4" />
+                      <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
                     </Button>
                   </th>
-                  <th className="text-right px-6 py-4 text-sm font-medium text-foreground">
+                  <th className="text-right px-6 py-4 text-xs font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
                     <Button
                       variant="ghost"
                       onClick={() => handleSort("kilometers")}
-                      className="hover:bg-transparent p-0 h-auto font-medium"
+                      className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto"
+                      style={{ color: "hsl(var(--text-tertiary))" }}
                     >
                       Kilometer
-                      <ArrowUpDown className="ml-2 h-4 w-4" />
+                      <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
                     </Button>
                   </th>
-                  <th className="text-right px-6 py-4 text-sm font-medium text-foreground">
+                  <th className="text-right px-6 py-4 text-xs font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
                     <Button
                       variant="ghost"
                       onClick={() => handleSort("price")}
-                      className="hover:bg-transparent p-0 h-auto font-medium"
+                      className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto"
+                      style={{ color: "hsl(var(--text-tertiary))" }}
                     >
                       Einzelpreis
-                      <ArrowUpDown className="ml-2 h-4 w-4" />
+                      <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
                     </Button>
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
-                {filteredAndSortedVehicles.map((vehicle, index) => (
-                  <tr
-                    key={index}
-                    className="hover:bg-accent/50 transition-colors"
-                  >
-                    <td className="px-6 py-4 text-sm font-medium text-foreground">
-                      {vehicle.brand}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-foreground">
-                      {vehicle.model}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground font-mono">
-                      {vehicle.chassis}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">
-                      {vehicle.reportNr}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-foreground">
-                      {vehicle.firstRegistration}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-foreground text-right">
-                      {formatKilometers(vehicle.kilometers)}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-foreground text-right">
-                      {formatPrice(vehicle.price)}
-                    </td>
-                  </tr>
-                ))}
+              <tbody>
+                {filteredAndSortedVehicles.map((vehicle, index) => {
+                  const brandInfo = getBrandIcon(vehicle.brand);
+                  return (
+                    <tr
+                      key={index}
+                      className="border-b hover-lift cursor-pointer group"
+                      style={{ 
+                        borderColor: "hsl(var(--divider))",
+                        animationDelay: `${0.3 + index * 0.05}s`
+                      }}
+                    >
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-10 w-10">
+                            <AvatarFallback className={`${brandInfo.bg} text-white text-xs font-semibold`}>
+                              {brandInfo.text}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="font-medium" style={{ color: "hsl(var(--text-primary))" }}>
+                            {vehicle.brand}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <span className="text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
+                          {vehicle.model}
+                        </span>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-2">
+                          <Car className="h-4 w-4" style={{ color: "hsl(var(--text-tertiary))" }} />
+                          <span className="text-sm font-mono" style={{ color: "hsl(var(--text-secondary))" }}>
+                            {vehicle.chassis}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4" style={{ color: "hsl(var(--text-tertiary))" }} />
+                          <span className="text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
+                            {vehicle.reportNr}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4" style={{ color: "hsl(var(--text-tertiary))" }} />
+                          <span className="text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
+                            {vehicle.firstRegistration}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Gauge className="h-4 w-4" style={{ color: "hsl(var(--text-tertiary))" }} />
+                          <span className="text-sm font-medium" style={{ color: "hsl(var(--text-primary))" }}>
+                            {formatKilometers(vehicle.kilometers)}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-5 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <Euro className="h-4 w-4" style={{ color: "hsl(var(--text-tertiary))" }} />
+                          <span className="text-base font-semibold" style={{ color: "hsl(var(--text-primary))" }}>
+                            {formatPrice(vehicle.price)}
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
 
-          <div className="px-6 py-4 border-t border-border bg-muted/30">
-            <p className="text-sm text-muted-foreground">
-              {filteredAndSortedVehicles.length} von {vehicles.length}{" "}
-              Fahrzeugen angezeigt
+          {/* Results Footer */}
+          <div className="mt-6 flex items-center justify-between">
+            <p className="text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
+              {filteredAndSortedVehicles.length} von {vehicles.length} Fahrzeugen angezeigt
             </p>
           </div>
         </div>

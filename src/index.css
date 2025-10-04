@@ -8,54 +8,54 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 215 20% 20%;
+    --background: 210 17% 98%;
+    --foreground: 0 0% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 215 20% 20%;
+    --card-foreground: 0 0% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 20% 20%;
+    --popover-foreground: 0 0% 12%;
 
-    --primary: 210 100% 50%;
+    --primary: 217 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 215 20% 30%;
+    --secondary: 210 20% 96%;
+    --secondary-foreground: 0 0% 12%;
 
-    --muted: 210 30% 94%;
-    --muted-foreground: 215 15% 50%;
+    --muted: 210 17% 95%;
+    --muted-foreground: 215 14% 48%;
 
-    --accent: 210 100% 95%;
-    --accent-foreground: 210 100% 40%;
+    --accent: 217 100% 97%;
+    --accent-foreground: 217 100% 50%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 215 20% 88%;
-    --input: 215 20% 92%;
-    --ring: 210 100% 50%;
+    --border: 215 16% 91%;
+    --input: 215 16% 93%;
+    --ring: 217 100% 50%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
     
-    --table-header: 210 30% 97%;
-    --table-hover: 210 100% 98%;
+    --divider: 215 16% 93%;
+    --hover-row: 217 100% 99%;
+    
+    --text-primary: 0 0% 12%;
+    --text-secondary: 215 15% 42%;
+    --text-tertiary: 215 12% 62%;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --shadow-hover: 0 4px 12px -2px hsl(217 100% 50% / 0.08);
   }
 
   .dark {
@@ -104,5 +104,35 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .glassmorphism {
+    @apply bg-background/80 backdrop-blur-xl border border-border/50;
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .hover-lift {
+    transition: var(--transition-smooth);
+  }
+  
+  .hover-lift:hover {
+    transform: scale(1.005);
+    box-shadow: var(--shadow-hover);
   }
 }
