@@ -156,10 +156,10 @@ const Index = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b" style={{ borderColor: "hsl(var(--divider))" }}>
-                  <th className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
+                  <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
                     Fahrzeug
                   </th>
-                  <th className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
+                  <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
                     <Button
                       variant="ghost"
                       onClick={() => handleSort("model")}
@@ -170,13 +170,13 @@ const Index = () => {
                       <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
                     </Button>
                   </th>
-                  <th className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
+                  <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
                     Fahrgestell-Nr.
                   </th>
-                  <th className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
+                  <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
                     Bericht-Nr.
                   </th>
-                  <th className="text-left px-6 py-4 text-xs font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
+                  <th className="text-left px-3 py-4 text-sm font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
                     <Button
                       variant="ghost"
                       onClick={() => handleSort("firstRegistration")}
@@ -187,7 +187,7 @@ const Index = () => {
                       <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
                     </Button>
                   </th>
-                  <th className="text-right px-6 py-4 text-xs font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
+                  <th className="text-right px-3 py-4 text-sm font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
                     <Button
                       variant="ghost"
                       onClick={() => handleSort("kilometers")}
@@ -198,7 +198,7 @@ const Index = () => {
                       <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
                     </Button>
                   </th>
-                  <th className="text-right px-6 py-4 text-xs font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
+                  <th className="text-right px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
                     <Button
                       variant="ghost"
                       onClick={() => handleSort("price")}
@@ -233,36 +233,36 @@ const Index = () => {
                       </td>
                       <td className="px-6 py-5">
                         <div>
-                          <div className="font-medium text-sm" style={{ color: "hsl(var(--text-primary))" }}>
+                          <div className="font-medium text-base" style={{ color: "hsl(var(--text-primary))" }}>
                             {vehicle.brand}
                           </div>
-                          <div className="text-sm mt-0.5" style={{ color: "hsl(var(--text-secondary))" }}>
+                          <div className="text-base mt-0.5" style={{ color: "hsl(var(--text-secondary))" }}>
                             {vehicle.model}
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-5">
-                        <span className="text-sm font-mono" style={{ color: "hsl(var(--text-secondary))" }}>
+                        <span className="text-base font-mono" style={{ color: "hsl(var(--text-secondary))" }}>
                           {vehicle.chassis}
                         </span>
                       </td>
                       <td className="px-6 py-5">
-                        <span className="text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
+                        <span className="text-base" style={{ color: "hsl(var(--text-secondary))" }}>
                           {vehicle.reportNr}
                         </span>
                       </td>
-                      <td className="px-6 py-5">
-                        <span className="text-sm" style={{ color: "hsl(var(--text-secondary))" }}>
+                      <td className="px-3 py-5">
+                        <span className="text-base" style={{ color: "hsl(var(--text-secondary))" }}>
                           {vehicle.firstRegistration}
                         </span>
                       </td>
-                      <td className="px-6 py-5 text-right">
-                        <span className="text-sm font-medium" style={{ color: "hsl(var(--text-primary))" }}>
+                      <td className="px-3 py-5 text-right">
+                        <span className="text-base font-medium" style={{ color: "hsl(var(--text-primary))" }}>
                           {formatKilometers(vehicle.kilometers)}
                         </span>
                       </td>
                       <td className="px-6 py-5 text-right">
-                        <span className="text-base font-semibold" style={{ color: "hsl(var(--text-primary))" }}>
+                        <span className="text-lg font-semibold" style={{ color: "hsl(var(--text-primary))" }}>
                           {formatPrice(vehicle.price)}
                         </span>
                       </td>
