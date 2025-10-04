@@ -4,6 +4,7 @@ import { Search, ArrowUpDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import kbsLogo from "@/assets/kbs_blue.png";
 import demoVehicle from "@/assets/demo-vehicle.png";
 import dekraLogo from "@/assets/dekra-logo.png";
@@ -323,19 +324,25 @@ const Index = () => {
                         </span>
                       </td>
                       <td className="px-6 py-5 text-center">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="gap-2 hover:bg-primary/10"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // TODO: Open DEKRA report
-                            console.log("Opening DEKRA report for:", vehicle.reportNr);
-                          }}
-                        >
-                          <img src={dekraLogo} alt="DEKRA" className="h-4 w-auto" />
-                          Bericht öffnen
-                        </Button>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="h-10 w-10 rounded-full border-2 border-[#005037] hover:bg-[#005037]/10 shadow-sm hover:shadow-md transition-all"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // TODO: Open DEKRA report
+                                console.log("Opening DEKRA report for:", vehicle.reportNr);
+                              }}
+                            >
+                              <img src={dekraLogo} alt="DEKRA" className="h-5 w-auto" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>DEKRA Bericht öffnen</p>
+                          </TooltipContent>
+                        </Tooltip>
                       </td>
                     </tr>
                   );
