@@ -356,8 +356,8 @@ const Index = () => {
       </div>
 
       {/* Fixed Info Box - No Binding Order */}
-      {selectedVehicles.length > 0 && (
-        <div className="fixed bottom-[100px] left-0 right-0 z-40 px-8">
+      {showInquiryForm && selectedVehicles.length > 0 && (
+        <div className="fixed bottom-[160px] left-0 right-0 z-40 px-8">
           <div className="max-w-[1400px] mx-auto">
             <div className="glassmorphism rounded-2xl p-6 bg-accent/20 border-2 border-accent">
               <div className="flex items-start gap-3">

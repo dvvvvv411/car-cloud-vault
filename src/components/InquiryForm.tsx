@@ -62,29 +62,6 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
   };
 
   const onSubmit = (data: InquiryFormData) => {
-    // Manual validation - check if required fields are filled
-    const requiredFields = [
-      data.firstName,
-      data.lastName,
-      data.street,
-      data.zipCode,
-      data.city,
-      data.email,
-      data.phone,
-    ];
-
-    if (data.customerType === "business") {
-      requiredFields.push(data.companyName);
-    }
-
-    if (requiredFields.some((field) => !field || field.trim() === "")) {
-      toast({
-        title: "Bitte alle Pflichtfelder ausfüllen",
-        variant: "destructive",
-      });
-      return;
-    }
-
     const totalPrice = selectedVehicleData.reduce((sum, v) => sum + v.price, 0);
     
     console.log("Inquiry submitted:", {
