@@ -107,12 +107,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                   <h2 className="text-lg font-bold text-foreground">
                     Ihre ausgewählten Fahrzeuge ({selectedVehicleData.length})
                   </h2>
-                  <div className="flex items-center gap-2">
-                    <p className="font-bold text-primary text-lg">
-                      {formatPrice(selectedVehicleData.reduce((sum, v) => sum + v.price, 0))}
-                    </p>
-                    <ChevronDown className={`h-5 w-5 text-foreground transition-transform duration-200 ${isVehiclesOpen ? 'rotate-180' : ''}`} />
-                  </div>
+                  <ChevronDown className={`h-5 w-5 text-foreground transition-transform duration-200 ${isVehiclesOpen ? 'rotate-180' : ''}`} />
                 </div>
               </CollapsibleTrigger>
               
