@@ -80,12 +80,9 @@ const Index = () => {
         {/* Modern Header with Logo - Always Visible */}
         <div className="mb-8 md:mb-10 lg:mb-12 animate-fade-in">
           <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6 mb-4 md:mb-6">
-            {/* Logo und Badge zusammen - oben ausgerichtet */}
+            {/* Logo */}
             <div className="flex items-start gap-3">
               <img src={kbsLogo} alt="KBS Kanzlei Logo" className="h-16 md:h-20 lg:h-24 w-auto" />
-              <Badge variant="secondary" className="text-xs sm:text-sm md:text-base px-3 md:px-4 py-1 md:py-1.5 font-semibold mt-1">
-                Az: 502 IN 14/25
-              </Badge>
             </div>
             
             <div className="hidden md:block h-16 lg:h-20 w-px bg-[hsl(var(--divider))]"></div>
@@ -93,8 +90,15 @@ const Index = () => {
             <div className="flex-1 relative min-h-[6rem] md:min-h-[8rem] w-full">
               {/* Beschluss image - rechts oben auf Desktop */}
               <div className="sm:absolute sm:top-0 sm:right-0 mb-4 sm:mb-0">
-                {/* Drawer für Mobile/Tablet */}
-                <Drawer open={isBeschlusskDrawerOpen} onOpenChange={setIsBeschlusskDrawerOpen}>
+                <div className="flex flex-col lg:flex-row lg:items-start lg:gap-3">
+                  {/* Badge - nur auf Desktop sichtbar */}
+                  <Badge variant="secondary" className="hidden lg:flex text-base px-4 py-1.5 font-semibold lg:mt-1">
+                    Az: 502 IN 14/25
+                  </Badge>
+                  
+                  <div className="flex flex-col">
+                    {/* Drawer für Mobile/Tablet */}
+                    <Drawer open={isBeschlusskDrawerOpen} onOpenChange={setIsBeschlusskDrawerOpen}>
                   <DrawerTrigger asChild>
                     <div className="relative group lg:hidden w-full md:w-auto">
                       <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[6rem] md:h-[7rem] w-full md:w-auto object-cover md:object-none cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all brightness-[0.85] md:brightness-100" />
@@ -135,6 +139,8 @@ const Index = () => {
                     <img src={beschlussImage} alt="Gerichtsbeschluss" className="w-full h-auto" />
                   </DialogContent>
                 </Dialog>
+                  </div>
+                </div>
               </div>
               
               <div className="mb-2">
