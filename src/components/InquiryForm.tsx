@@ -96,108 +96,147 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
         Zurück zur Übersicht
       </Button>
 
-      {/* Selected Vehicles Overview */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-foreground mb-4">
-          Ihre ausgewählten Fahrzeuge ({selectedVehicleData.length})
-        </h2>
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-white/20">
-                <th className="text-left p-4 text-sm font-semibold text-foreground">Marke</th>
-                <th className="text-left p-4 text-sm font-semibold text-foreground">Modell</th>
-                <th className="text-left p-4 text-sm font-semibold text-foreground">Fahrgestell-Nr.</th>
-                <th className="text-right p-4 text-sm font-semibold text-foreground">Einzelpreis</th>
-              </tr>
-            </thead>
-            <tbody>
-              {selectedVehicleData.map((vehicle) => (
-                <tr key={vehicle.chassis} className="border-b border-white/10 last:border-b-0 hover:bg-white/5 transition-colors">
-                  <td className="p-4 text-foreground">{vehicle.brand}</td>
-                  <td className="p-4 text-foreground">{vehicle.model}</td>
-                  <td className="p-4 text-muted-foreground text-sm">{vehicle.chassis}</td>
-                  <td className="p-4 text-right font-semibold text-primary">{formatPrice(vehicle.price)}</td>
+      {/* Two Column Grid Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Left Column: Selected Vehicles */}
+        <div className="self-start">
+          <h2 className="text-2xl font-bold text-foreground mb-4">
+            Ihre ausgewählten Fahrzeuge ({selectedVehicleData.length})
+          </h2>
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg overflow-hidden">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-white/20">
+                  <th className="text-left p-4 text-sm font-semibold text-foreground">Marke</th>
+                  <th className="text-left p-4 text-sm font-semibold text-foreground">Modell</th>
+                  <th className="text-left p-4 text-sm font-semibold text-foreground">Fahrgestell-Nr.</th>
+                  <th className="text-right p-4 text-sm font-semibold text-foreground">Einzelpreis</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {selectedVehicleData.map((vehicle) => (
+                  <tr key={vehicle.chassis} className="border-b border-white/10 last:border-b-0 hover:bg-white/5 transition-colors">
+                    <td className="p-4 text-foreground">{vehicle.brand}</td>
+                    <td className="p-4 text-foreground">{vehicle.model}</td>
+                    <td className="p-4 text-muted-foreground text-sm">{vehicle.chassis}</td>
+                    <td className="p-4 text-right font-semibold text-primary">{formatPrice(vehicle.price)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
 
-      {/* Contact Form */}
-      <div>
-        <Form {...form}>
-          <form id="inquiry-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-6">
-            <h3 className="text-xl font-semibold text-foreground mb-6">
-              Ihre Kontaktdaten
-            </h3>
-
-            {/* Customer Type */}
-            <FormField
-              control={form.control}
-              name="customerType"
-              render={({ field }) => (
-                <FormItem className="mb-6">
-                  <FormLabel>Kundentyp *</FormLabel>
-                  <FormControl>
-                    <RadioGroup
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                      className="flex gap-4"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="private" id="private" />
-                        <Label htmlFor="private" className="cursor-pointer">
-                          Privat
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="business" id="business" />
-                        <Label htmlFor="business" className="cursor-pointer">
-                          Geschäftlich
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Company Name (conditional) */}
-            {customerType === "business" && (
+        {/* Right Column: Contact Form */}
+        <div className="self-start">
+          <h2 className="text-2xl font-bold text-foreground mb-4">
+            Ihre Kontaktdaten
+          </h2>
+          <Form {...form}>
+            <form id="inquiry-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-6">
+              {/* Customer Type */}
               <FormField
                 control={form.control}
-                name="companyName"
+                name="customerType"
+                render={({ field }) => (
+                  <FormItem className="mb-6">
+                    <FormLabel>Kundentyp *</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex gap-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="private" id="private" />
+                          <Label htmlFor="private" className="cursor-pointer">
+                            Privat
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="business" id="business" />
+                          <Label htmlFor="business" className="cursor-pointer">
+                            Geschäftlich
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Company Name (conditional) */}
+              {customerType === "business" && (
+                <FormField
+                  control={form.control}
+                  name="companyName"
+                  render={({ field }) => (
+                    <FormItem className="mb-4">
+                      <FormLabel>Unternehmensname *</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Ihr Unternehmensname"
+                          className="h-12"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {/* Name Fields */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <FormField
+                  control={form.control}
+                  name="firstName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Vorname *</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Vorname"
+                          className="h-12"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Nachname *</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Nachname"
+                          className="h-12"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Address */}
+              <FormField
+                control={form.control}
+                name="street"
                 render={({ field }) => (
                   <FormItem className="mb-4">
-                    <FormLabel>Unternehmensname *</FormLabel>
+                    <FormLabel>Straße + Hausnummer *</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Ihr Unternehmensname"
-                        className="h-12"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-
-            {/* Name Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <FormField
-                control={form.control}
-                name="firstName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Vorname *</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Vorname"
+                        placeholder="Straße und Hausnummer"
                         className="h-12"
                         {...field}
                       />
@@ -207,137 +246,107 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                 )}
               />
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <FormField
+                  control={form.control}
+                  name="zipCode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>PLZ *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="PLZ" className="h-12" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="city"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Stadt *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Stadt" className="h-12" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Contact Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>E-Mail *</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="ihre@email.de"
+                          className="h-12"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Telefonnummer *</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="tel"
+                          placeholder="+49 123 456789"
+                          className="h-12"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Optional Message */}
               <FormField
                 control={form.control}
-                name="lastName"
+                name="message"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nachname *</FormLabel>
+                    <FormLabel>Mitteilung (optional)</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Nachname"
-                        className="h-12"
+                      <Textarea
+                        placeholder="Ihre Nachricht an uns..."
+                        className="resize-none"
+                        rows={4}
                         {...field}
                       />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-            {/* Address */}
-            <FormField
-              control={form.control}
-              name="street"
-              render={({ field }) => (
-                <FormItem className="mb-4">
-                  <FormLabel>Straße + Hausnummer *</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Straße und Hausnummer"
-                      className="h-12"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <FormField
-                control={form.control}
-                name="zipCode"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>PLZ *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="PLZ" className="h-12" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="city"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Stadt *</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Stadt" className="h-12" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Contact Info */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>E-Mail *</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="ihre@email.de"
-                        className="h-12"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Telefonnummer *</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="tel"
-                        placeholder="+49 123 456789"
-                        className="h-12"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Optional Message */}
-            <FormField
-              control={form.control}
-              name="message"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Mitteilung (optional)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Ihre Nachricht an uns..."
-                      className="resize-none"
-                      rows={4}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </form>
-        </Form>
+              {/* Submit Button */}
+              <div className="flex justify-end mt-6">
+                <Button type="submit" size="lg" className="w-full md:w-auto">
+                  Anfrage absenden
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
       </div>
 
       {/* Info Box - After Form */}
