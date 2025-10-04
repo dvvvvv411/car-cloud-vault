@@ -377,7 +377,7 @@ const Index = () => {
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold text-accent mb-2">
+                  <h4 className="font-semibold text-white mb-2">
                     Keine verbindliche Bestellung
                   </h4>
                   <p className="text-sm text-muted-foreground">
