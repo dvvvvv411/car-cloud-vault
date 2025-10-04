@@ -4,7 +4,7 @@ import lawyerAvatar from "@/assets/lawyer-avatar-placeholder.png";
 
 const LawyerContactCard = () => {
   return (
-    <div className="hidden xl:block fixed bottom-0 right-8 w-80 bg-[#003e7e] text-white rounded-t-full pt-8 pb-6 px-6 shadow-2xl z-40">
+    <div className="hidden xl:block fixed bottom-0 right-8 w-80 bg-[#003e7e] text-white rounded-t-full pt-8 pb-6 px-6 shadow-2xl z-[60]">
       {/* Profile Image */}
       <div className="flex justify-center mb-4">
         <img 
