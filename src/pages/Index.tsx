@@ -244,15 +244,20 @@ const Index = () => {
                     </Button>
                   </th>
                   <th className="text-right px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleSort("price")}
-                      className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto"
-                      style={{ color: "hsl(var(--text-tertiary))" }}
-                    >
-                      Einzelpreis
-                      <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
-                    </Button>
+                    <div className="flex flex-col items-end gap-0.5">
+                      <Button
+                        variant="ghost"
+                        onClick={() => handleSort("price")}
+                        className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto"
+                        style={{ color: "hsl(var(--text-tertiary))" }}
+                      >
+                        Einzelpreis
+                        <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
+                      </Button>
+                      <span className="text-xs font-normal normal-case" style={{ color: "hsl(var(--text-tertiary))" }}>
+                        (Netto)
+                      </span>
+                    </div>
                   </th>
                   <th className="text-center px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
                     Bericht
@@ -368,9 +373,14 @@ const Index = () => {
                 <p className="text-base font-medium" style={{ color: "hsl(var(--text-primary))" }}>
                   {selectedVehicles.length} {selectedVehicles.length === 1 ? "Fahrzeug" : "Fahrzeuge"} ausgewählt
                 </p>
-                <p className="text-2xl font-semibold" style={{ color: "hsl(var(--text-primary))" }}>
-                  Gesamtbetrag: {formatPrice(totalPrice)}
-                </p>
+                <div className="flex flex-col gap-0.5">
+                  <p className="text-2xl font-semibold" style={{ color: "hsl(var(--text-primary))" }}>
+                    Gesamtbetrag: {formatPrice(totalPrice)}
+                  </p>
+                  <p className="text-sm" style={{ color: "hsl(var(--text-tertiary))" }}>
+                    Alle Preise exkl. MwSt.
+                  </p>
+                </div>
               </div>
               <Button size="lg" className="gap-2">
                 Weiter zur Anfrage
