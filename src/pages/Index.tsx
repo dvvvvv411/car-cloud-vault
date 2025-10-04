@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Search, ArrowUpDown, ChevronRight } from "lucide-react";
+import { Search, ArrowUpDown, ChevronRight, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -165,12 +165,15 @@ const Index = () => {
                   </Badge>
                   <Dialog>
                     <DialogTrigger asChild>
-                      <div className="relative h-[4.5rem] w-32">
+                      <div className="relative h-[4.5rem] w-32 group">
                         <img 
                           src={beschlussImage} 
                           alt="Gerichtsbeschluss" 
-                          className="absolute top-0 right-0 h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all hover:scale-105 z-10"
+                          className="absolute top-0 right-0 h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105 z-10"
                         />
+                        <div className="absolute top-0 right-0 h-[8rem] w-full rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center z-20 pointer-events-none">
+                          <Eye className="h-10 w-10 text-white" />
+                        </div>
                       </div>
                     </DialogTrigger>
                     <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
