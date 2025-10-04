@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Search, ArrowUpDown, Gauge, Calendar, FileText, Euro } from "lucide-react";
+import { Search, ArrowUpDown, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import kbsLogo from "@/assets/kbs_blue.png";
 import demoVehicle from "@/assets/demo-vehicle.png";
 
@@ -70,6 +71,23 @@ const Index = () => {
     key: keyof Vehicle | null;
     direction: "asc" | "desc";
   }>({ key: null, direction: "asc" });
+  const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
+
+  const toggleVehicleSelection = (chassis: string) => {
+    setSelectedVehicles((current) =>
+      current.includes(chassis)
+        ? current.filter((c) => c !== chassis)
+        : [...current, chassis]
+    );
+  };
+
+  const selectAll = () => {
+    setSelectedVehicles(filteredAndSortedVehicles.map((v) => v.chassis));
+  };
+
+  const deselectAll = () => {
+    setSelectedVehicles([]);
+  };
 
   const handleSort = (key: keyof Vehicle) => {
     setSortConfig((current) => ({
@@ -106,6 +124,18 @@ const Index = () => {
     return new Intl.NumberFormat("de-DE").format(km);
   };
 
+  const totalPrice = selectedVehicles.reduce((sum, chassis) => {
+    const vehicle = vehicles.find((v) => v.chassis === chassis);
+    return sum + (vehicle?.price || 0);
+  }, 0);
+
+  const allSelected =
+    filteredAndSortedVehicles.length > 0 &&
+    filteredAndSortedVehicles.every((v) => selectedVehicles.includes(v.chassis));
+
+  const someSelected =
+    selectedVehicles.length > 0 &&
+    !allSelected;
 
   return (
     <div className="min-h-screen bg-background">
@@ -156,6 +186,19 @@ const Index = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b" style={{ borderColor: "hsl(var(--divider))" }}>
+                  <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
+                    <Checkbox
+                      checked={allSelected}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          selectAll();
+                        } else {
+                          deselectAll();
+                        }
+                      }}
+                      className={someSelected ? "data-[state=checked]:bg-primary/50" : ""}
+                    />
+                  </th>
                   <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{ color: "hsl(var(--text-tertiary))" }}>
                     Fahrzeug
                   </th>
@@ -213,15 +256,24 @@ const Index = () => {
               </thead>
               <tbody>
                 {filteredAndSortedVehicles.map((vehicle, index) => {
+                  const isSelected = selectedVehicles.includes(vehicle.chassis);
                   return (
                     <tr
                       key={index}
-                      className="border-b hover-lift cursor-pointer group"
+                      className={`border-b hover-lift cursor-pointer group transition-colors ${
+                        isSelected ? "bg-primary/5" : ""
+                      }`}
                       style={{ 
                         borderColor: "hsl(var(--divider))",
                         animationDelay: `${0.3 + index * 0.05}s`
                       }}
                     >
+                      <td className="px-6 py-4">
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => toggleVehicleSelection(vehicle.chassis)}
+                        />
+                      </td>
                       <td className="px-6 py-4">
                         <div className="w-24 h-16 rounded-lg overflow-hidden bg-muted">
                           <img 
@@ -281,6 +333,28 @@ const Index = () => {
           </div>
         </div>
       </div>
+
+      {/* Sticky Selection Footer */}
+      {selectedVehicles.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 glassmorphism border-t shadow-lg animate-fade-in z-50" style={{ borderColor: "hsl(var(--divider))" }}>
+          <div className="max-w-[1400px] mx-auto px-8 py-6">
+            <div className="flex items-center justify-between gap-6">
+              <div className="flex flex-col gap-1">
+                <p className="text-base font-medium" style={{ color: "hsl(var(--text-primary))" }}>
+                  {selectedVehicles.length} {selectedVehicles.length === 1 ? "Fahrzeug" : "Fahrzeuge"} ausgewählt
+                </p>
+                <p className="text-2xl font-semibold" style={{ color: "hsl(var(--text-primary))" }}>
+                  Gesamtbetrag: {formatPrice(totalPrice)}
+                </p>
+              </div>
+              <Button size="lg" className="gap-2">
+                Weiter zur Anfrage
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
