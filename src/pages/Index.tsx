@@ -329,7 +329,7 @@ const Index = () => {
                             <Button
                               variant="outline"
                               size="icon"
-                              className="h-14 w-28 rounded-lg bg-[#005313] hover:bg-[#005313]/90 border-0 shadow-md hover:shadow-lg transition-all flex items-center justify-center px-3"
+                              className="h-14 w-28 rounded-lg bg-[#018c4f] hover:bg-[#018c4f]/90 border-0 shadow-md hover:shadow-lg transition-all flex items-center justify-center px-3"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 // TODO: Open DEKRA report
