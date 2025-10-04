@@ -103,26 +103,26 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
           <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg overflow-hidden">
             <table className="w-full">
               <thead>
-                <tr className="border-b-2 border-white/40">
-                  <th className="text-left p-4 text-sm font-semibold text-foreground border-r border-white/15">Marke</th>
-                  <th className="text-left p-4 text-sm font-semibold text-foreground border-r border-white/15">Modell</th>
-                  <th className="text-left p-4 text-sm font-semibold text-foreground border-r border-white/15">Fahrgestell-Nr.</th>
+                <tr className="border-b-2 border-gray-400">
+                  <th className="text-left p-4 text-sm font-semibold text-foreground border-r border-gray-400">Marke</th>
+                  <th className="text-left p-4 text-sm font-semibold text-foreground border-r border-gray-400">Modell</th>
+                  <th className="text-left p-4 text-sm font-semibold text-foreground border-r border-gray-400">Fahrgestell-Nr.</th>
                   <th className="text-right p-4 text-sm font-semibold text-foreground">Einzelpreis</th>
                 </tr>
               </thead>
               <tbody>
                 {selectedVehicleData.map((vehicle) => (
-                  <tr key={vehicle.chassis} className="border-b border-white/15 last:border-b-0 hover:bg-white/5 transition-colors">
-                    <td className="p-4 text-foreground border-r border-white/15">{vehicle.brand}</td>
-                    <td className="p-4 text-foreground border-r border-white/15">{vehicle.model}</td>
-                    <td className="p-4 text-muted-foreground text-sm border-r border-white/15">{vehicle.chassis}</td>
+                  <tr key={vehicle.chassis} className="border-b border-gray-300 last:border-b-0 hover:bg-white/5 transition-colors">
+                    <td className="p-4 text-foreground border-r border-gray-400">{vehicle.brand}</td>
+                    <td className="p-4 text-foreground border-r border-gray-400">{vehicle.model}</td>
+                    <td className="p-4 text-muted-foreground text-sm border-r border-gray-400">{vehicle.chassis}</td>
                     <td className="p-4 text-right font-semibold text-primary">{formatPrice(vehicle.price)}</td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
-                <tr className="border-t-2 border-white/40 bg-white/5">
-                  <td colSpan={3} className="p-4 text-right font-semibold text-foreground border-r border-white/15">
+                <tr className="border-t-2 border-gray-400 bg-white/5">
+                  <td colSpan={3} className="p-4 text-right font-semibold text-foreground border-r border-gray-400">
                     Gesamtpreis:
                   </td>
                   <td className="p-4 text-right font-bold text-primary text-lg">
@@ -135,7 +135,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
         </div>
 
         {/* Vertical Divider */}
-        <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-[2px] bg-white/30" />
+        <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-[2px] bg-gray-400" />
 
         {/* Right Column: Contact Form */}
         <div className="self-start">
@@ -176,7 +176,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                 )}
               />
 
-              <Separator className="my-6 bg-white/20" />
+              <Separator className="my-6 bg-gray-400" />
 
               {/* Company Name (conditional) */}
               {customerType === "business" && (
@@ -235,7 +235,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                 />
               </div>
 
-              <Separator className="my-6 bg-white/20" />
+              <Separator className="my-6 bg-gray-400" />
 
               {/* Address */}
               <FormField
@@ -283,7 +283,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                 />
               </div>
 
-              <Separator className="my-6 bg-white/20" />
+              <Separator className="my-6 bg-gray-400" />
 
               {/* Contact Info */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -324,7 +324,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                 />
               </div>
 
-              <Separator className="my-6 bg-white/20" />
+              <Separator className="my-6 bg-gray-400" />
 
               {/* Optional Message */}
               <FormField
