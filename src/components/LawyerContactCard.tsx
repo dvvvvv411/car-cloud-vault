@@ -5,19 +5,17 @@ import lawyerAvatar from "@/assets/mark-steh.png";
 const LawyerContactCard = () => {
   return (
     <div className="hidden xl:block fixed bottom-0 right-[max(1rem,calc(((100vw-1400px)/4)-266px))] w-[500px] bg-[#003e7e] text-white rounded-t-full pt-10 pb-8 px-10 shadow-2xl z-[60]">
-      {/* Profile Image */}
-      <div className="flex justify-center mb-5">
+      {/* Profile Image & Name - Side by Side Layout */}
+      <div className="flex items-center gap-6 mb-6">
         <img 
           src={lawyerAvatar} 
           alt="Rechtsanwalt Mark Steh" 
-          className="w-32 h-32 rounded-full object-cover border-4 border-white/30 shadow-lg"
+          className="w-32 h-32 rounded-full object-cover shadow-lg"
         />
-      </div>
-      
-      {/* Professional Title & Name */}
-      <div className="text-center mb-6">
-        <p className="text-base text-white/80 mb-1">Rechtsanwalt</p>
-        <h3 className="text-3xl font-bold">Mark Steh</h3>
+        <div className="flex-1">
+          <p className="text-base text-white/80 mb-1">Rechtsanwalt</p>
+          <h3 className="text-3xl font-bold">Mark Steh</h3>
+        </div>
       </div>
 
       {/* Divider */}
