@@ -41,7 +41,7 @@ const LawyerContactCard = () => {
           <img 
             src={awardsBanner} 
             alt="Auszeichnungen" 
-            className="h-20 w-auto object-contain"
+            className="h-12 w-auto object-contain"
           />
         </div>
       </div>
