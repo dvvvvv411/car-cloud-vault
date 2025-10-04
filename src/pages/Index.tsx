@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
 import LawyerContactCard from "@/components/LawyerContactCard";
 import { InquiryForm } from "@/components/InquiryForm";
 import kbsLogo from "@/assets/kbs_blue.png";
@@ -91,10 +92,31 @@ const Index = () => {
             <div className="flex-1 relative min-h-[6rem] md:min-h-[8rem] w-full">
               {/* Beschluss image - rechts oben auf Desktop */}
               <div className="sm:absolute sm:top-0 sm:right-0 mb-4 sm:mb-0">
+                {/* Drawer für Mobile/Tablet */}
+                <Drawer>
+                  <DrawerTrigger asChild>
+                    <div className="relative group lg:hidden">
+                      <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[6rem] md:h-[7rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105" />
+                      <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
+                        <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
+                      </div>
+                    </div>
+                  </DrawerTrigger>
+                  <DrawerContent className="h-[95vh]">
+                    <DrawerHeader>
+                      <DrawerTitle>Gerichtsbeschluss</DrawerTitle>
+                    </DrawerHeader>
+                    <div className="flex-1 overflow-auto p-4">
+                      <img src={beschlussImage} alt="Gerichtsbeschluss" className="w-full h-auto" />
+                    </div>
+                  </DrawerContent>
+                </Drawer>
+
+                {/* Dialog für Desktop */}
                 <Dialog>
                   <DialogTrigger asChild>
-                    <div className="relative group">
-                      <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[6rem] md:h-[7rem] lg:h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105" />
+                    <div className="relative group hidden lg:block">
+                      <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105" />
                       <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
                         <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
                       </div>
