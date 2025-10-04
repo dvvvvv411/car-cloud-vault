@@ -171,7 +171,7 @@ const Index = () => {
                           alt="Gerichtsbeschluss" 
                           className="absolute top-0 right-0 h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105 z-10"
                         />
-                        <div className="absolute top-0 right-0 h-[8rem] w-full rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center z-20 pointer-events-none">
+                        <div className="absolute top-0 right-0 h-[8rem] w-auto rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center z-20 pointer-events-none">
                           <Eye className="h-10 w-10 text-white" />
                         </div>
                       </div>
