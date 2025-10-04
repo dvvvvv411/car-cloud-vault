@@ -154,37 +154,37 @@ const Index = () => {
               className="h-16 w-auto"
             />
             <div className="h-12 w-px bg-[hsl(var(--divider))]"></div>
-            <div className="flex-1">
-              <div className="flex items-center justify-between mb-2">
-                <h1 className="text-4xl font-light tracking-tight" style={{ color: "hsl(var(--text-primary))" }}>
-                  Fahrzeugbestand
-                </h1>
-                <div className="flex items-center gap-4">
-                  <Badge variant="secondary" className="text-base px-4 py-1.5">
-                    {vehicles.length} Fahrzeuge
-                  </Badge>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <div className="relative group">
-                        <img 
-                          src={beschlussImage} 
-                          alt="Gerichtsbeschluss" 
-                          className="h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
-                          <Eye className="h-10 w-10 text-white" />
-                        </div>
-                      </div>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+            <div className="flex-1 relative">
+              <div className="absolute top-0 right-0 flex items-center gap-4">
+                <Badge variant="secondary" className="text-base px-4 py-1.5">
+                  {vehicles.length} Fahrzeuge
+                </Badge>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <div className="relative group">
                       <img 
                         src={beschlussImage} 
                         alt="Gerichtsbeschluss" 
-                        className="w-full h-auto"
+                        className="h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105"
                       />
-                    </DialogContent>
-                  </Dialog>
-                </div>
+                      <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
+                        <Eye className="h-10 w-10 text-white" />
+                      </div>
+                    </div>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+                    <img 
+                      src={beschlussImage} 
+                      alt="Gerichtsbeschluss" 
+                      className="w-full h-auto"
+                    />
+                  </DialogContent>
+                </Dialog>
+              </div>
+              <div className="mb-2">
+                <h1 className="text-4xl font-light tracking-tight" style={{ color: "hsl(var(--text-primary))" }}>
+                  Fahrzeugbestand
+                </h1>
               </div>
               <p className="text-lg" style={{ color: "hsl(var(--text-secondary))" }}>
                 Verwalten und durchsuchen Sie Ihren Fahrzeugbestand
