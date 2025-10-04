@@ -12,7 +12,11 @@ import {
 import { X } from "lucide-react";
 import lawyerAvatar from "@/assets/mark-steh.png";
 
-const LawyerContactCard = () => {
+interface LawyerContactCardProps {
+  hideMobileButton?: boolean;
+}
+
+const LawyerContactCard = ({ hideMobileButton = false }: LawyerContactCardProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -109,16 +113,17 @@ const LawyerContactCard = () => {
   return (
     <>
       {/* Mobile/Tablet: Floating Contact Button + Drawer */}
-      <div className="block xl:hidden">
-        <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
-          <DrawerTrigger asChild>
-            <button
-              className="fixed top-4 right-4 z-[70] bg-[#003e7e] text-white rounded-full p-4 shadow-2xl hover:bg-[#002d5c] transition-all hover:scale-110"
-              aria-label="Kontakt öffnen"
-            >
-              <Phone className="w-6 h-6" />
-            </button>
-          </DrawerTrigger>
+      {!hideMobileButton && (
+        <div className="block xl:hidden">
+          <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+            <DrawerTrigger asChild>
+              <button
+                className="fixed top-4 right-4 z-[70] bg-[#003e7e] text-white rounded-full p-4 shadow-2xl hover:bg-[#002d5c] transition-all hover:scale-110"
+                aria-label="Kontakt öffnen"
+              >
+                <Phone className="w-6 h-6" />
+              </button>
+            </DrawerTrigger>
           <DrawerContent className="bg-[#003e7e] text-white border-t-4 border-white/20 max-h-[90vh]">
             <DrawerHeader className="relative">
               <DrawerTitle className="text-2xl font-bold text-center">Rechtsanwalt kontaktieren</DrawerTitle>
@@ -137,6 +142,7 @@ const LawyerContactCard = () => {
           </DrawerContent>
         </Drawer>
       </div>
+      )}
 
       {/* Desktop: Fixed Card at Bottom Right */}
       <div className={`hidden xl:block fixed bottom-0 right-[max(1rem,calc(((100vw-1400px)/4)-266px))] w-[500px] bg-[#003e7e] text-white rounded-t-full shadow-2xl z-[60] transition-all duration-300 ${isCollapsed ? 'h-12 pt-2 pb-2 px-10' : 'pt-20 pb-8 px-10'}`}>

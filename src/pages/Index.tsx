@@ -29,6 +29,7 @@ const Index = () => {
   });
   const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
   const [showInquiryForm, setShowInquiryForm] = useState(false);
+  const [isBeschlusskDrawerOpen, setIsBeschlusskDrawerOpen] = useState(false);
   const toggleVehicleSelection = (chassis: string) => {
     setSelectedVehicles(current => current.includes(chassis) ? current.filter(c => c !== chassis) : [...current, chassis]);
   };
@@ -93,7 +94,7 @@ const Index = () => {
               {/* Beschluss image - rechts oben auf Desktop */}
               <div className="sm:absolute sm:top-0 sm:right-0 mb-4 sm:mb-0">
                 {/* Drawer für Mobile/Tablet */}
-                <Drawer>
+                <Drawer open={isBeschlusskDrawerOpen} onOpenChange={setIsBeschlusskDrawerOpen}>
                   <DrawerTrigger asChild>
                     <div className="relative group lg:hidden">
                       <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[6rem] md:h-[7rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105" />
@@ -427,7 +428,7 @@ const Index = () => {
           </> : <InquiryForm selectedVehicles={selectedVehicles} vehicles={vehicles} onRemoveVehicle={toggleVehicleSelection} onBack={() => setShowInquiryForm(false)} />}
 
         {/* Lawyer Contact Card - Always Visible, Desktop Only */}
-        <LawyerContactCard />
+        <LawyerContactCard hideMobileButton={isBeschlusskDrawerOpen} />
       </div>
 
       {/* Fixed Info Box - No Binding Order */}
