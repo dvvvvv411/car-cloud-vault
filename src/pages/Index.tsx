@@ -329,14 +329,14 @@ const Index = () => {
                             <Button
                               variant="outline"
                               size="icon"
-                              className="h-10 w-10 rounded-full border-2 border-[#005037] hover:bg-[#005037]/10 shadow-sm hover:shadow-md transition-all"
+                              className="h-12 w-12 rounded-lg border-2 border-[#005037] hover:bg-[#005037]/10 shadow-sm hover:shadow-md transition-all"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 // TODO: Open DEKRA report
                                 console.log("Opening DEKRA report for:", vehicle.reportNr);
                               }}
                             >
-                              <img src={dekraLogo} alt="DEKRA" className="h-5 w-auto" />
+                              <img src={dekraLogo} alt="DEKRA" className="h-8 w-auto" />
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
