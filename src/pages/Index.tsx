@@ -60,6 +60,8 @@ const Index = () => {
           prevBtnText: 'Zurück',
           doneBtnText: 'Fertig',
           progressText: '{{current}} von {{total}}',
+          allowClose: false,
+          disableActiveInteraction: true,
           steps: [
             {
               element: '.tour-beschluss',
