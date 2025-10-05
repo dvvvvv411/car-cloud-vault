@@ -56,21 +56,16 @@ const Index = () => {
       const timer = setTimeout(() => {
         const driverObj = driver({
           showProgress: true,
-          nextBtnText: 'Weiter →',
-          prevBtnText: '← Zurück',
-          doneBtnText: '✓ Fertig',
-          progressText: 'Schritt {{current}} von {{total}}',
-          animate: true,
-          smoothScroll: true,
-          overlayOpacity: 0.7,
-          stagePadding: 10,
-          allowClose: true,
+          nextBtnText: 'Weiter',
+          prevBtnText: 'Zurück',
+          doneBtnText: 'Fertig',
+          progressText: '{{current}} von {{total}}',
           steps: [
             {
               element: '.tour-beschluss',
               popover: {
-                title: '📄 Gerichtsbeschluss',
-                description: 'Hier finden Sie den offiziellen Gerichtsbeschluss zur Insolvenzmasse. Klicken Sie auf das Bild, um es in voller Größe anzuzeigen.',
+                title: 'Gerichtsbeschluss',
+                description: 'Hier finden Sie den Gerichtsbeschluss zur Insolvenzmasse. Klicken Sie auf das Bild, um es in voller Größe anzuzeigen.',
                 side: 'bottom',
                 align: 'center'
               }
@@ -78,8 +73,8 @@ const Index = () => {
             {
               element: '.tour-price-row',
               popover: {
-                title: '💰 Preisangaben',
-                description: 'Alle angezeigten Preise verstehen sich exkl. MwSt. Die endgültigen Preise werden in Ihrer Anfrage bestätigt.',
+                title: 'Preise',
+                description: 'Alle angezeigten Preise sind exkl. MwSt.',
                 side: 'right',
                 align: 'center'
               }
@@ -87,8 +82,8 @@ const Index = () => {
             {
               element: '.tour-selection-row',
               popover: {
-                title: '✅ Fahrzeugauswahl',
-                description: 'Wählen Sie hier die Fahrzeuge aus, an denen Sie interessiert sind, und senden Sie anschließend eine unverbindliche Anfrage ab.',
+                title: 'Fahrzeugauswahl',
+                description: 'Wählen Sie hier die Fahrzeuge aus, an denen Sie interessiert sind, und senden Sie anschließend eine Anfrage ab.',
                 side: 'right',
                 align: 'center'
               }
