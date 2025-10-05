@@ -56,56 +56,44 @@ const Index = () => {
       const timer = setTimeout(() => {
         const driverObj = driver({
           showProgress: true,
-          nextBtnText: 'Weiter',
-          prevBtnText: 'Zurück',
-          doneBtnText: 'Fertig',
-          progressText: '{{current}} von {{total}}',
+          nextBtnText: 'Weiter →',
+          prevBtnText: '← Zurück',
+          doneBtnText: '✓ Fertig',
+          progressText: 'Schritt {{current}} von {{total}}',
+          animate: true,
+          smoothScroll: true,
+          overlayOpacity: 0.7,
+          stagePadding: 10,
           allowClose: true,
-          disableActiveInteraction: false,
           steps: [
             {
               element: '.tour-beschluss',
               popover: {
-                title: 'Gerichtsbeschluss',
-                description: 'Hier sehen Sie den offiziellen Gerichtsbeschluss zur Verwertung der Fahrzeuge.',
+                title: '📄 Gerichtsbeschluss',
+                description: 'Hier finden Sie den offiziellen Gerichtsbeschluss zur Insolvenzmasse. Klicken Sie auf das Bild, um es in voller Größe anzuzeigen.',
                 side: 'bottom',
-                align: 'start'
+                align: 'center'
               }
             },
             {
-              element: '.tour-search',
+              element: '.tour-price-row',
               popover: {
-                title: 'Fahrzeugsuche',
-                description: 'Nutzen Sie die Suchfunktion, um gezielt nach Fahrzeugen zu suchen.',
-                side: 'bottom',
-                align: 'start'
+                title: '💰 Preisangaben',
+                description: 'Alle angezeigten Preise verstehen sich exkl. MwSt. Die endgültigen Preise werden in Ihrer Anfrage bestätigt.',
+                side: 'right',
+                align: 'center'
               }
             },
             {
-              element: '.tour-table',
+              element: '.tour-selection-row',
               popover: {
-                title: 'Fahrzeugliste',
-                description: 'Hier finden Sie alle verfügbaren Fahrzeuge. Wählen Sie Fahrzeuge aus und klicken Sie auf "Anfragen" um Ihr Interesse zu bekunden.',
-                side: 'top',
+                title: '✅ Fahrzeugauswahl',
+                description: 'Wählen Sie hier die Fahrzeuge aus, an denen Sie interessiert sind, und senden Sie anschließend eine unverbindliche Anfrage ab.',
+                side: 'right',
                 align: 'center'
               }
             }
-          ],
-          onPopoverRender: () => {
-            const clickHandler = (e: MouseEvent) => {
-              e.preventDefault();
-              e.stopPropagation();
-              driverObj.moveNext();
-            };
-            
-            setTimeout(() => {
-              document.addEventListener('click', clickHandler, { capture: true, once: true });
-            }, 100);
-          },
-          onDestroyStarted: () => {
-            const cleanup = () => {};
-            document.removeEventListener('click', cleanup, { capture: true });
-          }
+          ]
         });
         
         driverObj.drive();
