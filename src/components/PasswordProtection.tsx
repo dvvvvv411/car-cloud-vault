@@ -42,7 +42,6 @@ export const PasswordProtection = ({ onSuccess, branding, slug }: PasswordProtec
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            email: '', // We don't have email in this context, will be handled by password only
             password: password,
             brandingSlug: slug || '',
           }),

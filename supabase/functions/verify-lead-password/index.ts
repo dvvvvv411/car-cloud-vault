@@ -6,7 +6,6 @@ const corsHeaders = {
 };
 
 interface RequestBody {
-  email?: string;
   password: string;
   brandingSlug: string;
 }
@@ -18,7 +17,9 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { email, password, brandingSlug }: RequestBody = await req.json();
+    const { password, brandingSlug }: RequestBody = await req.json();
+    
+    console.log(`Verification attempt - Slug: ${brandingSlug}, Password length: ${password.length}`);
 
     // Validate input
     if (!password || !brandingSlug) {
@@ -56,20 +57,18 @@ Deno.serve(async (req) => {
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+    
+    console.log(`Branding found: ${branding.id}`);
 
     // Verify lead credentials
-    let query = supabase
+    const { data: lead, error: leadError } = await supabase
       .from('leads')
       .select('id, has_logged_in, login_count')
       .eq('password', password)
-      .eq('branding_id', branding.id);
-
-    // If email is provided, also filter by email
-    if (email) {
-      query = query.eq('email', email.toLowerCase().trim());
-    }
-
-    const { data: lead, error: leadError } = await query.maybeSingle();
+      .eq('branding_id', branding.id)
+      .maybeSingle();
+    
+    console.log(`Lead query result - Found: ${!!lead}, Error: ${!!leadError}`);
 
     if (leadError || !lead) {
       console.error('Lead verification failed:', leadError);
