@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      brandings: {
+        Row: {
+          case_number: string
+          company_name: string
+          court_decision_pdf_url: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          kanzlei_logo_url: string | null
+          lawyer_address_city: string
+          lawyer_address_street: string
+          lawyer_email: string
+          lawyer_firm_name: string
+          lawyer_firm_subtitle: string | null
+          lawyer_name: string
+          lawyer_phone: string
+          lawyer_photo_url: string | null
+          lawyer_website_url: string
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          case_number: string
+          company_name: string
+          court_decision_pdf_url?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          kanzlei_logo_url?: string | null
+          lawyer_address_city: string
+          lawyer_address_street: string
+          lawyer_email: string
+          lawyer_firm_name: string
+          lawyer_firm_subtitle?: string | null
+          lawyer_name: string
+          lawyer_phone: string
+          lawyer_photo_url?: string | null
+          lawyer_website_url: string
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          case_number?: string
+          company_name?: string
+          court_decision_pdf_url?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          kanzlei_logo_url?: string | null
+          lawyer_address_city?: string
+          lawyer_address_street?: string
+          lawyer_email?: string
+          lawyer_firm_name?: string
+          lawyer_firm_subtitle?: string | null
+          lawyer_name?: string
+          lawyer_phone?: string
+          lawyer_photo_url?: string | null
+          lawyer_website_url?: string
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
