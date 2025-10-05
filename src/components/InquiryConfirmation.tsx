@@ -1,7 +1,9 @@
-import { CheckCircle2 } from "lucide-react";
+import { useState } from "react";
+import { CheckCircle2, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import type { Vehicle } from "@/hooks/useVehicles";
 import type { InquiryFormData } from "@/lib/validation/inquirySchema";
 
@@ -18,6 +20,8 @@ export const InquiryConfirmation = ({
   totalPrice,
   onBackToList,
 }: InquiryConfirmationProps) => {
+  const [isVehiclesOpen, setIsVehiclesOpen] = useState(false);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("de-DE", {
       style: "currency",
@@ -44,7 +48,50 @@ export const InquiryConfirmation = ({
 
       {/* Vehicles Summary */}
       <Card className="p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Angefragte Fahrzeuge</h2>
+        {/* Desktop: Normal Header */}
+        <h2 className="hidden md:block text-xl font-semibold mb-4">Angefragte Fahrzeuge</h2>
+        
+        {/* Mobile: Collapsible Header */}
+        <Collapsible open={isVehiclesOpen} onOpenChange={setIsVehiclesOpen} className="md:hidden">
+          <CollapsibleTrigger className="flex items-center justify-between w-full mb-4">
+            <h2 className="text-xl font-semibold">Angefragte Fahrzeuge</h2>
+            <ChevronDown 
+              className={`h-5 w-5 transition-transform duration-200 ${isVehiclesOpen ? 'rotate-180' : ''}`} 
+            />
+          </CollapsibleTrigger>
+          
+          <CollapsibleContent>
+            <div className="space-y-3 mb-4">
+              {vehicles.map((vehicle) => (
+                <Card key={vehicle.id} className="p-4">
+                  <div className="font-medium text-lg mb-2">
+                    {vehicle.brand} {vehicle.model}
+                  </div>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Fahrgestellnr:</span>
+                      <span>{vehicle.chassis}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Erstzulassung:</span>
+                      <span>{vehicle.first_registration}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Kilometerstand:</span>
+                      <span>{formatKilometers(vehicle.kilometers)}</span>
+                    </div>
+                    <Separator className="my-2" />
+                    <div className="flex justify-between font-semibold">
+                      <span>Preis:</span>
+                      <span>{formatPrice(vehicle.price)}</span>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
         <div className="space-y-4">
           {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto">
@@ -75,37 +122,7 @@ export const InquiryConfirmation = ({
             </table>
           </div>
 
-          {/* Mobile Cards */}
-          <div className="md:hidden space-y-3">
-            {vehicles.map((vehicle) => (
-              <Card key={vehicle.id} className="p-4">
-                <div className="font-medium text-lg mb-2">
-                  {vehicle.brand} {vehicle.model}
-                </div>
-                <div className="space-y-1 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Fahrgestellnr:</span>
-                    <span>{vehicle.chassis}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Erstzulassung:</span>
-                    <span>{vehicle.first_registration}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Kilometerstand:</span>
-                    <span>{formatKilometers(vehicle.kilometers)}</span>
-                  </div>
-                  <Separator className="my-2" />
-                  <div className="flex justify-between font-semibold">
-                    <span>Preis:</span>
-                    <span>{formatPrice(vehicle.price)}</span>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-
-          {/* Total Price */}
+          {/* Total Price - Always visible */}
           <div className="flex justify-end pt-4 border-t">
             <div className="text-right">
               <div className="text-sm text-muted-foreground mb-1">Gesamtsumme</div>
