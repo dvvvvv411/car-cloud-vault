@@ -9,7 +9,36 @@ interface EmailPreviewComponentProps {
 
 export const EmailPreviewComponent = ({ branding }: EmailPreviewComponentProps) => {
   const [previewHtml, setPreviewHtml] = useState('');
+  const [logoBase64, setLogoBase64] = useState<string | null>(null);
 
+  // Convert logo to Base64
+  useEffect(() => {
+    const convertLogoToBase64 = async () => {
+      if (!branding.kanzlei_logo_url) {
+        setLogoBase64(null);
+        return;
+      }
+      
+      try {
+        const response = await fetch(branding.kanzlei_logo_url);
+        const blob = await response.blob();
+        const reader = new FileReader();
+        
+        reader.onloadend = () => {
+          setLogoBase64(reader.result as string);
+        };
+        
+        reader.readAsDataURL(blob);
+      } catch (error) {
+        console.error('Failed to convert logo to base64:', error);
+        setLogoBase64(null);
+      }
+    };
+    
+    convertLogoToBase64();
+  }, [branding.kanzlei_logo_url]);
+
+  // Generate preview HTML once logo is ready
   useEffect(() => {
     const generateStaticPreview = () => {
       // Dummy data for preview
@@ -41,17 +70,17 @@ export const EmailPreviewComponent = ({ branding }: EmailPreviewComponentProps) 
                 <td align="center">
                   <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden;">
                     <!-- Header with Logo -->
-                    ${branding.kanzlei_logo_url ? `
+                    ${logoBase64 ? `
                     <tr>
                       <td style="padding: 40px 40px 20px 40px; text-align: center;">
-                        <img src="${branding.kanzlei_logo_url}" alt="${branding.lawyer_firm_name}" style="max-width: 180px; height: auto;" />
+                        <img src="${logoBase64}" alt="${branding.lawyer_firm_name}" style="max-width: 180px; height: auto;" />
                       </td>
                     </tr>
                     ` : ''}
                     
                     <!-- Main Content -->
                     <tr>
-                      <td style="padding: ${branding.kanzlei_logo_url ? '20px' : '40px'} 40px 40px 40px;">
+                      <td style="padding: ${logoBase64 ? '20px' : '40px'} 40px 40px 40px;">
                         <h1 style="color: #1a1a1a; font-size: 24px; font-weight: bold; margin: 0 0 20px 0;">
                           Vielen Dank für Ihre Anfrage
                         </h1>
@@ -125,7 +154,7 @@ export const EmailPreviewComponent = ({ branding }: EmailPreviewComponentProps) 
     };
 
     generateStaticPreview();
-  }, [branding]);
+  }, [branding, logoBase64]);
 
   if (!branding.resend_api_key || !branding.resend_sender_email) {
     return (
