@@ -65,6 +65,11 @@ const Index = ({ branding }: IndexProps = {}) => {
     setCurrentPage(1);
   }, [searchTerm]);
 
+  // Reset to page 1 when sort changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [sortConfig.key, sortConfig.direction]);
+
   // Tour mode on every visit
   useEffect(() => {
     if (!isLoading && vehicles.length > 0 && isPasswordVerified) {
