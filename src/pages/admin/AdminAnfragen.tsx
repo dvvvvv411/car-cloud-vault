@@ -114,98 +114,99 @@ export default function AdminAnfragen() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 animate-fade-in">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">Anfragen</h1>
-        <p className="text-muted-foreground mt-1">Verwalten Sie Kundenanfragen</p>
+        <h1 className="text-4xl font-bold text-foreground tracking-tight">Anfragen</h1>
+        <p className="text-muted-foreground mt-2 text-base">Verwalten Sie Kundenanfragen</p>
       </div>
 
       {inquiries.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <MessageSquare className="h-16 w-16 text-muted-foreground/20 mb-4" />
-            <p className="text-muted-foreground text-center">
-              Noch keine Anfragen vorhanden.
-            </p>
+        <Card className="modern-card">
+          <CardContent className="flex flex-col items-center justify-center py-20">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-muted/30 mb-4">
+              <MessageSquare className="h-10 w-10 text-muted-foreground/40" />
+            </div>
+            <p className="text-base font-medium text-foreground mb-1">Keine Anfragen vorhanden</p>
+            <p className="text-sm text-muted-foreground">Anfragen werden hier angezeigt, sobald sie eingehen</p>
           </CardContent>
         </Card>
       ) : (
         <>
           {/* Desktop Table View */}
           <div className="hidden md:block">
-            <Card>
+            <Card className="modern-card overflow-hidden">
               <CardContent className="p-0">
                 <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-muted/50">
-                      <tr className="border-b">
-                        <th className="text-left p-2 font-semibold text-sm">Datum</th>
-                        <th className="text-left p-2 font-semibold text-sm">Name</th>
-                        <th className="text-left p-2 font-semibold text-sm">E-Mail</th>
-                        <th className="text-left p-2 font-semibold text-sm">Telefon</th>
-                        <th className="text-center p-2 font-semibold text-sm">Fzg.</th>
-                        <th className="text-right p-2 font-semibold text-sm">Preis</th>
-                        <th className="text-left p-2 font-semibold text-sm">Notizen</th>
+                  <table className="modern-table">
+                    <thead>
+                      <tr className="hover:bg-transparent">
+                        <th className="rounded-tl-lg">Datum</th>
+                        <th>Name</th>
+                        <th>E-Mail</th>
+                        <th>Telefon</th>
+                        <th className="text-center">Fzg.</th>
+                        <th className="text-right">Preis</th>
+                        <th>Notizen</th>
                         <th 
-                          className="text-left p-2 font-semibold text-sm cursor-pointer hover:bg-muted/70 transition-colors"
+                          className="cursor-pointer hover:bg-muted/30 transition-colors"
                           onClick={() => handleSort('status')}
                         >
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-1.5">
                             <span>Status</span>
                             {sortBy === 'status' ? (
                               sortOrder === 'asc' ? (
-                                <ArrowUp className="h-3 w-3" />
+                                <ArrowUp className="h-3.5 w-3.5" />
                               ) : (
-                                <ArrowDown className="h-3 w-3" />
+                                <ArrowDown className="h-3.5 w-3.5" />
                               )
                             ) : (
-                              <ArrowUpDown className="h-3 w-3 opacity-50" />
+                              <ArrowUpDown className="h-3.5 w-3.5 opacity-40" />
                             )}
                           </div>
                         </th>
-                        <th className="text-center p-2 font-semibold text-sm">Call</th>
-                        <th className="text-center p-2 font-semibold text-sm">Details</th>
+                        <th className="text-center">Call</th>
+                        <th className="text-center rounded-tr-lg">Details</th>
                       </tr>
                     </thead>
                     <tbody>
                       {sortedInquiries.map((inquiry) => (
                         <tr
                           key={inquiry.id}
-                          className={`border-b transition-colors ${
+                          className={`transition-all duration-200 ${
                             inquiry.call_priority 
-                              ? "bg-cyan-50 border-l-4 border-l-cyan-500 hover:bg-cyan-100" 
-                              : "hover:bg-muted/30"
+                              ? "bg-cyan-50/50 border-l-4 border-l-cyan-500 hover:bg-cyan-50" 
+                              : "hover:bg-muted/20"
                           }`}
                         >
-                          <td className="p-2 text-sm text-muted-foreground whitespace-nowrap">
+                          <td className="text-muted-foreground whitespace-nowrap text-xs">
                             {formatDate(inquiry.created_at)}
                           </td>
-                          <td className="p-2 text-sm">
-                            <div className="font-medium">{inquiry.first_name} {inquiry.last_name}</div>
+                          <td>
+                            <div className="font-semibold text-foreground">{inquiry.first_name} {inquiry.last_name}</div>
                             {inquiry.company_name && (
-                              <div className="text-xs text-muted-foreground truncate max-w-[120px]">
+                              <div className="text-xs text-muted-foreground truncate max-w-[150px] mt-0.5">
                                 {inquiry.company_name}
                               </div>
                             )}
                           </td>
                           <td 
-                            className="p-2 text-sm truncate max-w-[150px] cursor-pointer hover:underline hover:text-primary transition-colors"
+                            className="truncate max-w-[180px] cursor-pointer hover:text-primary transition-colors text-muted-foreground"
                             onClick={() => copyToClipboard(inquiry.email, 'email')}
                           >
                             {inquiry.email}
                           </td>
                           <td 
-                            className="p-2 text-sm whitespace-nowrap cursor-pointer hover:underline hover:text-primary transition-colors"
+                            className="whitespace-nowrap cursor-pointer hover:text-primary transition-colors text-muted-foreground"
                             onClick={() => copyToClipboard(inquiry.phone, 'phone')}
                           >
                             {inquiry.phone}
                           </td>
-                          <td className="p-2 text-center">
-                            <Badge variant="secondary" className="text-sm px-1.5 py-0">
+                          <td className="text-center">
+                            <Badge variant="secondary" className="text-xs px-2 py-1 font-semibold">
                               {inquiry.selected_vehicles.length}
                             </Badge>
                           </td>
-                          <td className="p-2 text-sm text-right font-semibold text-primary whitespace-nowrap">
+                          <td className="text-right font-bold text-primary whitespace-nowrap">
                             {formatPrice(inquiry.total_price)}
                           </td>
                           <td className="p-2" onClick={(e) => e.stopPropagation()}>
@@ -244,10 +245,10 @@ export default function AdminAnfragen() {
             {sortedInquiries.map((inquiry) => (
               <Card 
                 key={inquiry.id} 
-                className={`transition-colors ${
+                className={`modern-hover ${
                   inquiry.call_priority 
-                    ? "bg-cyan-50 border-l-4 border-l-cyan-500" 
-                    : "hover:border-primary/50"
+                    ? "bg-cyan-50/50 border-l-4 border-l-cyan-500" 
+                    : "border-border/40"
                 }`}
               >
                 <CardContent className="p-4">

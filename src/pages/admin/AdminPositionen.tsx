@@ -361,22 +361,22 @@ export default function AdminPositionen() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-8 animate-fade-in">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Fahrzeugverwaltung</h1>
-          <p className="text-muted-foreground mt-1">Verwalten Sie alle Fahrzeugpositionen</p>
+          <h1 className="text-4xl font-bold text-foreground tracking-tight">Fahrzeugverwaltung</h1>
+          <p className="text-muted-foreground mt-2 text-base">Verwalten Sie alle Fahrzeugpositionen</p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={() => setIsCreateDialogOpen(true)}>
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => setIsCreateDialogOpen(true)} className="shadow-sm hover:shadow-md transition-all">
             <Plus className="mr-2 h-4 w-4" />
             Fahrzeug hinzufügen
           </Button>
-          <Button variant="outline" onClick={() => setIsBulkUploadDialogOpen(true)}>
+          <Button variant="outline" onClick={() => setIsBulkUploadDialogOpen(true)} className="hover:bg-muted/50">
             <FileUp className="mr-2 h-4 w-4" />
             PDF Massen-Upload
           </Button>
-          <Button variant="outline" onClick={() => setIsBulkImageUploadDialogOpen(true)}>
+          <Button variant="outline" onClick={() => setIsBulkImageUploadDialogOpen(true)} className="hover:bg-muted/50">
             <FileUp className="mr-2 h-4 w-4" />
             Bilder Massen-Upload
           </Button>
@@ -384,6 +384,7 @@ export default function AdminPositionen() {
             variant="outline" 
             onClick={handleMigratePDFs}
             disabled={isMigrating}
+            className="hover:bg-muted/50"
           >
             <RefreshCw className={`mr-2 h-4 w-4 ${isMigrating ? 'animate-spin' : ''}`} />
             {isMigrating ? 'Migriere...' : 'PDFs umbenennen'}
@@ -391,23 +392,23 @@ export default function AdminPositionen() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Alle Fahrzeuge</CardTitle>
+      <Card className="modern-card">
+        <CardHeader className="border-b border-border/40 bg-muted/20">
+          <CardTitle className="text-lg font-semibold">Alle Fahrzeuge</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {isLoading ? (
-            <div className="space-y-2">
+            <div className="space-y-3 p-6">
               {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-16 w-full" />
+                <Skeleton key={i} className="h-20 w-full rounded-lg" />
               ))}
             </div>
           ) : vehicles && vehicles.length > 0 ? (
-            <div className="rounded-md border">
-              <Table>
+            <div className="overflow-x-auto">
+              <Table className="modern-table">
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Bild</TableHead>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="rounded-tl-lg">Bild</TableHead>
                     <TableHead>Marke</TableHead>
                     <TableHead>Modell</TableHead>
                     <TableHead>Fahrgestell-Nr.</TableHead>
@@ -416,7 +417,7 @@ export default function AdminPositionen() {
                     <TableHead>Erstzulassung</TableHead>
                     <TableHead>Kilometerstand</TableHead>
                     <TableHead>Preis</TableHead>
-                    <TableHead className="text-right">Aktionen</TableHead>
+                    <TableHead className="text-right rounded-tr-lg">Aktionen</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -427,38 +428,39 @@ export default function AdminPositionen() {
                           <img 
                             src={vehicle.image_url} 
                             alt={`${vehicle.brand} ${vehicle.model}`}
-                            className="h-12 w-16 object-cover rounded"
+                            className="h-14 w-20 object-cover rounded-lg shadow-sm"
                           />
                         ) : (
-                          <div className="h-12 w-16 bg-muted rounded flex items-center justify-center text-xs text-muted-foreground">
+                          <div className="h-14 w-20 bg-muted/50 rounded-lg flex items-center justify-center text-xs text-muted-foreground border border-border/40">
                             Kein Bild
                           </div>
                         )}
                       </TableCell>
-                      <TableCell className="font-medium">{vehicle.brand}</TableCell>
-                      <TableCell>{vehicle.model}</TableCell>
-                      <TableCell className="font-mono text-sm">{vehicle.chassis}</TableCell>
-                      <TableCell>{vehicle.report_nr}</TableCell>
+                      <TableCell className="font-semibold text-foreground">{vehicle.brand}</TableCell>
+                      <TableCell className="text-muted-foreground">{vehicle.model}</TableCell>
+                      <TableCell className="font-mono text-xs text-muted-foreground">{vehicle.chassis}</TableCell>
+                      <TableCell className="font-medium">{vehicle.report_nr}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <div 
-                            className={`h-3 w-3 rounded-full ${
-                              vehicle.dekra_url ? 'bg-green-500' : 'bg-red-500'
+                            className={`h-2 w-2 rounded-full ${
+                              vehicle.dekra_url ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'
                             }`}
                           />
-                          <span className="text-sm text-muted-foreground">
+                          <span className={`text-xs font-medium ${vehicle.dekra_url ? 'text-green-700' : 'text-red-700'}`}>
                             {vehicle.dekra_url ? 'Vorhanden' : 'Fehlt'}
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell>{vehicle.first_registration}</TableCell>
-                      <TableCell>{formatKilometers(vehicle.kilometers)}</TableCell>
-                      <TableCell className="font-semibold">{formatPrice(vehicle.price)}</TableCell>
+                      <TableCell className="text-muted-foreground">{vehicle.first_registration}</TableCell>
+                      <TableCell className="text-muted-foreground">{formatKilometers(vehicle.kilometers)}</TableCell>
+                      <TableCell className="font-bold text-primary">{formatPrice(vehicle.price)}</TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
+                        <div className="flex justify-end gap-1">
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="hover:bg-primary/10 hover:text-primary transition-all"
                             onClick={() => {
                               setSelectedVehicle(vehicle);
                               setIsEditDialogOpen(true);
@@ -469,12 +471,13 @@ export default function AdminPositionen() {
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="hover:bg-destructive/10 hover:text-destructive transition-all"
                             onClick={() => {
                               setSelectedVehicle(vehicle);
                               setIsDeleteDialogOpen(true);
                             }}
                           >
-                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -484,10 +487,12 @@ export default function AdminPositionen() {
               </Table>
             </div>
           ) : (
-            <div className="text-center py-12 text-muted-foreground">
-              <Car className="h-12 w-12 mx-auto mb-4 opacity-20" />
-              <p>Keine Fahrzeuge vorhanden.</p>
-              <p className="text-sm mt-1">Fügen Sie Ihr erstes Fahrzeug hinzu.</p>
+            <div className="text-center py-16 px-6 text-muted-foreground">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-muted/30 mb-4">
+                <Car className="h-10 w-10 text-muted-foreground/40" />
+              </div>
+              <p className="text-base font-medium text-foreground mb-1">Keine Fahrzeuge vorhanden</p>
+              <p className="text-sm">Fügen Sie Ihr erstes Fahrzeug hinzu, um loszulegen</p>
             </div>
           )}
         </CardContent>

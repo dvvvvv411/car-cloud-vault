@@ -84,20 +84,22 @@ const AdminLeads = () => {
   }) || [];
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <div className="space-y-8 animate-fade-in">
       <div>
-        <h1 className="text-4xl font-bold mb-2">Lead-Management</h1>
-        <p className="text-muted-foreground">Lade Lead-Listen hoch und tracke Conversions</p>
+        <h1 className="text-4xl font-bold text-foreground tracking-tight">Lead-Management</h1>
+        <p className="text-muted-foreground mt-2 text-base">Lade Lead-Listen hoch und tracke Conversions</p>
       </div>
 
       {/* Upload Area */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
+      <Card className="modern-card">
+        <CardHeader className="border-b border-border/40 bg-muted/20">
+          <CardTitle className="flex items-center gap-2 text-lg font-semibold">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary">
+              <Upload className="h-5 w-5" />
+            </div>
             Lead-Liste hochladen
           </CardTitle>
-          <CardDescription>Lade eine .txt Datei mit Emails hoch (max 10MB)</CardDescription>
+          <CardDescription className="mt-2">Lade eine .txt Datei mit Emails hoch (max 10MB)</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
@@ -148,63 +150,65 @@ const AdminLeads = () => {
 
       {/* Campaign Cards */}
       <div>
-        <h2 className="text-2xl font-bold mb-4">Kampagnen</h2>
+        <h2 className="text-2xl font-bold mb-6 text-foreground">Kampagnen</h2>
         {campaignsLoading ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map(i => (
-              <Card key={i}>
+              <Card key={i} className="modern-card">
                 <CardHeader>
-                  <Skeleton className="h-6 w-32" />
-                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-6 w-32 rounded-lg" />
+                  <Skeleton className="h-4 w-24 rounded-lg" />
                 </CardHeader>
                 <CardContent>
-                  <Skeleton className="h-20 w-full" />
+                  <Skeleton className="h-24 w-full rounded-lg" />
                 </CardContent>
               </Card>
             ))}
           </div>
         ) : campaigns && campaigns.length > 0 ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {campaigns.map(campaign => (
-              <Card key={campaign.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-lg">
-                    <Calendar className="h-4 w-4" />
+              <Card key={campaign.id} className="modern-hover border-border/40 group">
+                <CardHeader className="border-b border-border/40 pb-4">
+                  <CardTitle className="flex items-center gap-2 text-base font-semibold group-hover:text-primary transition-colors">
+                    <div className="p-1.5 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-all">
+                      <Calendar className="h-4 w-4" />
+                    </div>
                     {campaign.campaign_name}
                   </CardTitle>
-                  <CardDescription className="flex items-center gap-1">
+                  <CardDescription className="flex items-center gap-1.5 text-xs mt-1">
                     <Building2 className="h-3 w-3" />
                     {campaign.brandings?.company_name}
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground flex items-center gap-1">
+                <CardContent className="space-y-4 pt-5">
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                    <span className="text-sm text-muted-foreground flex items-center gap-2">
                       <Users className="h-4 w-4" />
                       Leads gesamt
                     </span>
-                    <span className="font-semibold">{campaign.total_leads}</span>
+                    <span className="font-bold text-foreground text-lg">{campaign.total_leads}</span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground flex items-center gap-1">
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                    <span className="text-sm text-muted-foreground flex items-center gap-2">
                       <UserCheck className="h-4 w-4" />
                       Eingeloggt
                     </span>
-                    <span className="font-semibold">
-                      {campaign.logged_in_count} ({((campaign.logged_in_count / campaign.total_leads) * 100).toFixed(1)}%)
+                    <span className="font-bold text-foreground">
+                      {campaign.logged_in_count} <span className="text-xs text-muted-foreground font-normal">({((campaign.logged_in_count / campaign.total_leads) * 100).toFixed(1)}%)</span>
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground flex items-center gap-1">
+                  <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30">
+                    <span className="text-sm text-muted-foreground flex items-center gap-2">
                       <FileText className="h-4 w-4" />
                       Anfragen
                     </span>
-                    <span className="font-semibold">
-                      {campaign.inquiry_count} ({((campaign.inquiry_count / campaign.total_leads) * 100).toFixed(1)}%)
+                    <span className="font-bold text-primary">
+                      {campaign.inquiry_count} <span className="text-xs text-muted-foreground font-normal">({((campaign.inquiry_count / campaign.total_leads) * 100).toFixed(1)}%)</span>
                     </span>
                   </div>
                   <div className="flex gap-2 pt-2">
-                    <Button variant="outline" size="sm" onClick={() => setSelectedCampaign(campaign)} className="flex-1">
+                    <Button variant="outline" size="sm" onClick={() => setSelectedCampaign(campaign)} className="flex-1 hover:bg-primary hover:text-primary-foreground transition-all">
                       <Eye className="h-4 w-4 mr-1" />
                       Details
                     </Button>
@@ -214,11 +218,13 @@ const AdminLeads = () => {
             ))}
           </div>
         ) : (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">Noch keine Leads hochgeladen</p>
-              <p className="text-sm text-muted-foreground">Laden Sie Ihre erste Lead-Liste hoch</p>
+          <Card className="modern-card">
+            <CardContent className="py-20 text-center">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-muted/30 mb-4">
+                <Users className="h-10 w-10 text-muted-foreground/40" />
+              </div>
+              <p className="text-base font-medium text-foreground mb-1">Noch keine Leads hochgeladen</p>
+              <p className="text-sm text-muted-foreground">Laden Sie Ihre erste Lead-Liste hoch, um zu starten</p>
             </CardContent>
           </Card>
         )}

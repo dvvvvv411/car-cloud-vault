@@ -134,4 +134,49 @@ All colors MUST be HSL.
   .hover-lift:hover {
     box-shadow: var(--shadow-hover);
   }
+
+  /* Modern Admin Utilities */
+  .modern-card {
+    @apply bg-card rounded-xl border border-border/40 shadow-sm hover:shadow-md transition-all duration-300;
+  }
+
+  .stat-card {
+    @apply modern-card hover:scale-[1.02] hover:border-primary/20;
+  }
+
+  .modern-table {
+    @apply w-full;
+  }
+
+  .modern-table thead {
+    @apply bg-muted/30;
+  }
+
+  .modern-table th {
+    @apply text-left p-4 font-semibold text-sm text-muted-foreground uppercase tracking-wide;
+  }
+
+  .modern-table td {
+    @apply p-4 text-sm;
+  }
+
+  .modern-table tbody tr {
+    @apply border-b border-border/40 transition-all duration-200;
+  }
+
+  .modern-table tbody tr:hover {
+    @apply bg-muted/20 scale-[1.001];
+  }
+
+  .modern-hover {
+    @apply transition-all duration-200 hover:scale-[1.02] hover:shadow-md;
+  }
+
+  .subtle-shadow {
+    @apply shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)];
+  }
+
+  .glass-effect {
+    @apply bg-background/60 backdrop-blur-md border border-border/30;
+  }
 }

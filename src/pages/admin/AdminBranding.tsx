@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Pencil, Trash2, ExternalLink } from 'lucide-react';
+import { Plus, Pencil, Trash2, ExternalLink, Palette } from 'lucide-react';
 import { useBrandings } from '@/hooks/useBranding';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -72,90 +72,101 @@ const AdminBranding = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-8 animate-fade-in">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Branding-Verwaltung</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-4xl font-bold text-foreground tracking-tight">Branding-Verwaltung</h1>
+          <p className="text-muted-foreground mt-2 text-base">
             Verwalten Sie verschiedene Branding-Konfigurationen für Insolvenz-Landingpages
           </p>
         </div>
-        <Button onClick={() => setIsFormOpen(true)}>
+        <Button onClick={() => setIsFormOpen(true)} className="shadow-sm hover:shadow-md transition-all">
           <Plus className="mr-2 h-4 w-4" />
           Neues Branding
         </Button>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Alle Brandings</CardTitle>
-          <CardDescription>
+      <Card className="modern-card">
+        <CardHeader className="border-b border-border/40 bg-muted/20">
+          <CardTitle className="text-lg font-semibold">Alle Brandings</CardTitle>
+          <CardDescription className="mt-1">
             Übersicht aller konfigurierten Brandings und ihre URLs
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-0">
           {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">Lädt...</div>
+            <div className="text-center py-12 text-muted-foreground">Lädt...</div>
           ) : brandings && brandings.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Unternehmen</TableHead>
-                  <TableHead>Aktenzeichen</TableHead>
-                  <TableHead>URL</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Aktionen</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {brandings.map((branding) => (
-                  <TableRow key={branding.id}>
-                    <TableCell className="font-medium">{branding.company_name}</TableCell>
-                    <TableCell>{branding.case_number}</TableCell>
-                    <TableCell>
-                      <a
-                        href={`/insolvenz/${branding.slug}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-primary hover:underline"
-                      >
-                        /insolvenz/{branding.slug}
-                        <ExternalLink className="h-3 w-3" />
-                      </a>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={branding.is_active ? 'default' : 'secondary'}>
-                        {branding.is_active ? 'Aktiv' : 'Inaktiv'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => {
-                            setSelectedBranding(branding);
-                            setIsFormOpen(true);
-                          }}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => setDeleteId(branding.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table className="modern-table">
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="rounded-tl-lg">Unternehmen</TableHead>
+                    <TableHead>Aktenzeichen</TableHead>
+                    <TableHead>URL</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right rounded-tr-lg">Aktionen</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {brandings.map((branding) => (
+                    <TableRow key={branding.id}>
+                      <TableCell className="font-semibold text-foreground">{branding.company_name}</TableCell>
+                      <TableCell className="font-mono text-sm text-muted-foreground">{branding.case_number}</TableCell>
+                      <TableCell>
+                        <a
+                          href={`/insolvenz/${branding.slug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-primary hover:text-primary/80 hover:underline transition-colors font-medium text-sm"
+                        >
+                          /insolvenz/{branding.slug}
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </a>
+                      </TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant={branding.is_active ? 'default' : 'secondary'}
+                          className="font-medium"
+                        >
+                          {branding.is_active ? 'Aktiv' : 'Inaktiv'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="hover:bg-primary/10 hover:text-primary transition-all"
+                            onClick={() => {
+                              setSelectedBranding(branding);
+                              setIsFormOpen(true);
+                            }}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="hover:bg-destructive/10 hover:text-destructive transition-all"
+                            onClick={() => setDeleteId(branding.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              Noch keine Brandings vorhanden. Erstellen Sie Ihr erstes Branding.
+            <div className="text-center py-16 px-6 text-muted-foreground">
+              <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-muted/30 mb-4">
+                <Palette className="h-10 w-10 text-muted-foreground/40" />
+              </div>
+              <p className="text-base font-medium text-foreground mb-1">Noch keine Brandings vorhanden</p>
+              <p className="text-sm">Erstellen Sie Ihr erstes Branding, um loszulegen</p>
             </div>
           )}
         </CardContent>
