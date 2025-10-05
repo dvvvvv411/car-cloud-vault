@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Eye, ChevronDown, StickyNote, Car } from "lucide-react";
 import { Inquiry } from "@/hooks/useInquiries";
 import { useInquiryNotes } from "@/hooks/useInquiryNotes";
+import { useVehicles } from "@/hooks/useVehicles";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { getUserColor } from "@/lib/utils";
@@ -18,6 +19,18 @@ interface InquiryDetailsDialogProps {
 
 export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => {
   const { data: notes = [], isLoading: notesLoading } = useInquiryNotes(inquiry.id);
+  const { data: vehicles = [] } = useVehicles();
+
+  // Create a lookup map from chassis to report_nr
+  const getReportNumber = (chassis: string) => {
+    const vehicle = vehicles.find(v => v.chassis === chassis);
+    return vehicle?.report_nr || chassis;
+  };
+
+  // Get report numbers by looking up chassis in vehicles table
+  const reportNumbers = inquiry.selected_vehicles.map(v => 
+    v.report_nr || getReportNumber(v.chassis)
+  );
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("de-DE", {
@@ -108,7 +121,7 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
               </div>
               <div className="flex gap-2">
                 <DekraNumbersDialog 
-                  reportNumbers={inquiry.selected_vehicles.map(v => v.report_nr)} 
+                  reportNumbers={reportNumbers} 
                 />
                 <Badge variant="outline" className="text-sm">
                   {inquiry.selected_vehicles.length} {inquiry.selected_vehicles.length === 1 ? 'Fahrzeug' : 'Fahrzeuge'}
@@ -134,7 +147,7 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
                         </div>
                         <div>
                           <span className="text-muted-foreground">DEKRA-Nr:</span>
-                          <p className="font-medium text-xs">{vehicle.report_nr}</p>
+                          <p className="font-medium text-xs">{vehicle.report_nr || getReportNumber(vehicle.chassis)}</p>
                         </div>
                         <div>
                           <span className="text-muted-foreground">Fahrgestellnummer:</span>
