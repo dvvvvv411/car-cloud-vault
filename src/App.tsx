@@ -8,7 +8,11 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
-import Admin from "./pages/Admin";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminPositionen from "./pages/admin/AdminPositionen";
+import AdminAnfragen from "./pages/admin/AdminAnfragen";
+import AdminBenutzer from "./pages/admin/AdminBenutzer";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -34,10 +38,15 @@ const App = () => (
               path="/admin" 
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
-                  <Admin />
+                  <AdminLayout />
                 </ProtectedRoute>
-              } 
-            />
+              }
+            >
+              <Route index element={<AdminDashboard />} />
+              <Route path="positionen" element={<AdminPositionen />} />
+              <Route path="anfragen" element={<AdminAnfragen />} />
+              <Route path="benutzer" element={<AdminBenutzer />} />
+            </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
