@@ -87,14 +87,32 @@ export const useCampaignLeads = (campaignId: string | null) => {
     queryFn: async () => {
       if (!campaignId) return [];
 
-      const { data, error } = await supabase
-        .from("leads")
-        .select("*")
-        .eq("campaign_id", campaignId)
-        .order("created_at", { ascending: false });
+      // Fetch all leads in batches to avoid 1000 row limit
+      let allLeads: Lead[] = [];
+      let from = 0;
+      const batchSize = 1000;
+      let hasMore = true;
 
-      if (error) throw error;
-      return data as Lead[];
+      while (hasMore) {
+        const { data, error } = await supabase
+          .from("leads")
+          .select("*")
+          .eq("campaign_id", campaignId)
+          .order("created_at", { ascending: false })
+          .range(from, from + batchSize - 1);
+
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+          allLeads = [...allLeads, ...data];
+          from += batchSize;
+          hasMore = data.length === batchSize;
+        } else {
+          hasMore = false;
+        }
+      }
+
+      return allLeads as Lead[];
     },
     enabled: !!campaignId,
   });
