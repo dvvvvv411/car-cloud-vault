@@ -496,9 +496,9 @@ const Index = () => {
                   </div>
                 </div>
 
-              {/* Desktop Pagination - Fixed directly above footer */}
+              {/* Desktop Pagination - Below table */}
               {totalPages > 1 && (
-                <div className="fixed bottom-[120px] left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.05)] rounded-t-2xl">
+                <div className="mt-6 bg-background/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.05)] rounded-t-2xl">
                   <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-6">
                     <Pagination>
                       <PaginationContent className="gap-1">
