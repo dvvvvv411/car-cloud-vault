@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Car, FileUp } from "lucide-react";
+import { Plus, Pencil, Trash2, Car, FileUp, RefreshCw } from "lucide-react";
 import { VehicleForm } from "@/components/admin/VehicleForm";
 import { DeleteVehicleDialog } from "@/components/admin/DeleteVehicleDialog";
 import { BulkPDFUpload } from "@/components/admin/BulkPDFUpload";
@@ -23,6 +23,7 @@ export default function AdminPositionen() {
   const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMigrating, setIsMigrating] = useState(false);
 
   const uploadImage = async (file: File, vehicleId: string) => {
     const fileExt = file.name.split('.').pop();
@@ -242,6 +243,121 @@ export default function AdminPositionen() {
     return new Intl.NumberFormat('de-DE').format(km) + ' km';
   };
 
+  const handleMigratePDFs = async () => {
+    setIsMigrating(true);
+    
+    try {
+      // Load all vehicles with dekra_url
+      const { data: vehiclesWithPDFs, error: fetchError } = await supabase
+        .from('vehicles')
+        .select('*')
+        .not('dekra_url', 'is', null);
+
+      if (fetchError) throw fetchError;
+      if (!vehiclesWithPDFs || vehiclesWithPDFs.length === 0) {
+        toast({
+          title: "Keine PDFs gefunden",
+          description: "Es gibt keine PDFs zum Umbenennen.",
+        });
+        setIsMigrating(false);
+        return;
+      }
+
+      let successCount = 0;
+      let errorCount = 0;
+      const errors: string[] = [];
+
+      for (const vehicle of vehiclesWithPDFs) {
+        try {
+          // Extract old filename from URL
+          const oldFileName = vehicle.dekra_url.split('/').pop();
+          
+          // Skip if already using report_nr format (not a UUID)
+          if (oldFileName === `${vehicle.report_nr}.pdf`) {
+            successCount++;
+            continue;
+          }
+
+          // Download old PDF
+          const { data: fileData, error: downloadError } = await supabase.storage
+            .from('vehicle-reports')
+            .download(oldFileName!);
+
+          if (downloadError) {
+            errorCount++;
+            errors.push(`${vehicle.brand} ${vehicle.model} (${vehicle.report_nr}): Download fehlgeschlagen`);
+            continue;
+          }
+
+          // Upload with new name
+          const newFileName = `${vehicle.report_nr}.pdf`;
+          const { error: uploadError } = await supabase.storage
+            .from('vehicle-reports')
+            .upload(newFileName, fileData, { upsert: true });
+
+          if (uploadError) {
+            errorCount++;
+            errors.push(`${vehicle.brand} ${vehicle.model} (${vehicle.report_nr}): Upload fehlgeschlagen`);
+            continue;
+          }
+
+          // Get new public URL
+          const { data: urlData } = supabase.storage
+            .from('vehicle-reports')
+            .getPublicUrl(newFileName);
+
+          // Update vehicle record
+          const { error: updateError } = await supabase
+            .from('vehicles')
+            .update({ dekra_url: urlData.publicUrl })
+            .eq('id', vehicle.id);
+
+          if (updateError) {
+            errorCount++;
+            errors.push(`${vehicle.brand} ${vehicle.model} (${vehicle.report_nr}): Datenbank-Update fehlgeschlagen`);
+            continue;
+          }
+
+          // Delete old file (only if different from new name)
+          if (oldFileName !== newFileName) {
+            await supabase.storage
+              .from('vehicle-reports')
+              .remove([oldFileName!]);
+          }
+
+          successCount++;
+        } catch (err) {
+          errorCount++;
+          errors.push(`${vehicle.brand} ${vehicle.model} (${vehicle.report_nr}): Unbekannter Fehler`);
+        }
+      }
+
+      // Show results
+      if (errorCount === 0) {
+        toast({
+          title: "Migration erfolgreich",
+          description: `${successCount} von ${vehiclesWithPDFs.length} PDFs wurden erfolgreich umbenannt.`,
+        });
+      } else {
+        toast({
+          title: "Migration abgeschlossen mit Fehlern",
+          description: `${successCount} erfolgreich, ${errorCount} fehlgeschlagen. ${errors.length > 0 ? 'Fehler: ' + errors.slice(0, 3).join(', ') : ''}`,
+          variant: "destructive",
+        });
+      }
+
+      refetch();
+    } catch (error) {
+      toast({
+        title: "Fehler",
+        description: "PDF Migration ist fehlgeschlagen.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsMigrating(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -257,6 +373,14 @@ export default function AdminPositionen() {
           <Button variant="outline" onClick={() => setIsBulkUploadDialogOpen(true)}>
             <FileUp className="mr-2 h-4 w-4" />
             PDF Massen-Upload
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={handleMigratePDFs}
+            disabled={isMigrating}
+          >
+            <RefreshCw className={`mr-2 h-4 w-4 ${isMigrating ? 'animate-spin' : ''}`} />
+            {isMigrating ? 'Migriere...' : 'PDFs umbenennen'}
           </Button>
         </div>
       </div>
