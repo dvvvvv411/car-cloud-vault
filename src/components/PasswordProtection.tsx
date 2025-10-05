@@ -17,19 +17,26 @@ export const PasswordProtection = ({ onSuccess, branding, slug }: PasswordProtec
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Prevent duplicate submissions
+    if (isSubmitting) {
+      console.log('⚠️ Submit already in progress, ignoring duplicate call');
+      return;
+    }
+    
     setError('');
     setIsLoading(true);
+    setIsSubmitting(true);
     
     try {
       // First check for master password
       if (password === 'admin777') {
         console.log('Master password used');
-        setTimeout(() => {
-          onSuccess();
-        }, 500);
+        onSuccess();
         return;
       }
 
@@ -54,19 +61,19 @@ export const PasswordProtection = ({ onSuccess, branding, slug }: PasswordProtec
         if (data.leadId) {
           localStorage.setItem('leadId', data.leadId);
         }
-        setTimeout(() => {
-          onSuccess();
-        }, 500);
+        onSuccess();
       } else {
         setError('Falsches Passwort. Bitte versuchen Sie es erneut.');
         setPassword('');
         setIsLoading(false);
+        setIsSubmitting(false);
       }
     } catch (error) {
       console.error('Password verification error:', error);
       setError('Verbindungsfehler. Bitte versuchen Sie es erneut.');
       setPassword('');
       setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
