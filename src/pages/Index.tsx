@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
-import { Search, ArrowUpDown, ChevronRight, Eye, Phone, X, FileText } from "lucide-react";
+import { Search, ArrowUpDown, ChevronRight, Eye, Phone, X, FileText, LogOut, LogIn, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -15,7 +17,10 @@ import demoVehicle from "@/assets/demo-vehicle.png";
 import beschlussImage from "@/assets/beschluss.png";
 import dekraLogoWhite from "@/assets/dekra-logo-white.png";
 import { useVehicles, type Vehicle } from "@/hooks/useVehicles";
+
 const Index = () => {
+  const navigate = useNavigate();
+  const { user, role, signOut } = useAuth();
   const {
     data: vehicles = [],
     isLoading
@@ -31,6 +36,19 @@ const Index = () => {
   const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [isBeschlusskDrawerOpen, setIsBeschlusskDrawerOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await signOut();
+  };
+
+  const handleLogin = () => {
+    navigate('/auth');
+  };
+
+  const handleAdminDashboard = () => {
+    navigate('/admin');
+  };
+
   const toggleVehicleSelection = (chassis: string) => {
     setSelectedVehicles(current => current.includes(chassis) ? current.filter(c => c !== chassis) : [...current, chassis]);
   };
@@ -80,6 +98,44 @@ const Index = () => {
       <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8 lg:py-12">
         {/* Modern Header with Logo - Always Visible */}
         <div className="mb-8 md:mb-10 lg:mb-12 animate-fade-in">
+          {/* Auth Buttons - Top Right */}
+          <div className="absolute top-4 right-4 md:top-6 md:right-6 lg:top-8 lg:right-8 flex items-center gap-2 z-10">
+            {user ? (
+              <>
+                {role === 'admin' && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleAdminDashboard}
+                    className="gap-2"
+                  >
+                    <Shield className="h-4 w-4" />
+                    <span className="hidden sm:inline">Admin</span>
+                  </Button>
+                )}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleLogout}
+                  className="gap-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden sm:inline">Abmelden</span>
+                </Button>
+              </>
+            ) : (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleLogin}
+                className="gap-2"
+              >
+                <LogIn className="h-4 w-4" />
+                <span className="hidden sm:inline">Anmelden</span>
+              </Button>
+            )}
+          </div>
+
           <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6 mb-4 md:mb-6">
             {/* Logo und Badge */}
             <div className="flex items-start gap-3">
