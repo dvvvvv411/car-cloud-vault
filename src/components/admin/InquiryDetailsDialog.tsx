@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Eye, ChevronDown } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Eye, ChevronDown, StickyNote, Car } from "lucide-react";
 import { Inquiry } from "@/hooks/useInquiries";
+import { useInquiryNotes } from "@/hooks/useInquiryNotes";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
@@ -13,6 +15,8 @@ interface InquiryDetailsDialogProps {
 }
 
 export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => {
+  const { data: notes = [], isLoading: notesLoading } = useInquiryNotes(inquiry.id);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("de-DE", {
       style: "currency",
@@ -94,48 +98,58 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
           )}
 
           {/* Selected Vehicles */}
-          <Collapsible defaultOpen={false}>
-            <CollapsibleTrigger className="flex items-center justify-between w-full group mb-3">
-              <h3 className="font-semibold">Ausgewählte Fahrzeuge ({inquiry.selected_vehicles.length})</h3>
-              <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-3">
-              <div className="space-y-3">
-                {inquiry.selected_vehicles.map((vehicle, index) => (
-                  <div key={index} className="border rounded-lg p-3">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
-                      <div>
-                        <span className="text-muted-foreground">Fahrzeug:</span>
-                        <p className="font-medium">{vehicle.brand} {vehicle.model}</p>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Fahrgestellnummer:</span>
-                        <p className="font-medium text-xs">{vehicle.chassis}</p>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Erstzulassung:</span>
-                        <p className="font-medium">{vehicle.first_registration}</p>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Kilometer:</span>
-                        <p className="font-medium">{vehicle.kilometers.toLocaleString("de-DE")} km</p>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Preis:</span>
-                        <p className="font-medium">{formatPrice(vehicle.price)}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
+          <div>
+            <div className="flex justify-between items-center mb-3">
+              <div className="flex items-center gap-2">
+                <Car className="h-4 w-4 text-muted-foreground" />
+                <h3 className="font-semibold">Ausgewählte Fahrzeuge</h3>
               </div>
-              <div className="mt-4 flex justify-between items-center">
-                <span className="font-semibold">Gesamtpreis:</span>
-                <Badge variant="secondary" className="text-base">
+              <div className="flex gap-2">
+                <Badge variant="outline" className="text-sm">
+                  {inquiry.selected_vehicles.length} {inquiry.selected_vehicles.length === 1 ? 'Fahrzeug' : 'Fahrzeuge'}
+                </Badge>
+                <Badge variant="secondary" className="text-sm font-semibold">
                   {formatPrice(inquiry.total_price)}
                 </Badge>
               </div>
-            </CollapsibleContent>
-          </Collapsible>
+            </div>
+            <Collapsible defaultOpen={false}>
+              <CollapsibleTrigger className="flex items-center gap-2 w-full group text-sm text-muted-foreground hover:text-foreground transition-colors mb-3">
+                <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
+                <span>Details anzeigen</span>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-3">
+                <div className="space-y-3">
+                  {inquiry.selected_vehicles.map((vehicle, index) => (
+                    <div key={index} className="border rounded-lg p-3">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Fahrzeug:</span>
+                          <p className="font-medium">{vehicle.brand} {vehicle.model}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Fahrgestellnummer:</span>
+                          <p className="font-medium text-xs">{vehicle.chassis}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Erstzulassung:</span>
+                          <p className="font-medium">{vehicle.first_registration}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Kilometer:</span>
+                          <p className="font-medium">{vehicle.kilometers.toLocaleString("de-DE")} km</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Preis:</span>
+                          <p className="font-medium">{formatPrice(vehicle.price)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          </div>
 
           <Separator />
 
@@ -163,6 +177,35 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
                 <p className="font-medium">{inquiry.status}</p>
               </div>
             </div>
+          </div>
+
+          <Separator />
+
+          {/* Notes Section */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <StickyNote className="h-4 w-4 text-muted-foreground" />
+              <h3 className="font-semibold">Notizen</h3>
+              <Badge variant="outline" className="text-xs">{notes.length}</Badge>
+            </div>
+            {notesLoading ? (
+              <p className="text-sm text-muted-foreground">Lade Notizen...</p>
+            ) : notes.length === 0 ? (
+              <p className="text-sm text-muted-foreground p-3 bg-muted rounded-lg">Keine Notizen vorhanden</p>
+            ) : (
+              <ScrollArea className="h-[200px] border rounded-lg p-3">
+                <div className="space-y-3">
+                  {notes.map((note) => (
+                    <div key={note.id} className="border-b pb-3 last:border-0 last:pb-0">
+                      <p className="text-xs text-muted-foreground mb-1">
+                        {formatDate(note.created_at)}
+                      </p>
+                      <p className="text-sm whitespace-pre-wrap">{note.note_text}</p>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            )}
           </div>
         </div>
       </DialogContent>

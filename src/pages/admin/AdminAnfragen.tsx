@@ -19,7 +19,8 @@ export default function AdminAnfragen() {
     "Möchte RG/KV": 2,
     "RG/KV gesendet": 3,
     "Bezahlt": 4,
-    "Exchanged": 5
+    "Exchanged": 5,
+    "Kein Interesse": 6
   };
 
   const handleSort = (column: string) => {

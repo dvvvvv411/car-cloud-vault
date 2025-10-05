@@ -411,6 +411,7 @@ export type Database = {
         | "RG/KV gesendet"
         | "Bezahlt"
         | "Exchanged"
+        | "Kein Interesse"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -545,6 +546,7 @@ export const Constants = {
         "RG/KV gesendet",
         "Bezahlt",
         "Exchanged",
+        "Kein Interesse",
       ],
     },
   },
