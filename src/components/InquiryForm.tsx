@@ -444,24 +444,6 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                     </FormItem>
                   )}
                 />
-              
-              {/* Submit Button */}
-              <div className="mt-6">
-                <Button
-                  type="submit"
-                  disabled={isSubmitting || selectedVehicleData.length === 0}
-                  className="w-full h-12 text-base font-semibold"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                      Anfrage wird gesendet...
-                    </>
-                  ) : (
-                    `Anfrage absenden (${selectedVehicleData.length} ${selectedVehicleData.length === 1 ? 'Fahrzeug' : 'Fahrzeuge'})`
-                  )}
-                </Button>
-              </div>
               </div>
             </form>
           </Form>
