@@ -146,8 +146,10 @@ const Index = ({ branding }: IndexProps = {}) => {
   };
   
   // Check if vehicle is reserved for this lead
-  const isVehicleReserved = (chassis: string) => {
-    return myReservations.some(r => r.vehicle_chassis === chassis);
+  const isVehicleReserved = (chassis: string, reportNr: string) => {
+    return myReservations.some(r => 
+      r.vehicle_chassis === chassis || r.vehicle_chassis === reportNr
+    );
   };
   
   const filteredAndSortedVehicles = vehicles.filter(vehicle => vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.chassis.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.report_nr.toLowerCase().includes(searchTerm.toLowerCase())).sort((a, b) => {
@@ -503,7 +505,7 @@ const Index = ({ branding }: IndexProps = {}) => {
                       <tbody>
                         {paginatedVehicles.map((vehicle, index) => {
                       const isSelected = selectedVehicles.includes(vehicle.chassis);
-                      const isReserved = isVehicleReserved(vehicle.chassis);
+                      const isReserved = isVehicleReserved(vehicle.chassis, vehicle.report_nr);
                       return <tr key={index} className={`h-[100px] border-b hover-lift cursor-pointer group transition-colors ${isSelected ? "bg-primary/5" : ""} ${isReserved ? "opacity-50 pointer-events-none" : ""}`} style={{
                         borderColor: "hsl(var(--divider))",
                         animationDelay: `${0.3 + index * 0.05}s`
@@ -683,7 +685,7 @@ const Index = ({ branding }: IndexProps = {}) => {
               <div>
                   {paginatedVehicles.map((vehicle, index) => {
                 const isSelected = selectedVehicles.includes(vehicle.chassis);
-                const isReserved = isVehicleReserved(vehicle.chassis);
+                const isReserved = isVehicleReserved(vehicle.chassis, vehicle.report_nr);
                 return <div key={index} onClick={() => !isReserved && toggleVehicleSelection(vehicle.chassis)} className={`glassmorphism rounded-2xl overflow-hidden cursor-pointer transition-all ${isSelected ? "ring-2 ring-primary" : ""} ${isReserved ? "opacity-60 pointer-events-none" : ""}`} style={{
                   animationDelay: `${0.3 + index * 0.05}s`
                 }}>
