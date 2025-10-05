@@ -732,7 +732,7 @@ const Index = () => {
 
       {/* Image Viewer Dialog - Desktop Only */}
       <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
-        <DialogContent className="max-w-[90vw] max-h-[90vh] w-auto h-auto p-2 bg-[#003e7e]">
+        <DialogContent className="max-w-[90vw] max-h-[90vh] w-auto h-auto p-2">
           <DialogTitle className="sr-only">Fahrzeugbild</DialogTitle>
           {selectedImageUrl && (
             <img 
