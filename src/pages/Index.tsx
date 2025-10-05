@@ -521,8 +521,13 @@ const Index = ({ branding }: IndexProps = {}) => {
                                   setImageDialogOpen(true);
                                 }}
                               >
-                                <div className="w-24 h-16 rounded-lg overflow-hidden bg-muted hover:ring-2 hover:ring-primary transition-all">
+                                <div className="relative w-24 h-16 rounded-lg overflow-hidden bg-muted hover:ring-2 hover:ring-primary transition-all">
                                   <img src={vehicle.image_url || demoVehicle} alt={`${vehicle.brand} ${vehicle.model}`} className="w-full h-full object-cover" />
+                                  {isReserved && (
+                                    <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                                      <span className="text-white text-xs font-bold tracking-wider">RESERVIERT</span>
+                                    </div>
+                                  )}
                                 </div>
                               </td>
                               <td className="px-6 py-0 align-middle">
@@ -537,11 +542,6 @@ const Index = ({ branding }: IndexProps = {}) => {
                             }}>
                                     {vehicle.model}
                                   </div>
-                                  {isReserved && (
-                                    <Badge variant="secondary" className="mt-1 bg-destructive/20 text-destructive">
-                                      RESERVIERT
-                                    </Badge>
-                                  )}
                                 </div>
                               </td>
                               <td className="px-6 py-0 align-middle">
