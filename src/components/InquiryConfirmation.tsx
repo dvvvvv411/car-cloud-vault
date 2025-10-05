@@ -116,11 +116,11 @@ export const InquiryConfirmation = ({
       </Card>
 
       {/* Contact Information Summary */}
-      <Card className="p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Ihre Kontaktinformationen</h2>
-        <div className="grid md:grid-cols-2 gap-4">
+      <Card className="p-4 mb-6">
+        <h2 className="text-xl font-semibold mb-3">Ihre Kontaktinformationen</h2>
+        <div className="grid md:grid-cols-2 gap-3">
           <div>
-            <div className="text-sm text-muted-foreground mb-1">Kundentyp</div>
+            <div className="text-sm text-muted-foreground mb-0.5">Kundentyp</div>
             <div className="font-medium">
               {inquiry.customerType === "private" ? "Privatkunde" : "Geschäftskunde"}
             </div>
@@ -128,20 +128,20 @@ export const InquiryConfirmation = ({
 
           {inquiry.customerType === "business" && inquiry.companyName && (
             <div>
-              <div className="text-sm text-muted-foreground mb-1">Firma</div>
+              <div className="text-sm text-muted-foreground mb-0.5">Firma</div>
               <div className="font-medium">{inquiry.companyName}</div>
             </div>
           )}
 
           <div>
-            <div className="text-sm text-muted-foreground mb-1">Name</div>
+            <div className="text-sm text-muted-foreground mb-0.5">Name</div>
             <div className="font-medium">
               {inquiry.firstName} {inquiry.lastName}
             </div>
           </div>
 
           <div>
-            <div className="text-sm text-muted-foreground mb-1">Adresse</div>
+            <div className="text-sm text-muted-foreground mb-0.5">Adresse</div>
             <div className="font-medium">
               {inquiry.street}
               <br />
@@ -150,18 +150,18 @@ export const InquiryConfirmation = ({
           </div>
 
           <div>
-            <div className="text-sm text-muted-foreground mb-1">E-Mail</div>
+            <div className="text-sm text-muted-foreground mb-0.5">E-Mail</div>
             <div className="font-medium">{inquiry.email}</div>
           </div>
 
           <div>
-            <div className="text-sm text-muted-foreground mb-1">Telefon</div>
+            <div className="text-sm text-muted-foreground mb-0.5">Telefon</div>
             <div className="font-medium">{inquiry.phone}</div>
           </div>
 
           {inquiry.message && (
             <div className="md:col-span-2">
-              <div className="text-sm text-muted-foreground mb-1">Nachricht</div>
+              <div className="text-sm text-muted-foreground mb-0.5">Nachricht</div>
               <div className="font-medium">{inquiry.message}</div>
             </div>
           )}
