@@ -135,3 +135,81 @@ All colors MUST be HSL.
     box-shadow: var(--shadow-hover);
   }
 }
+
+/* Driver.js Custom Styling - Modern Tour */
+.driver-popover {
+  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(240 70% 50%) 100%) !important;
+  border: none !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+  padding: 24px !important;
+  max-width: 360px !important;
+}
+
+.driver-popover-title {
+  color: white !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  margin-bottom: 12px !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.driver-popover-description {
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-size: 15px !important;
+  line-height: 1.6 !important;
+}
+
+.driver-popover-footer {
+  display: flex !important;
+  gap: 12px !important;
+  margin-top: 20px !important;
+}
+
+.driver-popover-next-btn,
+.driver-popover-prev-btn,
+.driver-popover-close-btn {
+  background: white !important;
+  color: hsl(var(--primary)) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 10px 20px !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer !important;
+}
+
+.driver-popover-next-btn:hover,
+.driver-popover-prev-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.driver-popover-close-btn {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+.driver-popover-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+.driver-popover-progress-text {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+.driver-popover-arrow {
+  border-color: hsl(var(--primary)) !important;
+}
+
+.driver-overlay {
+  background: rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+.driver-active-element {
+  box-shadow: 0 0 0 4px hsl(var(--primary) / 0.5) !important;
+  border-radius: 8px !important;
+}
