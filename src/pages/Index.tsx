@@ -73,22 +73,22 @@ const Index = () => {
               }
             },
             {
-              element: window.innerWidth < 1024 ? '.tour-mobile-vehicle-card' : '.tour-price-row',
+              element: window.innerWidth < 1024 ? '.tour-mobile-price' : '.tour-price-row',
               popover: {
                 title: 'Preise',
                 description: window.innerWidth < 1024 
-                  ? 'Jede Fahrzeugkarte zeigt den Preis unten. Alle Preise sind exkl. MwSt.' 
+                  ? 'Hier sehen Sie den Preis des Fahrzeugs. Alle Preise sind exkl. MwSt.' 
                   : 'Alle angezeigten Preise sind exkl. MwSt.',
                 side: window.innerWidth < 1024 ? 'bottom' : 'right',
                 align: 'center'
               }
             },
             {
-              element: window.innerWidth < 1024 ? '.tour-mobile-vehicle-card' : '.tour-selection-row',
+              element: window.innerWidth < 1024 ? '.tour-mobile-selection' : '.tour-selection-row',
               popover: {
                 title: 'Fahrzeugauswahl',
                 description: window.innerWidth < 1024
-                  ? 'Tippen Sie auf die Checkbox oben rechts oder auf die gesamte Karte, um Fahrzeuge auszuwählen.'
+                  ? 'Tippen Sie hier auf die Checkbox, um dieses Fahrzeug auszuwählen.'
                   : 'Wählen Sie hier die Fahrzeuge aus, an denen Sie interessiert sind, und senden Sie anschließend eine Anfrage ab.',
                 side: window.innerWidth < 1024 ? 'bottom' : 'right',
                 align: 'center'
@@ -592,14 +592,14 @@ const Index = () => {
               <div>
                   {paginatedVehicles.map((vehicle, index) => {
                 const isSelected = selectedVehicles.includes(vehicle.chassis);
-                return <div key={index} onClick={() => toggleVehicleSelection(vehicle.chassis)} className={`glassmorphism rounded-2xl overflow-hidden cursor-pointer transition-all ${isSelected ? "ring-2 ring-primary" : ""} ${index === 0 ? "tour-mobile-vehicle-card" : ""}`} style={{
+                return <div key={index} onClick={() => toggleVehicleSelection(vehicle.chassis)} className={`glassmorphism rounded-2xl overflow-hidden cursor-pointer transition-all ${isSelected ? "ring-2 ring-primary" : ""}`} style={{
                   animationDelay: `${0.3 + index * 0.05}s`
                 }}>
                         {/* Image */}
                         <div className="relative h-48 bg-muted">
                           <img src={vehicle.image_url || demoVehicle} alt={`${vehicle.brand} ${vehicle.model}`} className="w-full h-full object-cover" />
                           {/* Checkbox overlay */}
-                          <div className="absolute top-3 right-3" onClick={e => e.stopPropagation()}>
+                          <div className={`absolute top-3 right-3 ${index === 0 ? 'tour-mobile-selection' : ''}`} onClick={e => e.stopPropagation()}>
                             <Checkbox checked={isSelected} onCheckedChange={() => toggleVehicleSelection(vehicle.chassis)} className="w-6 h-6 bg-background/80" />
                           </div>
                         </div>
@@ -652,7 +652,7 @@ const Index = () => {
                           </div>
 
                           {/* Price */}
-                          <div className="text-2xl font-semibold" style={{
+                          <div className={`text-2xl font-semibold ${index === 0 ? 'tour-mobile-price' : ''}`} style={{
                     color: "hsl(var(--text-primary))"
                   }}>
                             {formatPrice(vehicle.price)}
