@@ -62,7 +62,7 @@ const Index = ({ branding }: IndexProps = {}) => {
 
   // Tour mode on every visit
   useEffect(() => {
-    if (!isLoading && vehicles.length > 0) {
+    if (!isLoading && vehicles.length > 0 && isPasswordVerified) {
       const timer = setTimeout(() => {
         const driverObj = driver({
           showProgress: true,
@@ -112,7 +112,7 @@ const Index = ({ branding }: IndexProps = {}) => {
       
       return () => clearTimeout(timer);
     }
-  }, [isLoading, vehicles]);
+  }, [isLoading, vehicles, isPasswordVerified]);
 
   const handleLogout = async () => {
     await signOut();
