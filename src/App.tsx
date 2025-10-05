@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import BrandedIndex from "./pages/BrandedIndex";
 import Auth from "./pages/Auth";
+import ExternalRedirect from "./pages/ExternalRedirect";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPositionen from "./pages/admin/AdminPositionen";
@@ -35,7 +36,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Navigate to="/insolvenz" replace />} />
+            <Route path="/" element={<ExternalRedirect />} />
             <Route path="/insolvenz" element={<Index />} />
             <Route path="/insolvenz/:slug" element={<BrandedIndex />} />
             <Route path="/auth" element={<Auth />} />
