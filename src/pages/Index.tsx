@@ -595,12 +595,7 @@ const Index = () => {
               
               {/* Mobile Pagination - Fixed directly above footer */}
               {totalPages > 1 && (
-                <div 
-                  className="fixed left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.05)]"
-                  style={{
-                    bottom: `${100 + (10 - paginatedVehicles.length) * 28}px`
-                  }}
-                >
+                <div className="relative left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.05)] mt-4">
                   <div className="px-4 py-6">
                     <Pagination>
                       <PaginationContent className="gap-1">
