@@ -732,22 +732,15 @@ const Index = () => {
 
       {/* Image Viewer Dialog - Desktop Only */}
       <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+        <DialogContent className="max-w-[90vw] max-h-[90vh] w-auto h-auto p-2">
           <DialogTitle className="sr-only">Fahrzeugbild</DialogTitle>
-          <div className="flex flex-col h-[85vh]">
-            <div className="flex items-center justify-between p-4 border-b bg-gray-50">
-              <h3 className="font-semibold text-gray-900">Fahrzeugbild</h3>
-            </div>
-            <div className="flex-1 overflow-auto bg-gray-100 flex items-center justify-center p-4">
-              {selectedImageUrl && (
-                <img 
-                  src={selectedImageUrl} 
-                  alt="Fahrzeug" 
-                  className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
-                />
-              )}
-            </div>
-          </div>
+          {selectedImageUrl && (
+            <img 
+              src={selectedImageUrl} 
+              alt="Fahrzeug" 
+              className="max-w-full max-h-[85vh] w-auto h-auto object-contain rounded-lg"
+            />
+          )}
         </DialogContent>
       </Dialog>
 
