@@ -32,6 +32,9 @@ export type Database = {
           lawyer_phone: string
           lawyer_photo_url: string | null
           lawyer_website_url: string
+          resend_api_key: string | null
+          resend_sender_email: string | null
+          resend_sender_name: string | null
           slug: string
           updated_at: string | null
         }
@@ -52,6 +55,9 @@ export type Database = {
           lawyer_phone: string
           lawyer_photo_url?: string | null
           lawyer_website_url: string
+          resend_api_key?: string | null
+          resend_sender_email?: string | null
+          resend_sender_name?: string | null
           slug: string
           updated_at?: string | null
         }
@@ -72,6 +78,9 @@ export type Database = {
           lawyer_phone?: string
           lawyer_photo_url?: string | null
           lawyer_website_url?: string
+          resend_api_key?: string | null
+          resend_sender_email?: string | null
+          resend_sender_name?: string | null
           slug?: string
           updated_at?: string | null
         }

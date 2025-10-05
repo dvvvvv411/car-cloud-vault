@@ -18,6 +18,9 @@ export interface Branding {
   lawyer_phone: string;
   lawyer_website_url: string;
   is_active: boolean;
+  resend_api_key: string | null;
+  resend_sender_email: string | null;
+  resend_sender_name: string | null;
   created_at: string;
   updated_at: string;
 }

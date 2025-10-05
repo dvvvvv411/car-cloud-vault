@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Pencil, Trash2, ExternalLink, Palette } from 'lucide-react';
+import { Plus, Pencil, Trash2, ExternalLink, Palette, Eye } from 'lucide-react';
 import { useBrandings } from '@/hooks/useBranding';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { BrandingForm } from '@/components/admin/BrandingForm';
+import { EmailPreviewComponent } from '@/components/admin/EmailPreviewComponent';
 import { useToast } from '@/hooks/use-toast';
 import type { Branding } from '@/hooks/useBranding';
 
@@ -40,6 +41,8 @@ const AdminBranding = () => {
   const [selectedBranding, setSelectedBranding] = useState<Branding | undefined>();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [selectedBrandingForPreview, setSelectedBrandingForPreview] = useState<Branding | undefined>();
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -137,6 +140,18 @@ const AdminBranding = () => {
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="hover:bg-blue-500/10 hover:text-blue-500 transition-all"
+                            onClick={() => {
+                              setSelectedBrandingForPreview(branding);
+                              setPreviewDialogOpen(true);
+                            }}
+                            title="Email Preview"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             className="hover:bg-primary/10 hover:text-primary transition-all"
                             onClick={() => {
                               setSelectedBranding(branding);
@@ -194,6 +209,22 @@ const AdminBranding = () => {
               setSelectedBranding(undefined);
             }}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Email Preview Dialog */}
+      <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>E-Mail Vorschau: {selectedBrandingForPreview?.company_name}</DialogTitle>
+            <DialogDescription>
+              So sieht die Bestätigungs-Email für Kunden aus
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedBrandingForPreview && (
+            <EmailPreviewComponent branding={selectedBrandingForPreview} />
+          )}
         </DialogContent>
       </Dialog>
 

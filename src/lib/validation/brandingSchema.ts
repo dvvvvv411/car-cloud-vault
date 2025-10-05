@@ -12,6 +12,9 @@ export const brandingSchema = z.object({
   lawyer_phone: z.string().min(1, 'Telefonnummer ist erforderlich').max(50),
   lawyer_website_url: z.string().url('Ungültige URL'),
   is_active: z.boolean().default(true),
+  resend_api_key: z.string().optional(),
+  resend_sender_email: z.string().email('Ungültige E-Mail-Adresse').optional().or(z.literal('')),
+  resend_sender_name: z.string().optional(),
 });
 
 export type BrandingFormData = z.infer<typeof brandingSchema>;

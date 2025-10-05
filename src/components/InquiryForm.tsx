@@ -134,6 +134,22 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
         description: "Wir werden uns schnellstmöglich bei Ihnen melden.",
       });
 
+      // Send confirmation email if branding is configured
+      if (brandingId && inquiryData && inquiryData[0]) {
+        try {
+          await supabase.functions.invoke('send-inquiry-confirmation', {
+            body: {
+              inquiryId: inquiryData[0].id,
+              brandingId: brandingId,
+            }
+          });
+          console.log('Confirmation email sent');
+        } catch (emailError) {
+          console.error('Failed to send confirmation email:', emailError);
+          // Don't block the success flow if email fails
+        }
+      }
+
       // Reset form and trigger success callback
       form.reset();
       onSuccess(data, selectedVehicleData, totalPrice);

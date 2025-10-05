@@ -44,6 +44,9 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
       lawyer_phone: branding.lawyer_phone,
       lawyer_website_url: branding.lawyer_website_url,
       is_active: branding.is_active,
+      resend_api_key: branding.resend_api_key || '',
+      resend_sender_email: branding.resend_sender_email || '',
+      resend_sender_name: branding.resend_sender_name || '',
     } : {
       is_active: true,
     },
@@ -167,6 +170,9 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
         lawyer_phone: data.lawyer_phone,
         lawyer_website_url: data.lawyer_website_url,
         is_active: data.is_active,
+        resend_api_key: data.resend_api_key || null,
+        resend_sender_email: data.resend_sender_email || null,
+        resend_sender_name: data.resend_sender_name || null,
       };
 
       if (branding) {
@@ -407,6 +413,54 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
           />
           {errors.lawyer_website_url && (
             <p className="text-sm text-destructive mt-1">{errors.lawyer_website_url.message}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Resend Email Configuration */}
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold">E-Mail Konfiguration (Resend)</h3>
+          <p className="text-sm text-muted-foreground">
+            Konfigurieren Sie den E-Mail-Versand für Bestätigungen (optional)
+          </p>
+        </div>
+        
+        <div>
+          <Label htmlFor="resend_api_key">Resend API Key</Label>
+          <Input
+            id="resend_api_key"
+            type="password"
+            {...register('resend_api_key')}
+            placeholder="re_..."
+          />
+          {errors.resend_api_key && (
+            <p className="text-sm text-destructive mt-1">{errors.resend_api_key.message}</p>
+          )}
+        </div>
+
+        <div>
+          <Label htmlFor="resend_sender_email">Absender E-Mail</Label>
+          <Input
+            id="resend_sender_email"
+            type="email"
+            {...register('resend_sender_email')}
+            placeholder="kontakt@kanzlei.de"
+          />
+          {errors.resend_sender_email && (
+            <p className="text-sm text-destructive mt-1">{errors.resend_sender_email.message}</p>
+          )}
+        </div>
+
+        <div>
+          <Label htmlFor="resend_sender_name">Absender Name</Label>
+          <Input
+            id="resend_sender_name"
+            {...register('resend_sender_name')}
+            placeholder="Kanzlei Mustermann"
+          />
+          {errors.resend_sender_name && (
+            <p className="text-sm text-destructive mt-1">{errors.resend_sender_name.message}</p>
           )}
         </div>
       </div>
