@@ -340,19 +340,19 @@ const Index = () => {
                       <tbody>
                         {paginatedVehicles.map((vehicle, index) => {
                       const isSelected = selectedVehicles.includes(vehicle.chassis);
-                      return <tr key={index} className={`border-b hover-lift cursor-pointer group transition-colors ${isSelected ? "bg-primary/5" : ""}`} style={{
+                      return <tr key={index} className={`h-[88px] border-b hover-lift cursor-pointer group transition-colors ${isSelected ? "bg-primary/5" : ""}`} style={{
                         borderColor: "hsl(var(--divider))",
                         animationDelay: `${0.3 + index * 0.05}s`
                       }} onClick={() => toggleVehicleSelection(vehicle.chassis)}>
-                              <td className="px-6 py-4" onClick={e => e.stopPropagation()}>
+                              <td className="px-6 py-0 align-middle" onClick={e => e.stopPropagation()}>
                                 <Checkbox checked={isSelected} onCheckedChange={() => toggleVehicleSelection(vehicle.chassis)} />
                               </td>
-                              <td className="px-6 py-4">
+                              <td className="px-6 py-0 align-middle">
                                 <div className="w-24 h-16 rounded-lg overflow-hidden bg-muted">
                                   <img src={vehicle.image_url || demoVehicle} alt={`${vehicle.brand} ${vehicle.model}`} className="w-full h-full object-cover" />
                                 </div>
                               </td>
-                              <td className="px-6 py-5">
+                              <td className="px-6 py-0 align-middle">
                                 <div>
                                   <div className="font-medium text-base" style={{
                               color: "hsl(var(--text-primary))"
@@ -366,42 +366,42 @@ const Index = () => {
                                   </div>
                                 </div>
                               </td>
-                              <td className="px-6 py-5">
+                              <td className="px-6 py-0 align-middle">
                                 <span className="text-base font-mono" style={{
                             color: "hsl(var(--text-secondary))"
                           }}>
                                   {vehicle.chassis}
                                 </span>
                               </td>
-                              <td className="px-6 py-5">
+                              <td className="px-6 py-0 align-middle">
                                 <span className="text-base" style={{
                             color: "hsl(var(--text-secondary))"
                           }}>
                                   {vehicle.report_nr}
                                 </span>
                               </td>
-                              <td className="px-3 py-5">
+                              <td className="px-3 py-0 align-middle">
                                 <span className="text-base" style={{
                             color: "hsl(var(--text-secondary))"
                           }}>
                                   {vehicle.first_registration}
                                 </span>
                               </td>
-                              <td className="px-3 py-5 text-right">
+                              <td className="px-3 py-0 align-middle text-right">
                                 <span className="text-base font-medium" style={{
                             color: "hsl(var(--text-primary))"
                           }}>
                                   {formatKilometers(vehicle.kilometers)}
                                 </span>
                               </td>
-                              <td className="px-6 py-5 text-right">
+                              <td className="px-6 py-0 align-middle text-right">
                                 <span className="text-lg font-semibold" style={{
                             color: "hsl(var(--text-primary))"
                           }}>
                                   {formatPrice(vehicle.price)}
                                 </span>
                               </td>
-                              <td className="px-6 py-5 text-center">
+                              <td className="px-6 py-0 align-middle text-center">
                                 <Tooltip>
                                   <TooltipTrigger asChild>
                                     <Button 
