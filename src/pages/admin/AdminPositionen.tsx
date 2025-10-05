@@ -42,8 +42,8 @@ export default function AdminPositionen() {
     return data.publicUrl;
   };
 
-  const uploadPDF = async (file: File, vehicleId: string) => {
-    const fileName = `${vehicleId}.pdf`;
+  const uploadPDF = async (file: File, reportNr: string) => {
+    const fileName = `${reportNr}.pdf`;
     const filePath = `${fileName}`;
 
     const { error: uploadError } = await supabase.storage
@@ -90,7 +90,7 @@ export default function AdminPositionen() {
       }
 
       if (pdfFile && newVehicle) {
-        pdfUrl = await uploadPDF(pdfFile, newVehicle.id);
+        pdfUrl = await uploadPDF(pdfFile, data.report_nr);
       }
 
       // Update vehicle with file URLs
@@ -138,7 +138,7 @@ export default function AdminPositionen() {
       }
 
       if (pdfFile) {
-        pdfUrl = await uploadPDF(pdfFile, selectedVehicle.id);
+        pdfUrl = await uploadPDF(pdfFile, data.report_nr);
       }
 
       // Update vehicle

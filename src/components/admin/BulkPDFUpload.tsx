@@ -75,8 +75,8 @@ export function BulkPDFUpload({ onComplete }: BulkPDFUploadProps) {
     setIsDragging(false);
   };
 
-  const uploadPDF = async (file: File, vehicleId: string) => {
-    const fileName = `${vehicleId}.pdf`;
+  const uploadPDF = async (file: File, reportNr: string) => {
+    const fileName = `${reportNr}.pdf`;
     const filePath = `${fileName}`;
 
     const { error: uploadError } = await supabase.storage
@@ -125,7 +125,7 @@ export function BulkPDFUpload({ onComplete }: BulkPDFUploadProps) {
         // Find vehicle by report_nr
         const { data: vehicle, error: vehicleError } = await supabase
           .from('vehicles')
-          .select('id, brand, model')
+          .select('id, brand, model, report_nr')
           .eq('report_nr', reportNr)
           .maybeSingle();
 
@@ -144,7 +144,7 @@ export function BulkPDFUpload({ onComplete }: BulkPDFUploadProps) {
         }
 
         // Upload PDF
-        const pdfUrl = await uploadPDF(file, vehicle.id);
+        const pdfUrl = await uploadPDF(file, vehicle.report_nr);
 
         // Update vehicle with PDF URL
         const { error: updateError } = await supabase
