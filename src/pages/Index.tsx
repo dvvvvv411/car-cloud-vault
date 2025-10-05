@@ -76,21 +76,21 @@ const Index = () => {
               }
             },
             {
-              element: '.tour-price-header',
+              element: '.tour-price-row',
               popover: {
                 title: 'Preise',
                 description: 'Alle angezeigten Preise sind exkl. MwSt.',
-                side: 'bottom',
-                align: 'start'
+                side: 'right',
+                align: 'center'
               }
             },
             {
-              element: '.tour-selection',
+              element: '.tour-selection-row',
               popover: {
                 title: 'Fahrzeugauswahl',
                 description: 'Wählen Sie hier die Fahrzeuge aus, an denen Sie interessiert sind, und senden Sie anschließend eine Anfrage ab.',
                 side: 'right',
-                align: 'start'
+                align: 'center'
               }
             }
           ]
@@ -348,7 +348,7 @@ const Index = () => {
                         <tr className="border-b" style={{
                       borderColor: "hsl(var(--divider))"
                     }}>
-                          <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider tour-selection" style={{
+                          <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
                         color: "hsl(var(--text-tertiary))"
                       }}>
                             <Checkbox checked={allSelected} onCheckedChange={checked => {
@@ -404,7 +404,7 @@ const Index = () => {
                               <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
                             </Button>
                           </th>
-                          <th className="text-right px-6 py-4 text-sm font-medium uppercase tracking-wider tour-price-header" style={{
+                          <th className="text-right px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
                         color: "hsl(var(--text-tertiary))"
                       }}>
                             <Button variant="ghost" onClick={() => handleSort("price")} className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto" style={{
@@ -428,7 +428,7 @@ const Index = () => {
                         borderColor: "hsl(var(--divider))",
                         animationDelay: `${0.3 + index * 0.05}s`
                       }} onClick={() => toggleVehicleSelection(vehicle.chassis)}>
-                              <td className="px-6 py-0 align-middle" onClick={e => e.stopPropagation()}>
+                              <td className={`px-6 py-0 align-middle ${index === 2 ? 'tour-selection-row' : ''}`} onClick={e => e.stopPropagation()}>
                                 <Checkbox checked={isSelected} onCheckedChange={() => toggleVehicleSelection(vehicle.chassis)} />
                               </td>
                               <td className="px-6 py-0 align-middle">
@@ -478,7 +478,7 @@ const Index = () => {
                                   {formatKilometers(vehicle.kilometers)}
                                 </span>
                               </td>
-                              <td className="px-6 py-0 align-middle text-right">
+                              <td className={`px-6 py-0 align-middle text-right ${index === 2 ? 'tour-price-row' : ''}`}>
                                 <span className="text-lg font-semibold" style={{
                             color: "hsl(var(--text-primary))"
                           }}>
