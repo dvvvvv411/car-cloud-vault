@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Lock } from 'lucide-react';
+import { Lock, Shield } from 'lucide-react';
 import kbsLogo from '@/assets/kbs_blue.png';
 
 interface PasswordProtectionProps {
@@ -31,22 +31,22 @@ export const PasswordProtection = ({ onSuccess, branding, slug }: PasswordProtec
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md animate-fade-in">
-        <CardHeader className="text-center space-y-4">
+      <Card className="w-full max-w-lg animate-fade-in rounded-3xl shadow-xl">
+        <CardHeader className="text-center space-y-6 pt-8 pb-4">
           <div className="flex justify-center">
             <img 
               src={branding?.kanzlei_logo_url || kbsLogo} 
               alt="Kanzlei Logo" 
-              className="h-16 object-contain"
+              className="h-24 object-contain mb-2"
             />
           </div>
-          <CardTitle className="text-2xl">Geschützter Bereich</CardTitle>
-          <CardDescription>
-            Bitte geben Sie das Passwort aus Ihrer E-Mail ein
+          <CardTitle className="text-3xl font-bold">Geschützter Bereich</CardTitle>
+          <CardDescription className="text-base">
+            Bitte geben Sie das Passwort aus Ihrer E-Mail ein, um den geschützten Seiteninhalt einzusehen.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <CardContent className="px-8 pb-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -57,7 +57,7 @@ export const PasswordProtection = ({ onSuccess, branding, slug }: PasswordProtec
                   setPassword(e.target.value);
                   setError('');
                 }}
-                className="pl-10"
+                className="pl-10 h-12 rounded-full"
                 autoFocus
               />
             </div>
@@ -66,10 +66,26 @@ export const PasswordProtection = ({ onSuccess, branding, slug }: PasswordProtec
                 {error}
               </p>
             )}
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full h-12 rounded-full text-base font-semibold">
               Zugang erhalten
             </Button>
           </form>
+
+          <div className="mt-6 pt-6 border-t">
+            <p className="text-sm text-muted-foreground text-center leading-relaxed">
+              Diese Seite enthält vertrauliche Informationen und ist durch ein Passwort geschützt. 
+              Der Zugang ist ausschließlich für autorisierte Empfänger bestimmt.
+            </p>
+          </div>
+
+          <div className="mt-6 p-4 bg-muted/50 rounded-2xl flex gap-3">
+            <Shield className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              <strong>Datenschutzhinweis:</strong> Die auf dieser Seite bereitgestellten Inhalte unterliegen 
+              dem Anwaltsgeheimnis und Datenschutz gemäß DSGVO. Jegliche unbefugte Weitergabe, 
+              Vervielfältigung oder Nutzung ist untersagt und kann rechtliche Konsequenzen nach sich ziehen.
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>
