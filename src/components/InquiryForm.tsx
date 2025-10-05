@@ -26,6 +26,7 @@ interface InquiryFormProps {
   vehicles: Vehicle[];
   onRemoveVehicle: (chassis: string) => void;
   onBack: () => void;
+  onSuccess: (data: InquiryFormData, vehicles: Vehicle[], totalPrice: number) => void;
   brandingId?: string;
 }
 
@@ -34,6 +35,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
   vehicles,
   onRemoveVehicle,
   onBack,
+  onSuccess,
   brandingId,
 }) => {
   const { toast } = useToast();
@@ -115,11 +117,9 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
         description: "Wir werden uns schnellstmöglich bei Ihnen melden.",
       });
 
-      // Reset form and go back
+      // Reset form and trigger success callback
       form.reset();
-      setTimeout(() => {
-        onBack();
-      }, 1500);
+      onSuccess(data, selectedVehicleData, totalPrice);
 
     } catch (error) {
       console.error("Error submitting inquiry:", error);

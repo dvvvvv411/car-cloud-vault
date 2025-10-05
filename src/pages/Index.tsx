@@ -14,6 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
 import LawyerContactCard from "@/components/LawyerContactCard";
 import { InquiryForm } from "@/components/InquiryForm";
+import { InquiryConfirmation } from "@/components/InquiryConfirmation";
 import kbsLogo from "@/assets/kbs_blue.png";
 import demoVehicle from "@/assets/demo-vehicle.png";
 import beschlussImage from "@/assets/beschluss.png";
@@ -47,6 +48,10 @@ const Index = ({ branding }: IndexProps = {}) => {
   const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
   const [isPasswordVerified, setIsPasswordVerified] = useState(false);
   const [showInquiryForm, setShowInquiryForm] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [submittedInquiry, setSubmittedInquiry] = useState<any>(null);
+  const [submittedVehicles, setSubmittedVehicles] = useState<Vehicle[]>([]);
+  const [submittedTotalPrice, setSubmittedTotalPrice] = useState(0);
   const [isBeschlusskDrawerOpen, setIsBeschlusskDrawerOpen] = useState(false);
   const [pdfDialogOpen, setPdfDialogOpen] = useState(false);
   const [currentPdfUrl, setCurrentPdfUrl] = useState<string | null>(null);
@@ -313,7 +318,7 @@ const Index = ({ branding }: IndexProps = {}) => {
         </div>
 
         {/* Conditional Content Area */}
-        {!showInquiryForm ? <>
+        {!showInquiryForm && !showConfirmation ? <>
             {/* Glassmorphism Search Bar */}
             <div className="mb-6 md:mb-8 animate-fade-in" style={{
           animationDelay: "0.1s"
@@ -742,7 +747,35 @@ const Index = ({ branding }: IndexProps = {}) => {
               })}
                 </div>
             </div>
-          </> : <InquiryForm selectedVehicles={selectedVehicles} vehicles={vehicles} onRemoveVehicle={toggleVehicleSelection} onBack={() => setShowInquiryForm(false)} brandingId={branding?.id} />}
+          </> : showInquiryForm ? (
+            <InquiryForm 
+              selectedVehicles={selectedVehicles} 
+              vehicles={vehicles} 
+              onRemoveVehicle={toggleVehicleSelection} 
+              onBack={() => setShowInquiryForm(false)} 
+              onSuccess={(data, vehicles, totalPrice) => {
+                setSubmittedInquiry(data);
+                setSubmittedVehicles(vehicles);
+                setSubmittedTotalPrice(totalPrice);
+                setShowInquiryForm(false);
+                setShowConfirmation(true);
+              }}
+              brandingId={branding?.id} 
+            />
+          ) : (
+            <InquiryConfirmation
+              inquiry={submittedInquiry!}
+              vehicles={submittedVehicles}
+              totalPrice={submittedTotalPrice}
+              onBackToList={() => {
+                setShowConfirmation(false);
+                setSelectedVehicles([]);
+                setSubmittedInquiry(null);
+                setSubmittedVehicles([]);
+                setSubmittedTotalPrice(0);
+              }}
+            />
+          )}
 
         {/* Lawyer Contact Card - Always Visible, Desktop Only */}
         <LawyerContactCard 
@@ -874,7 +907,7 @@ const Index = ({ branding }: IndexProps = {}) => {
         </div>}
 
       {/* Sticky Selection/Submit Footer - Always Visible */}
-      {selectedVehicles.length > 0 && <div className="fixed bottom-0 left-0 right-0 glassmorphism border-t shadow-lg animate-fade-in z-50" style={{
+      {selectedVehicles.length > 0 && !showConfirmation && <div className="fixed bottom-0 left-0 right-0 glassmorphism border-t shadow-lg animate-fade-in z-50" style={{
       borderColor: "hsl(var(--divider))"
     }}>
           <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-5 lg:py-6">
