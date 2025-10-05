@@ -500,7 +500,7 @@ const Index = () => {
             </div>
 
             {/* Vehicle Cards - Mobile */}
-            <div className="block lg:hidden space-y-4 mb-4 animate-fade-in" style={{
+            <div className="block lg:hidden space-y-4 mb-8 animate-fade-in" style={{
           animationDelay: "0.2s"
         }}>
               {/* Fixed height wrapper to keep pagination position consistent */}
@@ -595,7 +595,7 @@ const Index = () => {
               
               {/* Mobile Pagination - Fixed directly above footer */}
               {totalPages > 1 && (
-                <div className="relative left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.05)] mt-4">
+                <div className="relative left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.05)] mt-6 mb-6">
                   <div className="px-4 py-6">
                     <Pagination>
                       <PaginationContent className="gap-1">
