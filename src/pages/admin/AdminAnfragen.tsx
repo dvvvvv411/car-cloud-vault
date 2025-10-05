@@ -1,7 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Mail, Phone, MapPin, Building2, User, Calendar, Package, Euro, MessageSquare, Loader2, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
-import { useInquiries, InquiryStatus } from "@/hooks/useInquiries";
+import { useInquiries, useUpdateInquiryCallPriority, InquiryStatus } from "@/hooks/useInquiries";
+import { useToast } from "@/hooks/use-toast";
 import { InquiryStatusDropdown } from "@/components/admin/InquiryStatusDropdown";
 import { InquiryNotesDialog } from "@/components/admin/InquiryNotesDialog";
 import { InquiryDetailsDialog } from "@/components/admin/InquiryDetailsDialog";
@@ -13,6 +15,8 @@ export default function AdminAnfragen() {
   const { data: inquiries = [], isLoading } = useInquiries();
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const updateCallPriority = useUpdateInquiryCallPriority();
+  const { toast } = useToast();
 
   const STATUS_PRIORITY: Record<InquiryStatus, number> = {
     "Neu": 1,
@@ -38,17 +42,40 @@ export default function AdminAnfragen() {
   };
 
   const sortedInquiries = useMemo(() => {
-    if (!sortBy) return inquiries;
-
-    return [...inquiries].sort((a, b) => {
+    let sorted = [...inquiries];
+    
+    // Primary sort: Call priority (always first)
+    sorted.sort((a, b) => {
+      if (a.call_priority && !b.call_priority) return -1;
+      if (!a.call_priority && b.call_priority) return 1;
+      
+      // Secondary sort: Status or other
       if (sortBy === 'status') {
         const priorityA = STATUS_PRIORITY[a.status];
         const priorityB = STATUS_PRIORITY[b.status];
         return sortOrder === 'asc' ? priorityA - priorityB : priorityB - priorityA;
       }
+      
       return 0;
     });
+    
+    return sorted;
   }, [inquiries, sortBy, sortOrder]);
+
+  const handleCallPriorityChange = (inquiryId: string, checked: boolean) => {
+    updateCallPriority.mutate(
+      { inquiryId, callPriority: checked },
+      {
+        onError: () => {
+          toast({
+            title: "Fehler",
+            description: "Call-Priorität konnte nicht aktualisiert werden.",
+            variant: "destructive",
+          });
+        },
+      }
+    );
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("de-DE", {
@@ -120,6 +147,7 @@ export default function AdminAnfragen() {
                             )}
                           </div>
                         </th>
+                        <th className="text-center p-2 font-semibold text-xs">Call</th>
                         <th className="text-center p-2 font-semibold text-xs">Details</th>
                       </tr>
                     </thead>
@@ -127,7 +155,11 @@ export default function AdminAnfragen() {
                       {sortedInquiries.map((inquiry) => (
                         <tr
                           key={inquiry.id}
-                          className="border-b hover:bg-muted/30 transition-colors"
+                          className={`border-b transition-colors ${
+                            inquiry.call_priority 
+                              ? "bg-yellow-50 border-l-4 border-l-yellow-500 hover:bg-yellow-100" 
+                              : "hover:bg-muted/30"
+                          }`}
                         >
                           <td className="p-2 text-xs text-muted-foreground whitespace-nowrap">
                             {formatDate(inquiry.created_at)}
@@ -161,6 +193,15 @@ export default function AdminAnfragen() {
                             />
                           </td>
                           <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
+                            <Checkbox
+                              checked={inquiry.call_priority}
+                              onCheckedChange={(checked) => 
+                                handleCallPriorityChange(inquiry.id, checked as boolean)
+                              }
+                              aria-label="Als Anruf markieren"
+                            />
+                          </td>
+                          <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
                             <InquiryDetailsDialog inquiry={inquiry} />
                           </td>
                         </tr>
@@ -175,7 +216,14 @@ export default function AdminAnfragen() {
           {/* Mobile Card View */}
           <div className="md:hidden space-y-4">
             {sortedInquiries.map((inquiry) => (
-              <Card key={inquiry.id} className="hover:border-primary/50 transition-colors">
+              <Card 
+                key={inquiry.id} 
+                className={`transition-colors ${
+                  inquiry.call_priority 
+                    ? "bg-yellow-50 border-l-4 border-l-yellow-500" 
+                    : "hover:border-primary/50"
+                }`}
+              >
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start mb-3">
                     <div>
@@ -186,6 +234,17 @@ export default function AdminAnfragen() {
                         <p className="text-sm text-muted-foreground">{inquiry.company_name}</p>
                       )}
                     </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 mb-3">
+                    <Checkbox
+                      checked={inquiry.call_priority}
+                      onCheckedChange={(checked) => 
+                        handleCallPriorityChange(inquiry.id, checked as boolean)
+                      }
+                      aria-label="Als Anruf markieren"
+                    />
+                    <span className="text-sm text-muted-foreground">Call-Priorität</span>
                   </div>
                   
                   <div className="space-y-3 text-sm">

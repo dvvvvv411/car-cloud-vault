@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export type InquiryStatus = "Neu" | "Möchte RG/KV" | "RG/KV gesendet" | "Bezahlt" | "Exchanged" | "Kein Interesse";
@@ -28,6 +28,7 @@ export interface Inquiry {
   total_price: number;
   status: InquiryStatus;
   status_updated_at?: string;
+  call_priority: boolean;
   created_at: string;
   brandings?: {
     company_name: string;
@@ -55,8 +56,27 @@ export const useInquiries = () => {
         ...item,
         selected_vehicles: Array.isArray(item.selected_vehicles) 
           ? item.selected_vehicles 
-          : []
+          : [],
+        call_priority: item.call_priority ?? false
       })) as Inquiry[];
+    },
+  });
+};
+
+export const useUpdateInquiryCallPriority = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ inquiryId, callPriority }: { inquiryId: string; callPriority: boolean }) => {
+      const { error } = await supabase
+        .from("inquiries")
+        .update({ call_priority: callPriority })
+        .eq("id", inquiryId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["inquiries"] });
     },
   });
 };

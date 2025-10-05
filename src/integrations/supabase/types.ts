@@ -80,6 +80,7 @@ export type Database = {
       inquiries: {
         Row: {
           branding_id: string | null
+          call_priority: boolean | null
           city: string
           company_name: string | null
           created_at: string
@@ -100,6 +101,7 @@ export type Database = {
         }
         Insert: {
           branding_id?: string | null
+          call_priority?: boolean | null
           city: string
           company_name?: string | null
           created_at?: string
@@ -120,6 +122,7 @@ export type Database = {
         }
         Update: {
           branding_id?: string | null
+          call_priority?: boolean | null
           city?: string
           company_name?: string | null
           created_at?: string
