@@ -41,6 +41,8 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<InquiryFormData>({
     resolver: zodResolver(inquirySchema),
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
     defaultValues: {
       customerType: "private",
       companyName: "",
