@@ -93,38 +93,31 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
       // Get leadId from localStorage if it exists
       const leadId = localStorage.getItem('leadId');
 
-      // Insert into database
-      const { data: inquiryData, error } = await supabase
-        .from("inquiries")
-        .insert({
-          branding_id: brandingId || null,
-          customer_type: data.customerType,
-          company_name: data.companyName || null,
-          first_name: data.firstName,
-          last_name: data.lastName,
+      // Call edge function to submit inquiry
+      const { data: response, error } = await supabase.functions.invoke('submit-inquiry', {
+        body: {
+          brandingId: brandingId || null,
+          customerType: data.customerType,
+          companyName: data.companyName || null,
+          firstName: data.firstName,
+          lastName: data.lastName,
           street: data.street,
-          zip_code: data.zipCode,
+          zipCode: data.zipCode,
           city: data.city,
           email: data.email,
           phone: data.phone,
           message: data.message || null,
-          selected_vehicles: vehiclesData,
-          total_price: totalPrice,
-          status: 'Neu',
-          lead_id: leadId || null,
-        })
-        .select();
+          selectedVehicles: vehiclesData,
+          totalPrice: totalPrice,
+          leadId: leadId || null,
+        }
+      });
 
       if (error) throw error;
+      if (!response?.success) throw new Error(response?.error || 'Submission failed');
 
-      // If we have a leadId and successfully created inquiry, update the lead
-      if (leadId && inquiryData && inquiryData[0]) {
-        await supabase
-          .from("leads")
-          .update({ inquiry_id: inquiryData[0].id })
-          .eq("id", leadId);
-        
-        // Clear leadId from localStorage
+      // Clear leadId from localStorage
+      if (leadId) {
         localStorage.removeItem('leadId');
       }
 
@@ -133,22 +126,6 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
         title: "Anfrage erfolgreich gesendet",
         description: "Wir werden uns schnellstmöglich bei Ihnen melden.",
       });
-
-      // Send confirmation email if branding is configured
-      if (brandingId && inquiryData && inquiryData[0]) {
-        try {
-          await supabase.functions.invoke('send-inquiry-confirmation', {
-            body: {
-              inquiryId: inquiryData[0].id,
-              brandingId: brandingId,
-            }
-          });
-          console.log('Confirmation email sent');
-        } catch (emailError) {
-          console.error('Failed to send confirmation email:', emailError);
-          // Don't block the success flow if email fails
-        }
-      }
 
       // Reset form and trigger success callback
       form.reset();
