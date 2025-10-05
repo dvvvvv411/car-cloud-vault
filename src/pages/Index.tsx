@@ -528,7 +528,7 @@ const Index = () => {
                     </PopoverContent>
                   </Popover>
                   
-                  <Button type="submit" form="inquiry-form" size="lg" className="gap-2 flex-1">
+                  <Button type="submit" form="inquiry-form" size="lg" className="gap-2 flex-1 h-14 md:h-16 text-base md:text-lg">
                     Jetzt unverbindlich anfragen
                     <ChevronRight className="h-5 w-5" />
                   </Button>
@@ -537,10 +537,10 @@ const Index = () => {
               
               {/* Desktop: Standard Buttons */}
               <div className={showInquiryForm ? "hidden lg:block" : ""}>
-                {!showInquiryForm ? <Button size="lg" className="gap-2" onClick={() => setShowInquiryForm(true)}>
+                {!showInquiryForm ? <Button size="lg" className="gap-2 h-14 md:h-16 text-base md:text-lg" onClick={() => setShowInquiryForm(true)}>
                     Weiter zur Anfrage
                     <ChevronRight className="h-5 w-5" />
-                  </Button> : <Button type="submit" form="inquiry-form" size="lg" className="gap-2">
+                  </Button> : <Button type="submit" form="inquiry-form" size="lg" className="gap-2 h-14 md:h-16 text-base md:text-lg">
                     Jetzt unverbindlich anfragen
                     <ChevronRight className="h-5 w-5" />
                   </Button>}

@@ -73,11 +73,6 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
       totalPrice,
     });
 
-    toast({
-      title: "Anfrage erfolgreich gesendet",
-      description:
-        "Vielen Dank für Ihre Anfrage. Unser Rechtsanwalt wird sich in Kürze bei Ihnen melden.",
-    });
 
     // Reset form
     form.reset();
