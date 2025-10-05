@@ -20,6 +20,7 @@ import demoVehicle from "@/assets/demo-vehicle.png";
 import beschlussImage from "@/assets/beschluss.png";
 import dekraLogoWhite from "@/assets/dekra-logo-white.png";
 import { useVehicles, type Vehicle } from "@/hooks/useVehicles";
+import { useMyReservations } from "@/hooks/useLeadReservations";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
 import type { Branding } from "@/hooks/useBranding";
@@ -59,6 +60,10 @@ const Index = ({ branding }: IndexProps = {}) => {
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
   const [beschlussPdfDialogOpen, setBeschlussPdfDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  
+  // Get leadId from localStorage
+  const leadId = localStorage.getItem('leadId');
+  const { data: myReservations = [] } = useMyReservations(leadId);
 
   // Reset to page 1 when search changes
   useEffect(() => {
@@ -139,6 +144,12 @@ const Index = ({ branding }: IndexProps = {}) => {
   const toggleVehicleSelection = (chassis: string) => {
     setSelectedVehicles(current => current.includes(chassis) ? current.filter(c => c !== chassis) : [...current, chassis]);
   };
+  
+  // Check if vehicle is reserved for this lead
+  const isVehicleReserved = (chassis: string) => {
+    return myReservations.some(r => r.vehicle_chassis === chassis);
+  };
+  
   const filteredAndSortedVehicles = vehicles.filter(vehicle => vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.chassis.toLowerCase().includes(searchTerm.toLowerCase())).sort((a, b) => {
     if (!sortConfig.key) return 0;
     const aValue = a[sortConfig.key];
@@ -492,12 +503,13 @@ const Index = ({ branding }: IndexProps = {}) => {
                       <tbody>
                         {paginatedVehicles.map((vehicle, index) => {
                       const isSelected = selectedVehicles.includes(vehicle.chassis);
-                      return <tr key={index} className={`h-[100px] border-b hover-lift cursor-pointer group transition-colors ${isSelected ? "bg-primary/5" : ""}`} style={{
+                      const isReserved = isVehicleReserved(vehicle.chassis);
+                      return <tr key={index} className={`h-[100px] border-b hover-lift cursor-pointer group transition-colors ${isSelected ? "bg-primary/5" : ""} ${isReserved ? "opacity-50 pointer-events-none" : ""}`} style={{
                         borderColor: "hsl(var(--divider))",
                         animationDelay: `${0.3 + index * 0.05}s`
-                      }} onClick={() => toggleVehicleSelection(vehicle.chassis)}>
+                      }} onClick={() => !isReserved && toggleVehicleSelection(vehicle.chassis)}>
                               <td className={`px-6 py-0 align-middle ${index === 2 ? 'tour-selection-row' : ''}`} onClick={e => e.stopPropagation()}>
-                                <Checkbox checked={isSelected} onCheckedChange={() => toggleVehicleSelection(vehicle.chassis)} />
+                                <Checkbox checked={isSelected} onCheckedChange={() => !isReserved && toggleVehicleSelection(vehicle.chassis)} disabled={isReserved} />
                               </td>
                               <td 
                                 className="px-6 py-0 align-middle cursor-pointer" 
@@ -523,6 +535,11 @@ const Index = ({ branding }: IndexProps = {}) => {
                             }}>
                                     {vehicle.model}
                                   </div>
+                                  {isReserved && (
+                                    <Badge variant="secondary" className="mt-1 bg-destructive/20 text-destructive">
+                                      RESERVIERT
+                                    </Badge>
+                                  )}
                                 </div>
                               </td>
                               <td className="px-6 py-0 align-middle">
@@ -666,15 +683,22 @@ const Index = ({ branding }: IndexProps = {}) => {
               <div>
                   {paginatedVehicles.map((vehicle, index) => {
                 const isSelected = selectedVehicles.includes(vehicle.chassis);
-                return <div key={index} onClick={() => toggleVehicleSelection(vehicle.chassis)} className={`glassmorphism rounded-2xl overflow-hidden cursor-pointer transition-all ${isSelected ? "ring-2 ring-primary" : ""}`} style={{
+                const isReserved = isVehicleReserved(vehicle.chassis);
+                return <div key={index} onClick={() => !isReserved && toggleVehicleSelection(vehicle.chassis)} className={`glassmorphism rounded-2xl overflow-hidden cursor-pointer transition-all ${isSelected ? "ring-2 ring-primary" : ""} ${isReserved ? "opacity-60 pointer-events-none" : ""}`} style={{
                   animationDelay: `${0.3 + index * 0.05}s`
                 }}>
                         {/* Image */}
                         <div className="relative h-48 bg-muted">
-                          <img src={vehicle.image_url || demoVehicle} alt={`${vehicle.brand} ${vehicle.model}`} className="w-full h-full object-cover" />
+                          <img src={vehicle.image_url || demoVehicle} alt={`${vehicle.brand} ${vehicle.model}`} className={`w-full h-full object-cover ${isReserved ? "brightness-50" : ""}`} />
+                          {/* Reserved overlay */}
+                          {isReserved && (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                              <span className="text-white text-2xl font-bold tracking-wider">RESERVIERT</span>
+                            </div>
+                          )}
                           {/* Checkbox overlay */}
                           <div className={`absolute top-3 right-3 ${index === 0 ? 'tour-mobile-selection' : ''}`} onClick={e => e.stopPropagation()}>
-                            <Checkbox checked={isSelected} onCheckedChange={() => toggleVehicleSelection(vehicle.chassis)} className="w-6 h-6 bg-background/80" />
+                            <Checkbox checked={isSelected} onCheckedChange={() => !isReserved && toggleVehicleSelection(vehicle.chassis)} className="w-6 h-6 bg-background/80" disabled={isReserved} />
                           </div>
                         </div>
 

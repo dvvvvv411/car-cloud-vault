@@ -190,6 +190,38 @@ export type Database = {
           },
         ]
       }
+      lead_reserved_vehicles: {
+        Row: {
+          id: string
+          lead_id: string
+          reserved_at: string | null
+          reserved_by: string | null
+          vehicle_chassis: string
+        }
+        Insert: {
+          id?: string
+          lead_id: string
+          reserved_at?: string | null
+          reserved_by?: string | null
+          vehicle_chassis: string
+        }
+        Update: {
+          id?: string
+          lead_id?: string
+          reserved_at?: string | null
+          reserved_by?: string | null
+          vehicle_chassis?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_reserved_vehicles_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           branding_id: string

@@ -7,18 +7,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Upload, Download, Eye, Calendar, Building2, Users, UserCheck, FileText } from "lucide-react";
+import { Loader2, Upload, Download, Eye, Calendar, Building2, Users, UserCheck, FileText, Package } from "lucide-react";
 import { useLeadCampaigns, useCampaignLeads, useUploadLeadCampaign, LeadCampaign, Lead } from "@/hooks/useLeads";
 import { useBrandings } from "@/hooks/useBranding";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { LeadReservationDialog } from "@/components/admin/LeadReservationDialog";
 
 const AdminLeads = () => {
   const [file, setFile] = useState<File | null>(null);
   const [selectedBrandingId, setSelectedBrandingId] = useState<string>("");
   const [selectedCampaign, setSelectedCampaign] = useState<LeadCampaign | null>(null);
   const [filterStatus, setFilterStatus] = useState<"all" | "logged-in" | "not-logged-in" | "with-inquiry">("all");
+  const [reservationDialogOpen, setReservationDialogOpen] = useState(false);
+  const [selectedLeadForReservation, setSelectedLeadForReservation] = useState<Lead | null>(null);
 
   const { data: campaigns, isLoading: campaignsLoading } = useLeadCampaigns();
   const { data: brandings, isLoading: brandingsLoading } = useBrandings();
@@ -271,12 +274,13 @@ const AdminLeads = () => {
                       <TableHead>Letzter Login</TableHead>
                       <TableHead>Login-Anzahl</TableHead>
                       <TableHead>Anfrage</TableHead>
+                      <TableHead>Reservierungen</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredLeads.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                        <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                           Keine Leads gefunden
                         </TableCell>
                       </TableRow>
@@ -300,6 +304,19 @@ const AdminLeads = () => {
                           <TableCell>
                             {lead.inquiry_id ? <Badge variant="default">✓</Badge> : <span className="text-muted-foreground">-</span>}
                           </TableCell>
+                          <TableCell>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedLeadForReservation(lead);
+                                setReservationDialogOpen(true);
+                              }}
+                            >
+                              <Package className="h-4 w-4 mr-1" />
+                              Verwalten
+                            </Button>
+                          </TableCell>
                         </TableRow>
                       ))
                     )}
@@ -310,6 +327,16 @@ const AdminLeads = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Reservation Dialog */}
+      <LeadReservationDialog
+        lead={selectedLeadForReservation}
+        open={reservationDialogOpen}
+        onOpenChange={(open) => {
+          setReservationDialogOpen(open);
+          if (!open) setSelectedLeadForReservation(null);
+        }}
+      />
     </div>
   );
 };
