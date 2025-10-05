@@ -67,40 +67,46 @@ const Index = () => {
               element: '.tour-beschluss',
               popover: {
                 title: 'Gerichtsbeschluss',
-                description: 'Hier finden Sie den Gerichtsbeschluss zur Insolvenzmasse. Klicken Sie auf das Bild, um es in voller Größe anzuzeigen.',
+                description: 'Hier sehen Sie den offiziellen Gerichtsbeschluss zur Verwertung der Fahrzeuge.',
                 side: 'bottom',
-                align: 'center'
+                align: 'start'
               }
             },
             {
-              element: '.tour-price-row',
+              element: '.tour-search',
               popover: {
-                title: 'Preise',
-                description: 'Alle angezeigten Preise sind exkl. MwSt.',
-                side: 'right',
-                align: 'center'
+                title: 'Fahrzeugsuche',
+                description: 'Nutzen Sie die Suchfunktion, um gezielt nach Fahrzeugen zu suchen.',
+                side: 'bottom',
+                align: 'start'
               }
             },
             {
-              element: '.tour-selection-row',
+              element: '.tour-table',
               popover: {
-                title: 'Fahrzeugauswahl',
-                description: 'Wählen Sie hier die Fahrzeuge aus, an denen Sie interessiert sind, und senden Sie anschließend eine Anfrage ab.',
-                side: 'right',
+                title: 'Fahrzeugliste',
+                description: 'Hier finden Sie alle verfügbaren Fahrzeuge. Wählen Sie Fahrzeuge aus und klicken Sie auf "Anfragen" um Ihr Interesse zu bekunden.',
+                side: 'top',
                 align: 'center'
               }
             }
           ],
+          onPopoverRender: () => {
+            const clickHandler = (e: MouseEvent) => {
+              e.preventDefault();
+              e.stopPropagation();
+              driverObj.moveNext();
+            };
+            
+            setTimeout(() => {
+              document.addEventListener('click', clickHandler, { capture: true, once: true });
+            }, 100);
+          },
           onDestroyStarted: () => {
-            document.removeEventListener('click', handleTourClick);
+            const cleanup = () => {};
+            document.removeEventListener('click', cleanup, { capture: true });
           }
         });
-        
-        const handleTourClick = () => {
-          driverObj.moveNext();
-        };
-        
-        document.addEventListener('click', handleTourClick);
         
         driverObj.drive();
       }, 1000);
