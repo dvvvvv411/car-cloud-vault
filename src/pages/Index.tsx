@@ -62,7 +62,7 @@ const Index = () => {
           prevBtnText: 'Zurück',
           doneBtnText: 'Fertig',
           progressText: '{{current}} von {{total}}',
-          allowClose: false,
+          allowClose: true,
           disableActiveInteraction: true,
           steps: [
             {
