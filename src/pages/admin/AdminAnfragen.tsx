@@ -157,7 +157,7 @@ export default function AdminAnfragen() {
                           key={inquiry.id}
                           className={`border-b transition-colors ${
                             inquiry.call_priority 
-                              ? "bg-yellow-50 border-l-4 border-l-yellow-500 hover:bg-yellow-100" 
+                              ? "bg-cyan-50 border-l-4 border-l-cyan-500 hover:bg-cyan-100" 
                               : "hover:bg-muted/30"
                           }`}
                         >
@@ -220,7 +220,7 @@ export default function AdminAnfragen() {
                 key={inquiry.id} 
                 className={`transition-colors ${
                   inquiry.call_priority 
-                    ? "bg-yellow-50 border-l-4 border-l-yellow-500" 
+                    ? "bg-cyan-50 border-l-4 border-l-cyan-500" 
                     : "hover:border-primary/50"
                 }`}
               >
