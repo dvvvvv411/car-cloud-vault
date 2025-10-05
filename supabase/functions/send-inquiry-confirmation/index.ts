@@ -1,6 +1,6 @@
-import React from 'npm:react@18.3.1'
-import { Resend } from 'npm:resend@4.0.0'
-import { renderAsync } from 'npm:@react-email/components@0.0.22'
+import React from 'https://esm.sh/react@18.3.1'
+import { Resend } from 'https://esm.sh/resend@4.0.0'
+import { render } from 'https://esm.sh/@react-email/render@0.0.17'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.58.0'
 import { InquiryConfirmationEmail } from './_templates/inquiry-confirmation.tsx'
 
@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
     }
     
     // 5. Render email template
-    const html = await renderAsync(
+    const html = render(
       React.createElement(InquiryConfirmationEmail, {
         branding,
         inquiry,
@@ -131,9 +131,10 @@ Deno.serve(async (req) => {
     
   } catch (error) {
     console.error('Error sending confirmation email:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return new Response(JSON.stringify({ 
       success: false, 
-      error: error.message 
+      error: errorMessage
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
