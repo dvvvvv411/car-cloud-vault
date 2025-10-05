@@ -43,6 +43,8 @@ const Index = () => {
   const [isBeschlusskDrawerOpen, setIsBeschlusskDrawerOpen] = useState(false);
   const [pdfDialogOpen, setPdfDialogOpen] = useState(false);
   const [currentPdfUrl, setCurrentPdfUrl] = useState<string | null>(null);
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Reset to page 1 when search changes
@@ -432,8 +434,15 @@ const Index = () => {
                               <td className={`px-6 py-0 align-middle ${index === 2 ? 'tour-selection-row' : ''}`} onClick={e => e.stopPropagation()}>
                                 <Checkbox checked={isSelected} onCheckedChange={() => toggleVehicleSelection(vehicle.chassis)} />
                               </td>
-                              <td className="px-6 py-0 align-middle">
-                                <div className="w-24 h-16 rounded-lg overflow-hidden bg-muted">
+                              <td 
+                                className="px-6 py-0 align-middle cursor-pointer" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedImageUrl(vehicle.image_url || demoVehicle);
+                                  setImageDialogOpen(true);
+                                }}
+                              >
+                                <div className="w-24 h-16 rounded-lg overflow-hidden bg-muted hover:ring-2 hover:ring-primary transition-all">
                                   <img src={vehicle.image_url || demoVehicle} alt={`${vehicle.brand} ${vehicle.model}`} className="w-full h-full object-cover" />
                                 </div>
                               </td>
@@ -714,6 +723,27 @@ const Index = () => {
                   src={`${currentPdfUrl}#view=FitH`}
                   className="w-full h-full"
                   title="DEKRA Bericht"
+                />
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Image Viewer Dialog - Desktop Only */}
+      <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+          <DialogTitle className="sr-only">Fahrzeugbild</DialogTitle>
+          <div className="flex flex-col h-[85vh]">
+            <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+              <h3 className="font-semibold text-gray-900">Fahrzeugbild</h3>
+            </div>
+            <div className="flex-1 overflow-auto bg-gray-100 flex items-center justify-center p-4">
+              {selectedImageUrl && (
+                <img 
+                  src={selectedImageUrl} 
+                  alt="Fahrzeug" 
+                  className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
                 />
               )}
             </div>
