@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip
 import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerClose, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
 import LawyerContactCard from "@/components/LawyerContactCard";
 import { InquiryForm } from "@/components/InquiryForm";
 import kbsLogo from "@/assets/kbs_blue.png";
@@ -17,6 +18,8 @@ import demoVehicle from "@/assets/demo-vehicle.png";
 import beschlussImage from "@/assets/beschluss.png";
 import dekraLogoWhite from "@/assets/dekra-logo-white.png";
 import { useVehicles, type Vehicle } from "@/hooks/useVehicles";
+
+const ITEMS_PER_PAGE = 10;
 
 const Index = () => {
   const navigate = useNavigate();
@@ -38,6 +41,12 @@ const Index = () => {
   const [isBeschlusskDrawerOpen, setIsBeschlusskDrawerOpen] = useState(false);
   const [pdfDialogOpen, setPdfDialogOpen] = useState(false);
   const [currentPdfUrl, setCurrentPdfUrl] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   const handleLogout = async () => {
     await signOut();
@@ -54,6 +63,21 @@ const Index = () => {
   const toggleVehicleSelection = (chassis: string) => {
     setSelectedVehicles(current => current.includes(chassis) ? current.filter(c => c !== chassis) : [...current, chassis]);
   };
+  const filteredAndSortedVehicles = vehicles.filter(vehicle => vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.chassis.toLowerCase().includes(searchTerm.toLowerCase())).sort((a, b) => {
+    if (!sortConfig.key) return 0;
+    const aValue = a[sortConfig.key];
+    const bValue = b[sortConfig.key];
+    if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredAndSortedVehicles.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedVehicles = filteredAndSortedVehicles.slice(startIndex, endIndex);
+
   const selectAll = () => {
     setSelectedVehicles(filteredAndSortedVehicles.map(v => v.chassis));
   };
@@ -73,14 +97,6 @@ const Index = () => {
       }}>Lade Fahrzeuge...</p>
       </div>;
   }
-  const filteredAndSortedVehicles = vehicles.filter(vehicle => vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.chassis.toLowerCase().includes(searchTerm.toLowerCase())).sort((a, b) => {
-    if (!sortConfig.key) return 0;
-    const aValue = a[sortConfig.key];
-    const bValue = b[sortConfig.key];
-    if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
-    if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
-    return 0;
-  });
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("de-DE", {
       style: "currency",
@@ -320,7 +336,7 @@ const Index = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredAndSortedVehicles.map((vehicle, index) => {
+                    {paginatedVehicles.map((vehicle, index) => {
                   const isSelected = selectedVehicles.includes(vehicle.chassis);
                   return <tr key={index} className={`border-b hover-lift cursor-pointer group transition-colors ${isSelected ? "bg-primary/5" : ""}`} style={{
                     borderColor: "hsl(var(--divider))",
@@ -411,13 +427,68 @@ const Index = () => {
                 </table>
               </div>
 
-              {/* Results Footer */}
-              <div className="mt-6 flex items-center justify-between">
-                <p className="text-sm" style={{
-              color: "hsl(var(--text-tertiary))"
-            }}>
-                  {filteredAndSortedVehicles.length} von {vehicles.length} Fahrzeugen angezeigt
-                </p>
+              {/* Results Footer with Pagination */}
+              <div className="mt-6 flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm" style={{
+                    color: "hsl(var(--text-tertiary))"
+                  }}>
+                    Zeige {startIndex + 1}-{Math.min(endIndex, filteredAndSortedVehicles.length)} von {filteredAndSortedVehicles.length} Fahrzeugen
+                  </p>
+                </div>
+                
+                {totalPages > 1 && (
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                          className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        />
+                      </PaginationItem>
+                      
+                      {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                        let pageNumber;
+                        if (totalPages <= 7) {
+                          pageNumber = i + 1;
+                        } else if (currentPage <= 4) {
+                          pageNumber = i + 1;
+                        } else if (currentPage >= totalPages - 3) {
+                          pageNumber = totalPages - 6 + i;
+                        } else {
+                          pageNumber = currentPage - 3 + i;
+                        }
+                        
+                        if (totalPages > 7 && i === 6 && currentPage < totalPages - 3) {
+                          return (
+                            <PaginationItem key="ellipsis">
+                              <PaginationEllipsis />
+                            </PaginationItem>
+                          );
+                        }
+                        
+                        return (
+                          <PaginationItem key={pageNumber}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(pageNumber)}
+                              isActive={currentPage === pageNumber}
+                              className="cursor-pointer"
+                            >
+                              {pageNumber}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
+                      
+                      <PaginationItem>
+                        <PaginationNext 
+                          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                          className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                )}
               </div>
             </div>
 
@@ -425,7 +496,7 @@ const Index = () => {
             <div className="block lg:hidden space-y-4 mb-24 animate-fade-in" style={{
           animationDelay: "0.2s"
         }}>
-              {filteredAndSortedVehicles.map((vehicle, index) => {
+              {paginatedVehicles.map((vehicle, index) => {
             const isSelected = selectedVehicles.includes(vehicle.chassis);
             return <div key={index} onClick={() => toggleVehicleSelection(vehicle.chassis)} className={`glassmorphism rounded-2xl overflow-hidden cursor-pointer transition-all ${isSelected ? "ring-2 ring-primary" : ""}`} style={{
               animationDelay: `${0.3 + index * 0.05}s`
@@ -511,6 +582,68 @@ const Index = () => {
                     </div>
                   </div>;
           })}
+              
+              {/* Mobile Pagination */}
+              {totalPages > 1 && (
+                <div className="pt-4 pb-4">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                          className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        />
+                      </PaginationItem>
+                      
+                      {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                        let pageNumber;
+                        if (totalPages <= 5) {
+                          pageNumber = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNumber = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNumber = totalPages - 4 + i;
+                        } else {
+                          pageNumber = currentPage - 2 + i;
+                        }
+                        
+                        if (totalPages > 5 && i === 4 && currentPage < totalPages - 2) {
+                          return (
+                            <PaginationItem key="ellipsis">
+                              <PaginationEllipsis />
+                            </PaginationItem>
+                          );
+                        }
+                        
+                        return (
+                          <PaginationItem key={pageNumber}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(pageNumber)}
+                              isActive={currentPage === pageNumber}
+                              className="cursor-pointer"
+                            >
+                              {pageNumber}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
+                      
+                      <PaginationItem>
+                        <PaginationNext 
+                          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                          className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                  
+                  <p className="text-center text-sm mt-4" style={{
+                    color: "hsl(var(--text-tertiary))"
+                  }}>
+                    Zeige {startIndex + 1}-{Math.min(endIndex, filteredAndSortedVehicles.length)} von {filteredAndSortedVehicles.length} Fahrzeugen
+                  </p>
+                </div>
+              )}
             </div>
           </> : <InquiryForm selectedVehicles={selectedVehicles} vehicles={vehicles} onRemoveVehicle={toggleVehicleSelection} onBack={() => setShowInquiryForm(false)} />}
 
