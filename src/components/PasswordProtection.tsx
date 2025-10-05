@@ -77,15 +77,6 @@ export const PasswordProtection = ({ onSuccess, branding, slug }: PasswordProtec
               Der Zugang ist ausschließlich für autorisierte Empfänger bestimmt.
             </p>
           </div>
-
-          <div className="mt-6 p-4 bg-muted/50 rounded-2xl flex gap-3">
-            <Shield className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              <strong>Datenschutzhinweis:</strong> Die auf dieser Seite bereitgestellten Inhalte unterliegen 
-              dem Anwaltsgeheimnis und Datenschutz gemäß DSGVO. Jegliche unbefugte Weitergabe, 
-              Vervielfältigung oder Nutzung ist untersagt und kann rechtliche Konsequenzen nach sich ziehen.
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>
