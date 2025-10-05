@@ -60,8 +60,8 @@ const Index = () => {
           prevBtnText: 'Zurück',
           doneBtnText: 'Fertig',
           progressText: '{{current}} von {{total}}',
-          allowClose: false,
-          disableActiveInteraction: true,
+          allowClose: true,
+          disableActiveInteraction: false,
           steps: [
             {
               element: '.tour-beschluss',
@@ -90,8 +90,17 @@ const Index = () => {
                 align: 'center'
               }
             }
-          ]
+          ],
+          onDestroyStarted: () => {
+            document.removeEventListener('click', handleTourClick);
+          }
         });
+        
+        const handleTourClick = () => {
+          driverObj.moveNext();
+        };
+        
+        document.addEventListener('click', handleTourClick);
         
         driverObj.drive();
       }, 1000);
