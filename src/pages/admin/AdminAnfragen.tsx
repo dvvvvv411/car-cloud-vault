@@ -63,8 +63,8 @@ export default function AdminAnfragen() {
                         <th className="text-left p-2 font-semibold text-xs">Telefon</th>
                         <th className="text-center p-2 font-semibold text-xs">Fzg.</th>
                         <th className="text-right p-2 font-semibold text-xs">Preis</th>
-                        <th className="text-left p-2 font-semibold text-xs">Status</th>
                         <th className="text-left p-2 font-semibold text-xs">Notizen</th>
+                        <th className="text-left p-2 font-semibold text-xs">Status</th>
                         <th className="text-center p-2 font-semibold text-xs">Details</th>
                       </tr>
                     </thead>
@@ -96,14 +96,14 @@ export default function AdminAnfragen() {
                             {formatPrice(inquiry.total_price)}
                           </td>
                           <td className="p-2" onClick={(e) => e.stopPropagation()}>
+                            <InquiryNotesDialog inquiryId={inquiry.id} />
+                          </td>
+                          <td className="p-2" onClick={(e) => e.stopPropagation()}>
                             <InquiryStatusDropdown
                               inquiryId={inquiry.id}
                               currentStatus={inquiry.status}
                               statusUpdatedAt={inquiry.status_updated_at}
                             />
-                          </td>
-                          <td className="p-2" onClick={(e) => e.stopPropagation()}>
-                            <InquiryNotesDialog inquiryId={inquiry.id} />
                           </td>
                           <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
                             <InquiryDetailsDialog inquiry={inquiry} />
