@@ -6,7 +6,7 @@ const corsHeaders = {
 };
 
 interface RequestBody {
-  email: string;
+  email?: string;
   password: string;
   brandingSlug: string;
 }
@@ -21,9 +21,9 @@ Deno.serve(async (req) => {
     const { email, password, brandingSlug }: RequestBody = await req.json();
 
     // Validate input
-    if (!email || !password || !brandingSlug) {
+    if (!password || !brandingSlug) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Email, Passwort und Branding-Slug erforderlich' }),
+        JSON.stringify({ success: false, error: 'Passwort und Branding-Slug erforderlich' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -58,18 +58,23 @@ Deno.serve(async (req) => {
     }
 
     // Verify lead credentials
-    const { data: lead, error: leadError } = await supabase
+    let query = supabase
       .from('leads')
       .select('id, has_logged_in, login_count')
-      .eq('email', email.toLowerCase().trim())
       .eq('password', password)
-      .eq('branding_id', branding.id)
-      .single();
+      .eq('branding_id', branding.id);
+
+    // If email is provided, also filter by email
+    if (email) {
+      query = query.eq('email', email.toLowerCase().trim());
+    }
+
+    const { data: lead, error: leadError } = await query.maybeSingle();
 
     if (leadError || !lead) {
       console.error('Lead verification failed:', leadError);
       return new Response(
-        JSON.stringify({ success: false, error: 'Ungültige Zugangsdaten' }),
+        JSON.stringify({ success: false, error: 'Ungültiges Passwort' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
