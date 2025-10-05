@@ -252,6 +252,72 @@ const Index = () => {
               </div>
             </div>
 
+            {/* Mobile Pagination - Below Search Bar */}
+            {totalPages > 1 && (
+              <div className="block lg:hidden relative z-40 bg-background/95 backdrop-blur-xl shadow-[0_4px_12px_-2px_rgba(0,0,0,0.05)] rounded-2xl mb-6 animate-fade-in" style={{
+                animationDelay: "0.15s"
+              }}>
+                <div className="px-4 py-6">
+                  <Pagination>
+                    <PaginationContent className="gap-1">
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                          className={currentPage === 1 ? "pointer-events-none opacity-40" : "cursor-pointer"}
+                        />
+                      </PaginationItem>
+                      
+                      {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                        let pageNumber;
+                        if (totalPages <= 5) {
+                          pageNumber = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNumber = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNumber = totalPages - 4 + i;
+                        } else {
+                          pageNumber = currentPage - 2 + i;
+                        }
+                        
+                        if (totalPages > 5 && i === 4 && currentPage < totalPages - 2) {
+                          return (
+                            <PaginationItem key="ellipsis">
+                              <PaginationEllipsis />
+                            </PaginationItem>
+                          );
+                        }
+                        
+                        return (
+                          <PaginationItem key={pageNumber}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(pageNumber)}
+                              isActive={currentPage === pageNumber}
+                              className="cursor-pointer"
+                            >
+                              {pageNumber}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
+                      
+                      <PaginationItem>
+                        <PaginationNext 
+                          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                          className={currentPage === totalPages ? "pointer-events-none opacity-40" : "cursor-pointer"}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                  
+                  <p className="text-center text-sm mt-4" style={{
+                    color: "hsl(var(--text-tertiary))"
+                  }}>
+                    Zeige {startIndex + 1}-{Math.min(endIndex, filteredAndSortedVehicles.length)} von {filteredAndSortedVehicles.length} Fahrzeugen
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Modern Table - Desktop Only */}
             <div className="hidden lg:block animate-fade-in pb-[280px]" style={{
           animationDelay: "0.2s"
@@ -592,70 +658,6 @@ const Index = () => {
                       </div>;
               })}
                 </div>
-              
-              {/* Mobile Pagination - Fixed directly above footer */}
-              {totalPages > 1 && (
-                <div className="relative left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.05)] mt-6 mb-6">
-                  <div className="px-4 py-6">
-                    <Pagination>
-                      <PaginationContent className="gap-1">
-                        <PaginationItem>
-                          <PaginationPrevious 
-                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                            className={currentPage === 1 ? "pointer-events-none opacity-40" : "cursor-pointer"}
-                          />
-                        </PaginationItem>
-                        
-                        {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                          let pageNumber;
-                          if (totalPages <= 5) {
-                            pageNumber = i + 1;
-                          } else if (currentPage <= 3) {
-                            pageNumber = i + 1;
-                          } else if (currentPage >= totalPages - 2) {
-                            pageNumber = totalPages - 4 + i;
-                          } else {
-                            pageNumber = currentPage - 2 + i;
-                          }
-                          
-                          if (totalPages > 5 && i === 4 && currentPage < totalPages - 2) {
-                            return (
-                              <PaginationItem key="ellipsis">
-                                <PaginationEllipsis />
-                              </PaginationItem>
-                            );
-                          }
-                          
-                          return (
-                            <PaginationItem key={pageNumber}>
-                              <PaginationLink
-                                onClick={() => setCurrentPage(pageNumber)}
-                                isActive={currentPage === pageNumber}
-                                className="cursor-pointer"
-                              >
-                                {pageNumber}
-                              </PaginationLink>
-                            </PaginationItem>
-                          );
-                        })}
-                        
-                        <PaginationItem>
-                          <PaginationNext 
-                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                            className={currentPage === totalPages ? "pointer-events-none opacity-40" : "cursor-pointer"}
-                          />
-                        </PaginationItem>
-                      </PaginationContent>
-                    </Pagination>
-                    
-                    <p className="text-center text-sm mt-4" style={{
-                      color: "hsl(var(--text-tertiary))"
-                    }}>
-                      Zeige {startIndex + 1}-{Math.min(endIndex, filteredAndSortedVehicles.length)} von {filteredAndSortedVehicles.length} Fahrzeugen
-                    </p>
-                  </div>
-                </div>
-              )}
             </div>
           </> : <InquiryForm selectedVehicles={selectedVehicles} vehicles={vehicles} onRemoveVehicle={toggleVehicleSelection} onBack={() => setShowInquiryForm(false)} />}
 
