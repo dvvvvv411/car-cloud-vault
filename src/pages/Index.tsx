@@ -50,11 +50,9 @@ const Index = () => {
     setCurrentPage(1);
   }, [searchTerm]);
 
-  // Tour mode on first visit
+  // Tour mode on every visit
   useEffect(() => {
-    const tourCompleted = localStorage.getItem('tourCompleted');
-    
-    if (!tourCompleted && !isLoading && vehicles.length > 0) {
+    if (!isLoading && vehicles.length > 0) {
       const timer = setTimeout(() => {
         const driverObj = driver({
           showProgress: true,
@@ -62,9 +60,6 @@ const Index = () => {
           prevBtnText: 'Zurück',
           doneBtnText: 'Fertig',
           progressText: '{{current}} von {{total}}',
-          onDestroyed: () => {
-            localStorage.setItem('tourCompleted', 'true');
-          },
           steps: [
             {
               element: '.tour-beschluss',
