@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
 import { Search, ArrowUpDown, ChevronRight, Eye, Phone, X, FileText, LogOut, LogIn, Shield, FileDown, Loader2 } from "lucide-react";
+import { PasswordProtection } from "@/components/PasswordProtection";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -44,6 +45,7 @@ const Index = ({ branding }: IndexProps = {}) => {
     direction: "asc"
   });
   const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
+  const [isPasswordVerified, setIsPasswordVerified] = useState(false);
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [isBeschlusskDrawerOpen, setIsBeschlusskDrawerOpen] = useState(false);
   const [pdfDialogOpen, setPdfDialogOpen] = useState(false);
@@ -159,6 +161,15 @@ const Index = ({ branding }: IndexProps = {}) => {
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
+    );
+  }
+
+  if (!isPasswordVerified) {
+    return (
+      <PasswordProtection 
+        onSuccess={() => setIsPasswordVerified(true)} 
+        branding={branding}
+      />
     );
   }
   const formatPrice = (price: number) => {
