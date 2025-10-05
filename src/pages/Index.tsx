@@ -77,7 +77,7 @@ const Index = () => {
               popover: {
                 title: 'Preise',
                 description: 'Alle angezeigten Preise sind exkl. MwSt.',
-                side: 'right',
+                side: window.innerWidth < 1024 ? 'bottom' : 'right',
                 align: 'center'
               }
             },
@@ -86,7 +86,7 @@ const Index = () => {
               popover: {
                 title: 'Fahrzeugauswahl',
                 description: 'Wählen Sie hier die Fahrzeuge aus, an denen Sie interessiert sind, und senden Sie anschließend eine Anfrage ab.',
-                side: 'right',
+                side: window.innerWidth < 1024 ? 'bottom' : 'right',
                 align: 'center'
               }
             }
@@ -595,7 +595,7 @@ const Index = () => {
                         <div className="relative h-48 bg-muted">
                           <img src={vehicle.image_url || demoVehicle} alt={`${vehicle.brand} ${vehicle.model}`} className="w-full h-full object-cover" />
                           {/* Checkbox overlay */}
-                          <div className="absolute top-3 right-3" onClick={e => e.stopPropagation()}>
+                          <div className={`absolute top-3 right-3 ${index === 0 ? 'tour-selection-row' : ''}`} onClick={e => e.stopPropagation()}>
                             <Checkbox checked={isSelected} onCheckedChange={() => toggleVehicleSelection(vehicle.chassis)} className="w-6 h-6 bg-background/80" />
                           </div>
                         </div>
@@ -648,7 +648,7 @@ const Index = () => {
                           </div>
 
                           {/* Price */}
-                          <div className="text-2xl font-semibold" style={{
+                          <div className={`text-2xl font-semibold ${index === 0 ? 'tour-price-row' : ''}`} style={{
                     color: "hsl(var(--text-primary))"
                   }}>
                             {formatPrice(vehicle.price)}
