@@ -87,6 +87,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
         price: v.price,
         kilometers: v.kilometers,
         first_registration: v.first_registration,
+        report_nr: v.report_nr,
       }));
 
       // Get leadId from localStorage if it exists

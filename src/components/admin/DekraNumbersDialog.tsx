@@ -8,7 +8,11 @@ interface DekraNumbersDialogProps {
 }
 
 export const DekraNumbersDialog = ({ reportNumbers }: DekraNumbersDialogProps) => {
-  const reportNumbersText = reportNumbers.join('\n');
+  // Filter out undefined/null/empty values and add fallback
+  const validReportNumbers = reportNumbers.filter(nr => nr && nr.trim() !== '');
+  const reportNumbersText = validReportNumbers.length > 0 
+    ? validReportNumbers.join('\n') 
+    : 'Keine DEKRA-Nummern verfügbar';
 
   return (
     <Dialog>
@@ -24,7 +28,7 @@ export const DekraNumbersDialog = ({ reportNumbers }: DekraNumbersDialogProps) =
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>DEKRA-Nummern ({reportNumbers.length})</DialogTitle>
+          <DialogTitle>DEKRA-Nummern ({validReportNumbers.length})</DialogTitle>
         </DialogHeader>
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">
