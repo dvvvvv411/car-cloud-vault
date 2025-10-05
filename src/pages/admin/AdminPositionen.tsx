@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Car } from "lucide-react";
+import { Plus, Pencil, Trash2, Car, FileUp } from "lucide-react";
 import { VehicleForm } from "@/components/admin/VehicleForm";
 import { DeleteVehicleDialog } from "@/components/admin/DeleteVehicleDialog";
+import { BulkPDFUpload } from "@/components/admin/BulkPDFUpload";
 import { VehicleFormData } from "@/lib/validation/vehicleSchema";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -19,6 +20,7 @@ export default function AdminPositionen() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -247,10 +249,16 @@ export default function AdminPositionen() {
           <h1 className="text-3xl font-bold text-foreground">Fahrzeugverwaltung</h1>
           <p className="text-muted-foreground mt-1">Verwalten Sie alle Fahrzeugpositionen</p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          Fahrzeug hinzufügen
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Fahrzeug hinzufügen
+          </Button>
+          <Button variant="outline" onClick={() => setIsBulkUploadDialogOpen(true)}>
+            <FileUp className="mr-2 h-4 w-4" />
+            PDF Massen-Upload
+          </Button>
+        </div>
       </div>
 
       <Card>
@@ -376,6 +384,21 @@ export default function AdminPositionen() {
         onConfirm={handleDelete}
         isDeleting={isSubmitting}
       />
+
+      {/* Bulk PDF Upload Dialog */}
+      <Dialog open={isBulkUploadDialogOpen} onOpenChange={setIsBulkUploadDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>PDF Massen-Upload</DialogTitle>
+          </DialogHeader>
+          <BulkPDFUpload 
+            onComplete={() => {
+              refetch();
+              setIsBulkUploadDialogOpen(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
