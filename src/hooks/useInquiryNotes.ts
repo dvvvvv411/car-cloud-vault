@@ -21,7 +21,7 @@ export const useInquiryNotes = (inquiryId: string) => {
         .from("inquiry_notes")
         .select("*")
         .eq("inquiry_id", inquiryId)
-        .order("created_at", { ascending: true });
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       
