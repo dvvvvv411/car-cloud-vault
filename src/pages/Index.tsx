@@ -253,7 +253,7 @@ const Index = () => {
             </div>
 
             {/* Modern Table - Desktop Only */}
-            <div className="hidden lg:block animate-fade-in" style={{
+            <div className="hidden lg:block animate-fade-in pb-[240px]" style={{
           animationDelay: "0.2s"
         }}>
               <div className="overflow-x-auto">
@@ -496,7 +496,7 @@ const Index = () => {
             </div>
 
             {/* Vehicle Cards - Mobile */}
-            <div className="block lg:hidden space-y-4 mb-24 animate-fade-in" style={{
+            <div className="block lg:hidden space-y-4 mb-24 animate-fade-in pb-[220px]" style={{
           animationDelay: "0.2s"
         }}>
               {/* Fixed height wrapper to keep pagination position consistent */}
