@@ -435,13 +435,15 @@ const Index = () => {
                 <div className="fixed bottom-[120px] left-0 right-0 z-40 bg-background/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.05)] rounded-t-2xl">
                   <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-6">
                     <Pagination>
-                      <PaginationContent className="gap-4">
+                      <PaginationContent className="gap-1">
                         <PaginationItem>
                           <PaginationPrevious 
                             onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                             className={currentPage === 1 ? "pointer-events-none opacity-40" : "cursor-pointer"}
                           />
                         </PaginationItem>
+                        
+                        <div className="w-3" />
                         
                         {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
                           let pageNumber;
@@ -475,6 +477,8 @@ const Index = () => {
                             </PaginationItem>
                           );
                         })}
+                        
+                        <div className="w-3" />
                         
                         <PaginationItem>
                           <PaginationNext 
