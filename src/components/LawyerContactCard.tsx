@@ -14,11 +14,34 @@ import lawyerAvatar from "@/assets/mark-steh.png";
 
 interface LawyerContactCardProps {
   hideMobileButton?: boolean;
+  lawyerName?: string;
+  lawyerPhotoUrl?: string;
+  firmName?: string;
+  firmSubtitle?: string;
+  addressStreet?: string;
+  addressCity?: string;
+  email?: string;
+  phone?: string;
+  websiteUrl?: string;
 }
 
-const LawyerContactCard = ({ hideMobileButton = false }: LawyerContactCardProps) => {
+const LawyerContactCard = ({ 
+  hideMobileButton = false,
+  lawyerName = "Mark Steh",
+  lawyerPhotoUrl = lawyerAvatar,
+  firmName = "KBS Rechtsanwälte",
+  firmSubtitle = "Küpper Bredehöft Schwencker PartG",
+  addressStreet = "Speldorfer Str. 2",
+  addressCity = "40239 Düsseldorf",
+  email = "m.steh@kbs-kanzlei.de",
+  phone = "0211 54262200",
+  websiteUrl = "https://kbs-kanzlei.de"
+}: LawyerContactCardProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  // Format phone number for tel: link
+  const phoneLink = `tel:${phone.replace(/\s/g, '')}`;
 
   // Contact Card Content Component (reusable for both desktop and mobile)
   const ContactContent = () => (
@@ -26,13 +49,13 @@ const LawyerContactCard = ({ hideMobileButton = false }: LawyerContactCardProps)
       {/* Profile Image & Name - Side by Side Layout */}
       <div className="flex items-center justify-center gap-6 mb-6">
         <img 
-          src={lawyerAvatar} 
-          alt="Rechtsanwalt Mark Steh" 
+          src={lawyerPhotoUrl} 
+          alt={`Rechtsanwalt ${lawyerName}`}
           className="w-32 h-32 rounded-full object-cover shadow-lg"
         />
         <div>
           <p className="text-base text-white/80 mb-1">Rechtsanwalt</p>
-          <h3 className="text-3xl font-bold">Mark Steh</h3>
+          <h3 className="text-3xl font-bold">{lawyerName}</h3>
         </div>
       </div>
 
@@ -44,16 +67,16 @@ const LawyerContactCard = ({ hideMobileButton = false }: LawyerContactCardProps)
         <div className="flex items-start gap-3">
           <Building2 className="w-5 h-5 flex-shrink-0 mt-0.5 text-white/70" />
           <div className="leading-relaxed">
-            <p className="font-medium">KBS Rechtsanwälte</p>
-            <p className="text-white/80">Küpper Bredehöft Schwencker PartG</p>
+            <p className="font-medium">{firmName}</p>
+            {firmSubtitle && <p className="text-white/80">{firmSubtitle}</p>}
           </div>
         </div>
         
         <div className="flex items-start gap-3">
           <MapPin className="w-5 h-5 flex-shrink-0 mt-0.5 text-white/70" />
           <div className="leading-relaxed text-white/80">
-            <p>Speldorfer Str. 2</p>
-            <p>40239 Düsseldorf</p>
+            <p>{addressStreet}</p>
+            <p>{addressCity}</p>
           </div>
         </div>
       </div>
@@ -64,11 +87,11 @@ const LawyerContactCard = ({ hideMobileButton = false }: LawyerContactCardProps)
       {/* Contact Information */}
       <div className="mb-6">
         <a 
-          href="mailto:m.steh@kbs-kanzlei.de"
+          href={`mailto:${email}`}
           className="flex items-center gap-3 text-base hover:text-white/80 transition-colors group mb-4"
         >
           <Mail className="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform" />
-          <span className="break-all">m.steh@kbs-kanzlei.de</span>
+          <span className="break-all">{email}</span>
         </a>
       </div>
 
@@ -77,17 +100,17 @@ const LawyerContactCard = ({ hideMobileButton = false }: LawyerContactCardProps)
         <div className="flex flex-col items-center gap-3">
           <Phone className="w-8 h-8 text-white/90" />
           <a 
-            href="tel:+492115426220"
+            href={phoneLink}
             className="text-4xl font-bold hover:text-white/80 transition-colors"
           >
-            0211 54262200
+            {phone}
           </a>
         </div>
       </div>
       
       {/* CTA Buttons */}
       <div className="space-y-3">
-        <a href="tel:+492115426220" className="block">
+        <a href={phoneLink} className="block">
           <Button 
             className="w-full bg-white text-[#003e7e] hover:bg-white/90 font-semibold shadow-lg hover:shadow-xl transition-all min-h-12"
             size="lg"
@@ -97,7 +120,7 @@ const LawyerContactCard = ({ hideMobileButton = false }: LawyerContactCardProps)
           </Button>
         </a>
         
-        <a href="https://kbs-kanzlei.de" target="_blank" rel="noopener noreferrer" className="block">
+        <a href={websiteUrl} target="_blank" rel="noopener noreferrer" className="block">
           <Button 
             className="w-full bg-[#C5A572] text-white hover:bg-[#B4954F] font-semibold shadow-lg hover:shadow-xl transition-all min-h-12"
             size="lg"

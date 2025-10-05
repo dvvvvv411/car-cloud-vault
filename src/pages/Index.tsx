@@ -20,10 +20,15 @@ import dekraLogoWhite from "@/assets/dekra-logo-white.png";
 import { useVehicles, type Vehicle } from "@/hooks/useVehicles";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
+import type { Branding } from "@/hooks/useBranding";
 
 const ITEMS_PER_PAGE = 10;
 
-const Index = () => {
+interface IndexProps {
+  branding?: Branding;
+}
+
+const Index = ({ branding }: IndexProps = {}) => {
   const navigate = useNavigate();
   const { user, role, signOut } = useAuth();
   const {
@@ -178,10 +183,10 @@ const Index = () => {
           <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6 mb-4 md:mb-6">
             {/* Logo und Badge */}
             <div className="flex items-start gap-3">
-              <img src={kbsLogo} alt="KBS Kanzlei Logo" className="h-16 md:h-20 lg:h-24 w-auto" />
+              <img src={branding?.kanzlei_logo_url || kbsLogo} alt="Kanzlei Logo" className="h-16 md:h-20 lg:h-24 w-auto" />
               {/* Badge - nur auf Mobile/Tablet sichtbar */}
               <Badge variant="secondary" className="lg:hidden text-xs sm:text-sm md:text-base px-3 md:px-4 py-1 md:py-1.5 font-semibold mt-1">
-                Az: 502 IN 14/25
+                {branding?.case_number || 'Az: 502 IN 14/25'}
               </Badge>
             </div>
             
@@ -193,7 +198,7 @@ const Index = () => {
                 <div className="flex flex-col lg:flex-row lg:items-start lg:gap-3">
                   {/* Badge - nur auf Desktop sichtbar */}
                   <Badge variant="secondary" className="hidden lg:flex text-base px-4 py-1.5 font-semibold lg:mt-1">
-                    Az: 502 IN 14/25
+                    {branding?.case_number || 'Az: 502 IN 14/25'}
                   </Badge>
                   
                   <div className="flex flex-col tour-beschluss">
@@ -201,7 +206,7 @@ const Index = () => {
                     <Drawer open={isBeschlusskDrawerOpen} onOpenChange={setIsBeschlusskDrawerOpen}>
                   <DrawerTrigger asChild>
                     <div className="relative group lg:hidden w-full md:w-auto">
-                      <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[6rem] md:h-[7rem] w-full md:w-auto object-cover md:object-none cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all brightness-[0.85] md:brightness-100" />
+                      <img src={branding?.court_decision_pdf_url || beschlussImage} alt="Gerichtsbeschluss" className="h-[6rem] md:h-[7rem] w-full md:w-auto object-cover md:object-none cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all brightness-[0.85] md:brightness-100" />
                       
                       {/* Permanente Kennzeichnung nur auf Mobile */}
                       <div className="absolute inset-0 rounded bg-black/30 md:bg-transparent flex flex-col items-center justify-center pointer-events-none">
@@ -220,7 +225,7 @@ const Index = () => {
                       <X className="h-6 w-6" />
                     </DrawerClose>
                     <div className="h-full w-full flex items-center justify-center">
-                      <img src={beschlussImage} alt="Gerichtsbeschluss" className="max-h-full max-w-full object-contain" />
+                      <img src={branding?.court_decision_pdf_url || beschlussImage} alt="Gerichtsbeschluss" className="max-h-full max-w-full object-contain" />
                     </div>
                   </DrawerContent>
                 </Drawer>
@@ -229,14 +234,14 @@ const Index = () => {
                 <Dialog>
                   <DialogTrigger asChild>
                     <div className="relative group hidden lg:block">
-                      <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105" />
+                      <img src={branding?.court_decision_pdf_url || beschlussImage} alt="Gerichtsbeschluss" className="h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105" />
                       <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
                         <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
                       </div>
                     </div>
                   </DialogTrigger>
                   <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
-                    <img src={beschlussImage} alt="Gerichtsbeschluss" className="w-full h-auto" />
+                    <img src={branding?.court_decision_pdf_url || beschlussImage} alt="Gerichtsbeschluss" className="w-full h-auto" />
                   </DialogContent>
                 </Dialog>
                   </div>
@@ -252,7 +257,7 @@ const Index = () => {
               </div>
               <p className="text-base md:text-lg lg:text-xl" style={{
               color: "hsl(var(--text-secondary))"
-            }}>Übersicht an verfügbaren Positionen aus der Insolvenzmasse der TZ-West GmbH.</p>
+            }}>Übersicht an verfügbaren Positionen aus der Insolvenzmasse der {branding?.company_name || 'TZ-West GmbH'}.</p>
             </div>
           </div>
         </div>
@@ -690,7 +695,18 @@ const Index = () => {
           </> : <InquiryForm selectedVehicles={selectedVehicles} vehicles={vehicles} onRemoveVehicle={toggleVehicleSelection} onBack={() => setShowInquiryForm(false)} />}
 
         {/* Lawyer Contact Card - Always Visible, Desktop Only */}
-        <LawyerContactCard hideMobileButton={isBeschlusskDrawerOpen} />
+        <LawyerContactCard 
+          hideMobileButton={isBeschlusskDrawerOpen}
+          lawyerName={branding?.lawyer_name}
+          lawyerPhotoUrl={branding?.lawyer_photo_url || undefined}
+          firmName={branding?.lawyer_firm_name}
+          firmSubtitle={branding?.lawyer_firm_subtitle || undefined}
+          addressStreet={branding?.lawyer_address_street}
+          addressCity={branding?.lawyer_address_city}
+          email={branding?.lawyer_email}
+          phone={branding?.lawyer_phone}
+          websiteUrl={branding?.lawyer_website_url}
+        />
       </div>
 
       {/* PDF Viewer Dialog */}

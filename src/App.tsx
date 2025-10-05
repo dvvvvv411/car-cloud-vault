@@ -3,16 +3,18 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
+import BrandedIndex from "./pages/BrandedIndex";
 import Auth from "./pages/Auth";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPositionen from "./pages/admin/AdminPositionen";
 import AdminAnfragen from "./pages/admin/AdminAnfragen";
 import AdminBenutzer from "./pages/admin/AdminBenutzer";
+import AdminBranding from "./pages/admin/AdminBranding";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -32,7 +34,9 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={<Navigate to="/insolvenz" replace />} />
+            <Route path="/insolvenz" element={<Index />} />
+            <Route path="/insolvenz/:slug" element={<BrandedIndex />} />
             <Route path="/auth" element={<Auth />} />
             <Route 
               path="/admin" 
@@ -46,6 +50,7 @@ const App = () => (
               <Route path="positionen" element={<AdminPositionen />} />
               <Route path="anfragen" element={<AdminAnfragen />} />
               <Route path="benutzer" element={<AdminBenutzer />} />
+              <Route path="branding" element={<AdminBranding />} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
