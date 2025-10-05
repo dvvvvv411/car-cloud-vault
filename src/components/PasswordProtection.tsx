@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -16,20 +16,11 @@ interface PasswordProtectionProps {
 export const PasswordProtection = ({ onSuccess, branding, slug }: PasswordProtectionProps) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const storageKey = `insolvenz_access_${slug || 'default'}`;
-
-  useEffect(() => {
-    const isUnlocked = localStorage.getItem(storageKey);
-    if (isUnlocked === 'true') {
-      onSuccess();
-    }
-  }, [storageKey, onSuccess]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (password === '123') {
-      localStorage.setItem(storageKey, 'true');
       setError('');
       onSuccess();
     } else {
