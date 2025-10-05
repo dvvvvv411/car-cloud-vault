@@ -3,6 +3,7 @@ import { useUpdateInquiryStatus } from "@/hooks/useInquiryNotes";
 import { InquiryStatus } from "@/hooks/useInquiries";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 
 interface InquiryStatusDropdownProps {
   inquiryId: string;
@@ -18,6 +19,23 @@ const STATUS_OPTIONS: InquiryStatus[] = [
   "Exchanged"
 ];
 
+const getStatusColor = (status: InquiryStatus) => {
+  switch (status) {
+    case "Neu":
+      return "bg-blue-100 text-blue-800 border-blue-300 hover:bg-blue-200";
+    case "Möchte RG/KV":
+      return "bg-orange-100 text-orange-800 border-orange-300 hover:bg-orange-200";
+    case "RG/KV gesendet":
+      return "bg-purple-100 text-purple-800 border-purple-300 hover:bg-purple-200";
+    case "Bezahlt":
+      return "bg-green-100 text-green-800 border-green-300 hover:bg-green-200";
+    case "Exchanged":
+      return "bg-gray-100 text-gray-800 border-gray-300 hover:bg-gray-200";
+    default:
+      return "bg-muted text-muted-foreground";
+  }
+};
+
 export const InquiryStatusDropdown = ({ inquiryId, currentStatus, statusUpdatedAt }: InquiryStatusDropdownProps) => {
   const updateStatus = useUpdateInquiryStatus();
 
@@ -28,12 +46,16 @@ export const InquiryStatusDropdown = ({ inquiryId, currentStatus, statusUpdatedA
   return (
     <div className="flex flex-col gap-1">
       <Select value={currentStatus} onValueChange={handleStatusChange}>
-        <SelectTrigger className="w-[160px] h-8 text-xs">
+        <SelectTrigger className={cn("w-[180px] h-8 text-xs font-medium transition-colors", getStatusColor(currentStatus))}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
           {STATUS_OPTIONS.map((status) => (
-            <SelectItem key={status} value={status} className="text-xs">
+            <SelectItem 
+              key={status} 
+              value={status} 
+              className={cn("text-xs font-medium transition-colors", getStatusColor(status))}
+            >
               {status}
             </SelectItem>
           ))}

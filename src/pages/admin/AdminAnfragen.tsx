@@ -1,15 +1,53 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, MapPin, Building2, User, Calendar, Package, Euro, MessageSquare, Loader2 } from "lucide-react";
-import { useInquiries } from "@/hooks/useInquiries";
+import { Mail, Phone, MapPin, Building2, User, Calendar, Package, Euro, MessageSquare, Loader2, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { useInquiries, InquiryStatus } from "@/hooks/useInquiries";
 import { InquiryStatusDropdown } from "@/components/admin/InquiryStatusDropdown";
 import { InquiryNotesDialog } from "@/components/admin/InquiryNotesDialog";
 import { InquiryDetailsDialog } from "@/components/admin/InquiryDetailsDialog";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { useState, useMemo } from "react";
 
 export default function AdminAnfragen() {
   const { data: inquiries = [], isLoading } = useInquiries();
+  const [sortBy, setSortBy] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+
+  const STATUS_PRIORITY: Record<InquiryStatus, number> = {
+    "Neu": 1,
+    "Möchte RG/KV": 2,
+    "RG/KV gesendet": 3,
+    "Bezahlt": 4,
+    "Exchanged": 5
+  };
+
+  const handleSort = (column: string) => {
+    if (sortBy === column) {
+      if (sortOrder === 'asc') {
+        setSortOrder('desc');
+      } else {
+        setSortBy(null);
+        setSortOrder('asc');
+      }
+    } else {
+      setSortBy(column);
+      setSortOrder('asc');
+    }
+  };
+
+  const sortedInquiries = useMemo(() => {
+    if (!sortBy) return inquiries;
+
+    return [...inquiries].sort((a, b) => {
+      if (sortBy === 'status') {
+        const priorityA = STATUS_PRIORITY[a.status];
+        const priorityB = STATUS_PRIORITY[b.status];
+        return sortOrder === 'asc' ? priorityA - priorityB : priorityB - priorityA;
+      }
+      return 0;
+    });
+  }, [inquiries, sortBy, sortOrder]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("de-DE", {
@@ -64,12 +102,28 @@ export default function AdminAnfragen() {
                         <th className="text-center p-2 font-semibold text-xs">Fzg.</th>
                         <th className="text-right p-2 font-semibold text-xs">Preis</th>
                         <th className="text-left p-2 font-semibold text-xs">Notizen</th>
-                        <th className="text-left p-2 font-semibold text-xs">Status</th>
+                        <th 
+                          className="text-left p-2 font-semibold text-xs cursor-pointer hover:bg-muted/70 transition-colors"
+                          onClick={() => handleSort('status')}
+                        >
+                          <div className="flex items-center gap-1">
+                            <span>Status</span>
+                            {sortBy === 'status' ? (
+                              sortOrder === 'asc' ? (
+                                <ArrowUp className="h-3 w-3" />
+                              ) : (
+                                <ArrowDown className="h-3 w-3" />
+                              )
+                            ) : (
+                              <ArrowUpDown className="h-3 w-3 opacity-50" />
+                            )}
+                          </div>
+                        </th>
                         <th className="text-center p-2 font-semibold text-xs">Details</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {inquiries.map((inquiry) => (
+                      {sortedInquiries.map((inquiry) => (
                         <tr
                           key={inquiry.id}
                           className="border-b hover:bg-muted/30 transition-colors"
@@ -119,7 +173,7 @@ export default function AdminAnfragen() {
 
           {/* Mobile Card View */}
           <div className="md:hidden space-y-4">
-            {inquiries.map((inquiry) => (
+            {sortedInquiries.map((inquiry) => (
               <Card key={inquiry.id} className="hover:border-primary/50 transition-colors">
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start mb-3">
