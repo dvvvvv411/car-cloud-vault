@@ -9,8 +9,8 @@ const BrandedIndex = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-primary-dark to-background">
-        <Loader2 className="h-8 w-8 animate-spin text-white" />
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }

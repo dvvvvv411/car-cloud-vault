@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
-import { Search, ArrowUpDown, ChevronRight, Eye, Phone, X, FileText, LogOut, LogIn, Shield, FileDown } from "lucide-react";
+import { Search, ArrowUpDown, ChevronRight, Eye, Phone, X, FileText, LogOut, LogIn, Shield, FileDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -155,11 +155,11 @@ const Index = ({ branding }: IndexProps = {}) => {
     }));
   };
   if (isLoading) {
-    return <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-lg" style={{
-        color: "hsl(var(--text-secondary))"
-      }}>Lade Fahrzeuge...</p>
-      </div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("de-DE", {
