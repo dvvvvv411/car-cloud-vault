@@ -18,19 +18,57 @@ export const PasswordProtection = ({ onSuccess, branding, slug }: PasswordProtec
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    setIsLoading(true);
     
-    if (password === '123') {
-      setError('');
-      setIsLoading(true);
-      
-      setTimeout(() => {
-        onSuccess();
-      }, 500);
-    } else {
-      setError('Falsches Passwort. Bitte versuchen Sie es erneut.');
+    try {
+      // First check for master password
+      if (password === 'admin777') {
+        console.log('Master password used');
+        setTimeout(() => {
+          onSuccess();
+        }, 500);
+        return;
+      }
+
+      // Verify with edge function
+      const response = await fetch(
+        'https://dbltyxypjvbavejkkcer.supabase.co/functions/v1/verify-lead-password',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: '', // We don't have email in this context, will be handled by password only
+            password: password,
+            brandingSlug: slug || '',
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Store leadId if it exists (not for master password)
+        if (data.leadId) {
+          localStorage.setItem('leadId', data.leadId);
+        }
+        setTimeout(() => {
+          onSuccess();
+        }, 500);
+      } else {
+        setError('Falsches Passwort. Bitte versuchen Sie es erneut.');
+        setPassword('');
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error('Password verification error:', error);
+      setError('Verbindungsfehler. Bitte versuchen Sie es erneut.');
       setPassword('');
+      setIsLoading(false);
     }
   };
 

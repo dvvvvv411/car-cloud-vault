@@ -89,8 +89,11 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
         first_registration: v.first_registration,
       }));
 
+      // Get leadId from localStorage if it exists
+      const leadId = localStorage.getItem('leadId');
+
       // Insert into database
-      const { error } = await supabase
+      const { data: inquiryData, error } = await supabase
         .from("inquiries")
         .insert({
           branding_id: brandingId || null,
@@ -107,9 +110,22 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
           selected_vehicles: vehiclesData,
           total_price: totalPrice,
           status: 'new',
-        });
+          lead_id: leadId || null,
+        })
+        .select();
 
       if (error) throw error;
+
+      // If we have a leadId and successfully created inquiry, update the lead
+      if (leadId && inquiryData && inquiryData[0]) {
+        await supabase
+          .from("leads")
+          .update({ inquiry_id: inquiryData[0].id })
+          .eq("id", leadId);
+        
+        // Clear leadId from localStorage
+        localStorage.removeItem('leadId');
+      }
 
       // Success
       toast({

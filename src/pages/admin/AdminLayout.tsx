@@ -1,5 +1,5 @@
 import { Outlet, NavLink } from "react-router-dom";
-import { LayoutDashboard, Car, MessageSquare, Users, LogOut, Menu, Palette } from "lucide-react";
+import { LayoutDashboard, Car, MessageSquare, Users, LogOut, Menu, Palette, UserPlus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -9,9 +9,10 @@ import { useState } from "react";
 const navItems = [
   { title: 'Dashboard', url: '/admin', icon: LayoutDashboard },
   { title: 'Positionen', url: '/admin/positionen', icon: Car },
-  { title: 'Anfragen', url: '/admin/anfragen', icon: MessageSquare },
-  { title: 'Benutzer', url: '/admin/benutzer', icon: Users },
   { title: 'Branding', url: '/admin/branding', icon: Palette },
+  { title: 'Anfragen', url: '/admin/anfragen', icon: MessageSquare },
+  { title: 'Leads', url: '/admin/leads', icon: UserPlus },
+  { title: 'Benutzer', url: '/admin/benutzer', icon: Users },
 ];
 
 export default function AdminLayout() {

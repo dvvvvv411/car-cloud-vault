@@ -88,6 +88,7 @@ export type Database = {
           first_name: string
           id: string
           last_name: string
+          lead_id: string | null
           message: string | null
           phone: string
           selected_vehicles: Json
@@ -106,6 +107,7 @@ export type Database = {
           first_name: string
           id?: string
           last_name: string
+          lead_id?: string | null
           message?: string | null
           phone: string
           selected_vehicles: Json
@@ -124,6 +126,7 @@ export type Database = {
           first_name?: string
           id?: string
           last_name?: string
+          lead_id?: string | null
           message?: string | null
           phone?: string
           selected_vehicles?: Json
@@ -138,6 +141,115 @@ export type Database = {
             columns: ["branding_id"]
             isOneToOne: false
             referencedRelation: "brandings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inquiries_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_campaigns: {
+        Row: {
+          branding_id: string
+          campaign_name: string
+          created_at: string
+          created_by: string | null
+          id: string
+          total_leads: number
+          upload_date: string
+        }
+        Insert: {
+          branding_id: string
+          campaign_name: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          total_leads?: number
+          upload_date?: string
+        }
+        Update: {
+          branding_id?: string
+          campaign_name?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          total_leads?: number
+          upload_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_campaigns_branding_id_fkey"
+            columns: ["branding_id"]
+            isOneToOne: false
+            referencedRelation: "brandings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          branding_id: string
+          campaign_id: string
+          created_at: string
+          email: string
+          first_login_at: string | null
+          has_logged_in: boolean
+          id: string
+          inquiry_id: string | null
+          last_login_at: string | null
+          login_count: number
+          password: string
+        }
+        Insert: {
+          branding_id: string
+          campaign_id: string
+          created_at?: string
+          email: string
+          first_login_at?: string | null
+          has_logged_in?: boolean
+          id?: string
+          inquiry_id?: string | null
+          last_login_at?: string | null
+          login_count?: number
+          password: string
+        }
+        Update: {
+          branding_id?: string
+          campaign_id?: string
+          created_at?: string
+          email?: string
+          first_login_at?: string | null
+          has_logged_in?: boolean
+          id?: string
+          inquiry_id?: string | null
+          last_login_at?: string | null
+          login_count?: number
+          password?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_branding_id_fkey"
+            columns: ["branding_id"]
+            isOneToOne: false
+            referencedRelation: "brandings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "lead_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_inquiry_id_fkey"
+            columns: ["inquiry_id"]
+            isOneToOne: false
+            referencedRelation: "inquiries"
             referencedColumns: ["id"]
           },
         ]

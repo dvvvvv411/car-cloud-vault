@@ -15,6 +15,7 @@ import AdminPositionen from "./pages/admin/AdminPositionen";
 import AdminAnfragen from "./pages/admin/AdminAnfragen";
 import AdminBenutzer from "./pages/admin/AdminBenutzer";
 import AdminBranding from "./pages/admin/AdminBranding";
+import AdminLeads from "./pages/admin/AdminLeads";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -49,6 +50,7 @@ const App = () => (
               <Route index element={<AdminDashboard />} />
               <Route path="positionen" element={<AdminPositionen />} />
               <Route path="anfragen" element={<AdminAnfragen />} />
+              <Route path="leads" element={<AdminLeads />} />
               <Route path="benutzer" element={<AdminBenutzer />} />
               <Route path="branding" element={<AdminBranding />} />
             </Route>

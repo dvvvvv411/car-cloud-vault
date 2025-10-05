@@ -14,6 +14,7 @@ export interface Inquiry {
   email: string;
   phone: string;
   message: string | null;
+  lead_id: string | null;
   selected_vehicles: Array<{
     chassis: string;
     brand: string;
