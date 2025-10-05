@@ -179,4 +179,12 @@ All colors MUST be HSL.
   .glass-effect {
     @apply bg-background/60 backdrop-blur-md border border-border/30;
   }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }

@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Mail, Phone, MapPin, Building2, User, Calendar, Package, Euro, MessageSquare, Loader2, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Mail, Phone, MapPin, Building2, User, Calendar, Package, Euro, MessageSquare, Loader2, ArrowUpDown, ArrowUp, ArrowDown, Search } from "lucide-react";
 import { useInquiries, useUpdateInquiryCallPriority, InquiryStatus } from "@/hooks/useInquiries";
 import { useToast } from "@/hooks/use-toast";
 import { InquiryStatusDropdown } from "@/components/admin/InquiryStatusDropdown";
@@ -15,6 +15,7 @@ export default function AdminAnfragen() {
   const { data: inquiries = [], isLoading } = useInquiries();
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [searchQuery, setSearchQuery] = useState("");
   const updateCallPriority = useUpdateInquiryCallPriority();
   const { toast } = useToast();
 
@@ -42,7 +43,26 @@ export default function AdminAnfragen() {
   };
 
   const sortedInquiries = useMemo(() => {
-    let sorted = [...inquiries];
+    // First: Filter by search query
+    let filtered = inquiries.filter((inquiry) => {
+      if (!searchQuery.trim()) return true;
+      
+      const query = searchQuery.toLowerCase();
+      const fullName = `${inquiry.first_name} ${inquiry.last_name}`.toLowerCase();
+      const email = inquiry.email.toLowerCase();
+      const phone = inquiry.phone.toLowerCase();
+      const company = inquiry.company_name?.toLowerCase() || "";
+      
+      return (
+        fullName.includes(query) ||
+        email.includes(query) ||
+        phone.includes(query) ||
+        company.includes(query)
+      );
+    });
+    
+    // Then: Sort
+    let sorted = [...filtered];
     
     // Primary sort: Call priority (always first)
     sorted.sort((a, b) => {
@@ -60,7 +80,7 @@ export default function AdminAnfragen() {
     });
     
     return sorted;
-  }, [inquiries, sortBy, sortOrder]);
+  }, [inquiries, sortBy, sortOrder, searchQuery]);
 
   const handleCallPriorityChange = (inquiryId: string, checked: boolean) => {
     updateCallPriority.mutate(
@@ -120,6 +140,19 @@ export default function AdminAnfragen() {
         <p className="text-muted-foreground mt-2 text-base">Verwalten Sie Kundenanfragen</p>
       </div>
 
+      {inquiries.length > 0 && (
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Suche nach Name, E-Mail, Telefon oder Unternehmen..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full h-10 pl-10 pr-4 rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          />
+        </div>
+      )}
+
       {inquiries.length === 0 ? (
         <Card className="modern-card">
           <CardContent className="flex flex-col items-center justify-center py-20">
@@ -136,7 +169,7 @@ export default function AdminAnfragen() {
           <div className="hidden md:block">
             <Card className="modern-card overflow-hidden">
               <CardContent className="p-0">
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto scrollbar-hide">
                   <table className="modern-table">
                     <thead>
                       <tr className="hover:bg-transparent">
@@ -174,7 +207,7 @@ export default function AdminAnfragen() {
                           key={inquiry.id}
                           className={`transition-all duration-200 ${
                             inquiry.call_priority 
-                              ? "bg-cyan-50/50 border-l-4 border-l-cyan-500 hover:bg-cyan-50" 
+                              ? "bg-cyan-100 border-l-4 border-l-cyan-500 hover:bg-cyan-200" 
                               : "hover:bg-muted/20"
                           }`}
                         >
@@ -247,7 +280,7 @@ export default function AdminAnfragen() {
                 key={inquiry.id} 
                 className={`modern-hover ${
                   inquiry.call_priority 
-                    ? "bg-cyan-50/50 border-l-4 border-l-cyan-500" 
+                    ? "bg-cyan-100 border-l-4 border-l-cyan-500" 
                     : "border-border/40"
                 }`}
               >
