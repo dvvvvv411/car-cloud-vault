@@ -2,12 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
-import { Search, ArrowUpDown, ChevronRight, Eye, Phone, X, FileText, LogOut, LogIn, Shield } from "lucide-react";
+import { Search, ArrowUpDown, ChevronRight, Eye, Phone, X, FileText, LogOut, LogIn, Shield, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerClose, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import LawyerContactCard from "@/components/LawyerContactCard";
@@ -36,6 +36,8 @@ const Index = () => {
   const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [isBeschlusskDrawerOpen, setIsBeschlusskDrawerOpen] = useState(false);
+  const [pdfDialogOpen, setPdfDialogOpen] = useState(false);
+  const [currentPdfUrl, setCurrentPdfUrl] = useState<string | null>(null);
 
   const handleLogout = async () => {
     await signOut();
@@ -384,12 +386,17 @@ const Index = () => {
                           <td className="px-6 py-5 text-center">
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <Button className="h-14 w-28 rounded-lg bg-[#018c4f] hover:bg-[#018c4f]/90 border-0 shadow-md hover:shadow-lg transition-all flex items-center justify-center px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#018c4f] focus-visible:ring-offset-2" onClick={e => {
-                            e.stopPropagation();
-                            if (vehicle.dekra_url) {
-                              window.open(vehicle.dekra_url, "_blank");
-                            }
-                          }}>
+                                <Button 
+                                  className="h-14 w-28 rounded-lg bg-[#018c4f] hover:bg-[#018c4f]/90 border-0 shadow-md hover:shadow-lg transition-all flex items-center justify-center px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#018c4f] focus-visible:ring-offset-2" 
+                                  onClick={e => {
+                                    e.stopPropagation();
+                                    if (vehicle.dekra_url) {
+                                      setCurrentPdfUrl(vehicle.dekra_url);
+                                      setPdfDialogOpen(true);
+                                    }
+                                  }}
+                                  disabled={!vehicle.dekra_url}
+                                >
                                   <img src={dekraLogoWhite} alt="DEKRA" className="h-10 w-auto object-contain" />
                                 </Button>
                               </TooltipTrigger>
@@ -487,12 +494,17 @@ const Index = () => {
                       </div>
 
                       {/* DEKRA Button */}
-                      <Button className="w-full min-h-12 bg-[#018c4f] hover:bg-[#018c4f]/90 border-0 shadow-md hover:shadow-lg transition-all flex items-center justify-center" onClick={e => {
-                e.stopPropagation();
-                if (vehicle.dekra_url) {
-                  window.open(vehicle.dekra_url, "_blank");
-                }
-              }}>
+                      <Button 
+                        className="w-full min-h-12 bg-[#018c4f] hover:bg-[#018c4f]/90 border-0 shadow-md hover:shadow-lg transition-all flex items-center justify-center" 
+                        onClick={e => {
+                          e.stopPropagation();
+                          if (vehicle.dekra_url) {
+                            setCurrentPdfUrl(vehicle.dekra_url);
+                            setPdfDialogOpen(true);
+                          }
+                        }}
+                        disabled={!vehicle.dekra_url}
+                      >
                         <img src={dekraLogoWhite} alt="DEKRA" className="h-8 w-auto object-contain mr-2" />
                         <span>Bericht öffnen</span>
                       </Button>
@@ -505,6 +517,43 @@ const Index = () => {
         {/* Lawyer Contact Card - Always Visible, Desktop Only */}
         <LawyerContactCard hideMobileButton={isBeschlusskDrawerOpen} />
       </div>
+
+      {/* PDF Viewer Dialog */}
+      <Dialog open={pdfDialogOpen} onOpenChange={setPdfDialogOpen}>
+        <DialogContent className="max-w-5xl max-h-[90vh] p-0">
+          <DialogTitle className="sr-only">DEKRA Bericht</DialogTitle>
+          <div className="flex flex-col h-[85vh]">
+            <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+              <div className="flex items-center gap-2">
+                <div className="bg-[#018c4f] p-2 rounded">
+                  <FileDown className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900">DEKRA Bericht</h3>
+              </div>
+              {currentPdfUrl && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(currentPdfUrl, '_blank')}
+                  className="gap-2"
+                >
+                  <FileDown className="h-4 w-4" />
+                  Herunterladen
+                </Button>
+              )}
+            </div>
+            <div className="flex-1 overflow-hidden">
+              {currentPdfUrl && (
+                <iframe
+                  src={`${currentPdfUrl}#view=FitH`}
+                  className="w-full h-full"
+                  title="DEKRA Bericht"
+                />
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Fixed Info Box - No Binding Order */}
       {showInquiryForm && selectedVehicles.length > 0 && <div className="hidden lg:block fixed bottom-[140px] md:bottom-[160px] left-0 right-0 z-40 px-4 md:px-6 lg:px-8">

@@ -1,18 +1,28 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { vehicleSchema, type VehicleFormData } from "@/lib/validation/vehicleSchema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Upload, X } from "lucide-react";
 import { Vehicle } from "@/hooks/useVehicles";
 
 interface VehicleFormProps {
   vehicle?: Vehicle;
-  onSubmit: (data: VehicleFormData) => void;
+  onSubmit: (data: VehicleFormData, imageFile?: File, pdfFile?: File) => void;
   isSubmitting: boolean;
 }
 
 export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProps) {
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(vehicle?.image_url || null);
+  const [pdfFile, setPdfFile] = useState<File | null>(null);
+  const [pdfFileName, setPdfFileName] = useState<string | null>(
+    vehicle?.dekra_url ? vehicle.dekra_url.split('/').pop() || null : null
+  );
+
   const form = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
     defaultValues: vehicle ? {
@@ -38,9 +48,47 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
     },
   });
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Bild darf maximal 5MB groß sein');
+        return;
+      }
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handlePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type === 'application/pdf') {
+      if (file.size > 10 * 1024 * 1024) {
+        alert('PDF darf maximal 10MB groß sein');
+        return;
+      }
+      setPdfFile(file);
+      setPdfFileName(file.name);
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  const removePdf = () => {
+    setPdfFile(null);
+    setPdfFileName(null);
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit((data) => onSubmit(data, imageFile || undefined, pdfFile || undefined))} className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -140,33 +188,77 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="image_url"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Bild URL (optional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="https://..." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* Image Upload */}
+          <div className="space-y-2 md:col-span-2">
+            <Label>Fahrzeugbild</Label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+              {imagePreview ? (
+                <div className="relative">
+                  <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover rounded" />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={removeImage}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center h-32 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+                  <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                  <span className="text-sm text-gray-600 font-medium">Bild hochladen (max. 5MB)</span>
+                  <span className="text-xs text-gray-400 mt-1">JPG, PNG, WEBP</span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
+          </div>
 
-          <FormField
-            control={form.control}
-            name="dekra_url"
-            render={({ field }) => (
-              <FormItem className="md:col-span-2">
-                <FormLabel>DEKRA URL (optional)</FormLabel>
-                <FormControl>
-                  <Input placeholder="https://..." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* PDF Upload */}
+          <div className="space-y-2 md:col-span-2">
+            <Label>DEKRA Bericht (PDF)</Label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+              {pdfFileName ? (
+                <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-red-100 p-2 rounded">
+                      <svg className="h-6 w-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
+                      </svg>
+                    </div>
+                    <span className="text-sm text-gray-700 font-medium">{pdfFileName}</span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={removePdf}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center h-32 cursor-pointer hover:bg-gray-50 rounded transition-colors">
+                  <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                  <span className="text-sm text-gray-600 font-medium">PDF hochladen (max. 10MB)</span>
+                  <span className="text-xs text-gray-400 mt-1">Nur PDF-Dateien</span>
+                  <input
+                    type="file"
+                    accept="application/pdf"
+                    onChange={handlePdfChange}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="flex justify-end gap-2">

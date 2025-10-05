@@ -22,11 +22,47 @@ export default function AdminPositionen() {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleCreate = async (data: VehicleFormData) => {
+  const uploadImage = async (file: File, vehicleId: string) => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${vehicleId}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('vehicle-images')
+      .upload(filePath, file, { upsert: true });
+
+    if (uploadError) throw uploadError;
+
+    const { data } = supabase.storage
+      .from('vehicle-images')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  };
+
+  const uploadPDF = async (file: File, vehicleId: string) => {
+    const fileName = `${vehicleId}.pdf`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('vehicle-reports')
+      .upload(filePath, file, { upsert: true });
+
+    if (uploadError) throw uploadError;
+
+    const { data } = supabase.storage
+      .from('vehicle-reports')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  };
+
+  const handleCreate = async (data: VehicleFormData, imageFile?: File, pdfFile?: File) => {
     setIsSubmitting(true);
     try {
-      const { error } = await supabase
-        .from('vehicles')
+      // First create the vehicle entry
+      const { data: newVehicle, error } = await supabase
+        .from("vehicles")
         .insert([{
           brand: data.brand,
           model: data.model,
@@ -35,11 +71,38 @@ export default function AdminPositionen() {
           first_registration: data.first_registration,
           kilometers: data.kilometers,
           price: data.price,
-          image_url: data.image_url || null,
-          dekra_url: data.dekra_url || null,
-        }]);
+          image_url: null,
+          dekra_url: null,
+        }])
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // Upload files if provided
+      let imageUrl = null;
+      let pdfUrl = null;
+
+      if (imageFile && newVehicle) {
+        imageUrl = await uploadImage(imageFile, newVehicle.id);
+      }
+
+      if (pdfFile && newVehicle) {
+        pdfUrl = await uploadPDF(pdfFile, newVehicle.id);
+      }
+
+      // Update vehicle with file URLs
+      if ((imageUrl || pdfUrl) && newVehicle) {
+        const { error: updateError } = await supabase
+          .from("vehicles")
+          .update({
+            image_url: imageUrl,
+            dekra_url: pdfUrl,
+          })
+          .eq('id', newVehicle.id);
+
+        if (updateError) throw updateError;
+      }
 
       toast({
         title: "Erfolg",
@@ -59,13 +122,26 @@ export default function AdminPositionen() {
     }
   };
 
-  const handleEdit = async (data: VehicleFormData) => {
+  const handleEdit = async (data: VehicleFormData, imageFile?: File, pdfFile?: File) => {
     if (!selectedVehicle) return;
     
     setIsSubmitting(true);
     try {
+      // Upload new files if provided
+      let imageUrl = selectedVehicle.image_url;
+      let pdfUrl = selectedVehicle.dekra_url;
+
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile, selectedVehicle.id);
+      }
+
+      if (pdfFile) {
+        pdfUrl = await uploadPDF(pdfFile, selectedVehicle.id);
+      }
+
+      // Update vehicle
       const { error } = await supabase
-        .from('vehicles')
+        .from("vehicles")
         .update({
           brand: data.brand,
           model: data.model,
@@ -74,10 +150,10 @@ export default function AdminPositionen() {
           first_registration: data.first_registration,
           kilometers: data.kilometers,
           price: data.price,
-          image_url: data.image_url || null,
-          dekra_url: data.dekra_url || null,
+          image_url: imageUrl,
+          dekra_url: pdfUrl,
         })
-        .eq('id', selectedVehicle.id);
+        .eq("id", selectedVehicle.id);
 
       if (error) throw error;
 
@@ -105,6 +181,26 @@ export default function AdminPositionen() {
     
     setIsSubmitting(true);
     try {
+      // Delete files from storage
+      if (selectedVehicle.image_url) {
+        const imagePath = selectedVehicle.image_url.split('/').pop();
+        if (imagePath) {
+          await supabase.storage
+            .from('vehicle-images')
+            .remove([imagePath]);
+        }
+      }
+
+      if (selectedVehicle.dekra_url) {
+        const pdfPath = selectedVehicle.dekra_url.split('/').pop();
+        if (pdfPath) {
+          await supabase.storage
+            .from('vehicle-reports')
+            .remove([pdfPath]);
+        }
+      }
+
+      // Delete vehicle entry
       const { error } = await supabase
         .from('vehicles')
         .delete()
