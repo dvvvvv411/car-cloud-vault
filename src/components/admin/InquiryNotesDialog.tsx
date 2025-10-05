@@ -45,7 +45,7 @@ export const InquiryNotesDialog = ({ inquiryId }: InquiryNotesDialogProps) => {
                   size="sm"
                   className={`h-6 text-[10px] px-2 ${getUserColor(note.user_email)}`}
                 >
-                  Notiz {index + 1}
+                  Notiz {notes.length - index}
                 </Button>
               ))}
               <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
@@ -96,7 +96,7 @@ export const InquiryNotesDialog = ({ inquiryId }: InquiryNotesDialogProps) => {
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-2">
                           <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-medium border ${getUserColor(note.user_email)}`}>
-                            Notiz {index + 1}
+                            Notiz {notes.length - index}
                           </span>
                           {note.user_email && (
                             <span className="text-xs text-muted-foreground">
