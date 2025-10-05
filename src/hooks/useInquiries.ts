@@ -24,6 +24,7 @@ export interface Inquiry {
     price: number;
     kilometers: number;
     first_registration: string;
+    report_nr: string;
   }>;
   total_price: number;
   status: InquiryStatus;

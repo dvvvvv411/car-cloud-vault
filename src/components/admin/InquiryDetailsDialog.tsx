@@ -4,12 +4,13 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Eye, ChevronDown, StickyNote, Car } from "lucide-react";
+import { Eye, ChevronDown, StickyNote, Car, Copy } from "lucide-react";
 import { Inquiry } from "@/hooks/useInquiries";
 import { useInquiryNotes } from "@/hooks/useInquiryNotes";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { getUserColor } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface InquiryDetailsDialogProps {
   inquiry: Inquiry;
@@ -17,6 +18,7 @@ interface InquiryDetailsDialogProps {
 
 export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => {
   const { data: notes = [], isLoading: notesLoading } = useInquiryNotes(inquiry.id);
+  const { toast } = useToast();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("de-DE", {
@@ -27,6 +29,26 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
 
   const formatDate = (dateString: string) => {
     return format(new Date(dateString), "dd.MM.yyyy HH:mm", { locale: de });
+  };
+
+  const copyReportNumbers = async () => {
+    const reportNumbers = inquiry.selected_vehicles
+      .map(vehicle => vehicle.report_nr)
+      .join('\n');
+    
+    try {
+      await navigator.clipboard.writeText(reportNumbers);
+      toast({
+        title: "Kopiert!",
+        description: "DEKRA-Nummern wurden in die Zwischenablage kopiert.",
+      });
+    } catch (err) {
+      toast({
+        title: "Fehler",
+        description: "Kopieren fehlgeschlagen.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -106,6 +128,15 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
                 <h3 className="font-semibold">Ausgewählte Fahrzeuge</h3>
               </div>
               <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-xs px-2"
+                  onClick={copyReportNumbers}
+                >
+                  <Copy className="h-3 w-3 mr-1" />
+                  DEKRA-Nummern kopieren
+                </Button>
                 <Badge variant="outline" className="text-sm">
                   {inquiry.selected_vehicles.length} {inquiry.selected_vehicles.length === 1 ? 'Fahrzeug' : 'Fahrzeuge'}
                 </Badge>
@@ -127,6 +158,10 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
                         <div>
                           <span className="text-muted-foreground">Fahrzeug:</span>
                           <p className="font-medium">{vehicle.brand} {vehicle.model}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">DEKRA-Nr:</span>
+                          <p className="font-medium text-xs">{vehicle.report_nr}</p>
                         </div>
                         <div>
                           <span className="text-muted-foreground">Fahrgestellnummer:</span>
