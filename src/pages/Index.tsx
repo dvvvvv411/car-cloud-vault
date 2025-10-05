@@ -150,7 +150,7 @@ const Index = ({ branding }: IndexProps = {}) => {
     return myReservations.some(r => r.vehicle_chassis === chassis);
   };
   
-  const filteredAndSortedVehicles = vehicles.filter(vehicle => vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.chassis.toLowerCase().includes(searchTerm.toLowerCase())).sort((a, b) => {
+  const filteredAndSortedVehicles = vehicles.filter(vehicle => vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.chassis.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.report_nr.toLowerCase().includes(searchTerm.toLowerCase())).sort((a, b) => {
     if (!sortConfig.key) return 0;
     const aValue = a[sortConfig.key];
     const bValue = b[sortConfig.key];
