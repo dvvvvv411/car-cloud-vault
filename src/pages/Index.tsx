@@ -18,6 +18,8 @@ import demoVehicle from "@/assets/demo-vehicle.png";
 import beschlussImage from "@/assets/beschluss.png";
 import dekraLogoWhite from "@/assets/dekra-logo-white.png";
 import { useVehicles, type Vehicle } from "@/hooks/useVehicles";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -47,6 +49,59 @@ const Index = () => {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
+
+  // Tour mode on first visit
+  useEffect(() => {
+    const tourCompleted = localStorage.getItem('tourCompleted');
+    
+    if (!tourCompleted && !isLoading && vehicles.length > 0) {
+      const timer = setTimeout(() => {
+        const driverObj = driver({
+          showProgress: true,
+          nextBtnText: 'Weiter',
+          prevBtnText: 'Zurück',
+          doneBtnText: 'Fertig',
+          progressText: '{{current}} von {{total}}',
+          onDestroyed: () => {
+            localStorage.setItem('tourCompleted', 'true');
+          },
+          steps: [
+            {
+              element: '.tour-beschluss',
+              popover: {
+                title: 'Gerichtsbeschluss',
+                description: 'Hier finden Sie den Gerichtsbeschluss zur Insolvenzmasse. Klicken Sie auf das Bild, um es in voller Größe anzuzeigen.',
+                side: 'bottom',
+                align: 'center'
+              }
+            },
+            {
+              element: '.tour-price-header',
+              popover: {
+                title: 'Preise',
+                description: 'Alle angezeigten Preise sind exkl. MwSt.',
+                side: 'bottom',
+                align: 'start'
+              }
+            },
+            {
+              element: '.tour-selection',
+              popover: {
+                title: 'Fahrzeugauswahl',
+                description: 'Wählen Sie hier die Fahrzeuge aus, an denen Sie interessiert sind, und senden Sie anschließend eine Anfrage ab.',
+                side: 'right',
+                align: 'start'
+              }
+            }
+          ]
+        });
+        
+        driverObj.drive();
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, vehicles]);
 
   const handleLogout = async () => {
     await signOut();
@@ -138,7 +193,7 @@ const Index = () => {
                     Az: 502 IN 14/25
                   </Badge>
                   
-                  <div className="flex flex-col">
+                  <div className="flex flex-col tour-beschluss">
                     {/* Drawer für Mobile/Tablet */}
                     <Drawer open={isBeschlusskDrawerOpen} onOpenChange={setIsBeschlusskDrawerOpen}>
                   <DrawerTrigger asChild>
@@ -293,7 +348,7 @@ const Index = () => {
                         <tr className="border-b" style={{
                       borderColor: "hsl(var(--divider))"
                     }}>
-                          <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
+                          <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider tour-selection" style={{
                         color: "hsl(var(--text-tertiary))"
                       }}>
                             <Checkbox checked={allSelected} onCheckedChange={checked => {
@@ -349,7 +404,7 @@ const Index = () => {
                               <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
                             </Button>
                           </th>
-                          <th className="text-right px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
+                          <th className="text-right px-6 py-4 text-sm font-medium uppercase tracking-wider tour-price-header" style={{
                         color: "hsl(var(--text-tertiary))"
                       }}>
                             <Button variant="ghost" onClick={() => handleSort("price")} className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto" style={{
