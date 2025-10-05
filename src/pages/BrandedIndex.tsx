@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import { useBranding } from '@/hooks/useBranding';
 import { Loader2 } from 'lucide-react';
@@ -8,7 +8,15 @@ import Index from './Index';
 const BrandedIndex = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: branding, isLoading, error } = useBranding(slug || '');
-  const [isPasswordVerified, setIsPasswordVerified] = useState(false);
+  const [isPasswordVerified, setIsPasswordVerified] = useState(() => {
+    return sessionStorage.getItem(`passwordVerified_${slug}`) === 'true';
+  });
+
+  useEffect(() => {
+    return () => {
+      sessionStorage.removeItem(`passwordVerified_${slug}`);
+    };
+  }, [slug]);
 
   if (isLoading) {
     return (
@@ -25,7 +33,10 @@ const BrandedIndex = () => {
   if (!isPasswordVerified) {
     return (
       <PasswordProtection 
-        onSuccess={() => setIsPasswordVerified(true)} 
+        onSuccess={() => {
+          sessionStorage.setItem(`passwordVerified_${slug}`, 'true');
+          setIsPasswordVerified(true);
+        }} 
         branding={branding}
         slug={slug}
       />
