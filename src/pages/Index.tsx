@@ -256,11 +256,9 @@ const Index = () => {
             <div className="hidden lg:block animate-fade-in" style={{
           animationDelay: "0.2s"
         }}>
-              {/* Fixed height outer container for table + pagination */}
-              <div className="relative h-[880px]">
-                <div className="overflow-x-auto">
-                  {/* Fixed height wrapper to keep pagination position consistent */}
-                  <div className="min-h-[740px]">
+              <div className="overflow-x-auto">
+                {/* Fixed height wrapper to keep pagination position consistent */}
+                <div className="min-h-[740px]">
                     <table className="w-full">
                       <thead>
                         <tr className="border-b" style={{
@@ -432,9 +430,9 @@ const Index = () => {
                   </div>
                 </div>
 
-                {/* Desktop Pagination - Absolute position at bottom */}
-                {totalPages > 1 && (
-                  <div className="absolute bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.05)] rounded-t-2xl">
+              {/* Desktop Pagination - Sticky at viewport bottom */}
+              {totalPages > 1 && (
+                <div className="sticky bottom-0 left-0 right-0 z-50 mt-8 bg-background/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.05)] rounded-t-2xl">
                   <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-6">
                     <Pagination>
                       <PaginationContent className="gap-2">
@@ -494,18 +492,15 @@ const Index = () => {
                     </p>
                   </div>
                 </div>
-                )}
-              </div>
+              )}
             </div>
 
             {/* Vehicle Cards - Mobile */}
             <div className="block lg:hidden space-y-4 mb-24 animate-fade-in" style={{
           animationDelay: "0.2s"
         }}>
-              {/* Fixed height outer container for cards + pagination */}
-              <div className="relative h-[3800px]">
-                {/* Fixed height wrapper to keep pagination position consistent */}
-                <div className="min-h-[3600px]">
+              {/* Fixed height wrapper to keep pagination position consistent */}
+              <div className="min-h-[3600px]">
                   {paginatedVehicles.map((vehicle, index) => {
                 const isSelected = selectedVehicles.includes(vehicle.chassis);
                 return <div key={index} onClick={() => toggleVehicleSelection(vehicle.chassis)} className={`glassmorphism rounded-2xl overflow-hidden cursor-pointer transition-all ${isSelected ? "ring-2 ring-primary" : ""}`} style={{
@@ -593,10 +588,10 @@ const Index = () => {
                       </div>;
               })}
                 </div>
-                
-                {/* Mobile Pagination - Absolute position at bottom */}
-                {totalPages > 1 && (
-                  <div className="absolute bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.05)]">
+              
+              {/* Mobile Pagination - Fixed at viewport bottom */}
+              {totalPages > 1 && (
+                <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.05)]">
                   <div className="px-4 py-6">
                     <Pagination>
                       <PaginationContent className="gap-1">
@@ -656,8 +651,7 @@ const Index = () => {
                     </p>
                   </div>
                 </div>
-                )}
-              </div>
+              )}
             </div>
           </> : <InquiryForm selectedVehicles={selectedVehicles} vehicles={vehicles} onRemoveVehicle={toggleVehicleSelection} onBack={() => setShowInquiryForm(false)} />}
 
