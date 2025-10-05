@@ -19,20 +19,28 @@ export const useInquiryNotes = (inquiryId: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("inquiry_notes")
-        .select(`
-          *,
-          user_email:created_by(email)
-        `)
+        .select("*")
         .eq("inquiry_id", inquiryId)
         .order("created_at", { ascending: true });
 
       if (error) throw error;
       
-      // Flatten user_email from nested object to string
-      return (data || []).map(note => ({
-        ...note,
-        user_email: note.user_email?.email || null
-      })) as InquiryNote[];
+      // Fetch user emails for each note using the database function
+      const notesWithEmails = await Promise.all(
+        (data || []).map(async (note) => {
+          if (!note.created_by) {
+            return { ...note, user_email: null };
+          }
+          
+          const { data: email } = await supabase.rpc('get_user_email', {
+            user_id: note.created_by
+          });
+          
+          return { ...note, user_email: email };
+        })
+      );
+      
+      return notesWithEmails as InquiryNote[];
     },
   });
 };
