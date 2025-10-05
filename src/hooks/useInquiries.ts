@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+export type InquiryStatus = "Neu" | "Möchte RG/KV" | "RG/KV gesendet" | "Bezahlt" | "Exchanged";
+
 export interface Inquiry {
   id: string;
   branding_id: string | null;
@@ -24,7 +26,8 @@ export interface Inquiry {
     first_registration: string;
   }>;
   total_price: number;
-  status: string;
+  status: InquiryStatus;
+  status_updated_at?: string;
   created_at: string;
   brandings?: {
     company_name: string;
@@ -48,7 +51,12 @@ export const useInquiries = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as Inquiry[];
+      return (data || []).map(item => ({
+        ...item,
+        selected_vehicles: Array.isArray(item.selected_vehicles) 
+          ? item.selected_vehicles 
+          : []
+      })) as Inquiry[];
     },
   });
 };

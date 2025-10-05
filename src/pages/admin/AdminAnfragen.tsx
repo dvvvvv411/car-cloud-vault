@@ -1,17 +1,15 @@
-import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
-import { Mail, Phone, MapPin, Building2, User, Calendar, Package, Euro, MessageSquare, Loader2, FileText } from "lucide-react";
-import { useInquiries, type Inquiry } from "@/hooks/useInquiries";
+import { Mail, Phone, MapPin, Building2, User, Calendar, Package, Euro, MessageSquare, Loader2 } from "lucide-react";
+import { useInquiries } from "@/hooks/useInquiries";
+import { InquiryStatusDropdown } from "@/components/admin/InquiryStatusDropdown";
+import { InquiryNotesDialog } from "@/components/admin/InquiryNotesDialog";
+import { InquiryDetailsDialog } from "@/components/admin/InquiryDetailsDialog";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
 export default function AdminAnfragen() {
   const { data: inquiries = [], isLoading } = useInquiries();
-  const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
-  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("de-DE", {
@@ -22,23 +20,7 @@ export default function AdminAnfragen() {
   };
 
   const formatDate = (dateString: string) => {
-    return format(new Date(dateString), "dd.MM.yyyy, HH:mm", { locale: de });
-  };
-
-  const handleRowClick = (inquiry: Inquiry) => {
-    setSelectedInquiry(inquiry);
-    setDetailDialogOpen(true);
-  };
-
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      new: { label: "Neu", variant: "default" as const },
-      processing: { label: "In Bearbeitung", variant: "secondary" as const },
-      completed: { label: "Abgeschlossen", variant: "outline" as const },
-    };
-    
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.new;
-    return <Badge variant={config.variant}>{config.label}</Badge>;
+    return format(new Date(dateString), "dd.MM.yy HH:mm", { locale: de });
   };
 
   if (isLoading) {
@@ -75,45 +57,56 @@ export default function AdminAnfragen() {
                   <table className="w-full">
                     <thead className="bg-muted/50">
                       <tr className="border-b">
-                        <th className="text-left p-4 font-semibold text-sm">Datum</th>
-                        <th className="text-left p-4 font-semibold text-sm">Name</th>
-                        <th className="text-left p-4 font-semibold text-sm">E-Mail</th>
-                        <th className="text-left p-4 font-semibold text-sm">Telefon</th>
-                        <th className="text-center p-4 font-semibold text-sm">Fahrzeuge</th>
-                        <th className="text-right p-4 font-semibold text-sm">Gesamtpreis</th>
-                        <th className="text-left p-4 font-semibold text-sm">Branding</th>
-                        <th className="text-center p-4 font-semibold text-sm">Status</th>
+                        <th className="text-left p-2 font-semibold text-xs">Datum</th>
+                        <th className="text-left p-2 font-semibold text-xs">Name</th>
+                        <th className="text-left p-2 font-semibold text-xs">E-Mail</th>
+                        <th className="text-left p-2 font-semibold text-xs">Telefon</th>
+                        <th className="text-center p-2 font-semibold text-xs">Fzg.</th>
+                        <th className="text-right p-2 font-semibold text-xs">Preis</th>
+                        <th className="text-left p-2 font-semibold text-xs">Status</th>
+                        <th className="text-left p-2 font-semibold text-xs">Notizen</th>
+                        <th className="text-center p-2 font-semibold text-xs">Details</th>
                       </tr>
                     </thead>
                     <tbody>
                       {inquiries.map((inquiry) => (
                         <tr
                           key={inquiry.id}
-                          onClick={() => handleRowClick(inquiry)}
-                          className="border-b hover:bg-muted/30 cursor-pointer transition-colors"
+                          className="border-b hover:bg-muted/30 transition-colors"
                         >
-                          <td className="p-4 text-sm text-muted-foreground">
+                          <td className="p-2 text-xs text-muted-foreground whitespace-nowrap">
                             {formatDate(inquiry.created_at)}
                           </td>
-                          <td className="p-4 text-sm font-medium">
-                            {inquiry.first_name} {inquiry.last_name}
+                          <td className="p-2 text-xs">
+                            <div className="font-medium">{inquiry.first_name} {inquiry.last_name}</div>
                             {inquiry.company_name && (
-                              <div className="text-xs text-muted-foreground">{inquiry.company_name}</div>
+                              <div className="text-[10px] text-muted-foreground truncate max-w-[120px]">
+                                {inquiry.company_name}
+                              </div>
                             )}
                           </td>
-                          <td className="p-4 text-sm">{inquiry.email}</td>
-                          <td className="p-4 text-sm">{inquiry.phone}</td>
-                          <td className="p-4 text-center">
-                            <Badge variant="secondary">{inquiry.selected_vehicles.length}</Badge>
+                          <td className="p-2 text-xs truncate max-w-[150px]">{inquiry.email}</td>
+                          <td className="p-2 text-xs whitespace-nowrap">{inquiry.phone}</td>
+                          <td className="p-2 text-center">
+                            <Badge variant="secondary" className="text-xs px-1.5 py-0">
+                              {inquiry.selected_vehicles.length}
+                            </Badge>
                           </td>
-                          <td className="p-4 text-sm text-right font-semibold text-primary">
+                          <td className="p-2 text-xs text-right font-semibold text-primary whitespace-nowrap">
                             {formatPrice(inquiry.total_price)}
                           </td>
-                          <td className="p-4 text-sm">
-                            {inquiry.brandings?.company_name || "—"}
+                          <td className="p-2" onClick={(e) => e.stopPropagation()}>
+                            <InquiryStatusDropdown
+                              inquiryId={inquiry.id}
+                              currentStatus={inquiry.status}
+                              statusUpdatedAt={inquiry.status_updated_at}
+                            />
                           </td>
-                          <td className="p-4 text-center">
-                            {getStatusBadge(inquiry.status)}
+                          <td className="p-2" onClick={(e) => e.stopPropagation()}>
+                            <InquiryNotesDialog inquiryId={inquiry.id} />
+                          </td>
+                          <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
+                            <InquiryDetailsDialog inquiry={inquiry} />
                           </td>
                         </tr>
                       ))}
@@ -127,11 +120,7 @@ export default function AdminAnfragen() {
           {/* Mobile Card View */}
           <div className="md:hidden space-y-4">
             {inquiries.map((inquiry) => (
-              <Card
-                key={inquiry.id}
-                onClick={() => handleRowClick(inquiry)}
-                className="cursor-pointer hover:border-primary/50 transition-colors"
-              >
+              <Card key={inquiry.id} className="hover:border-primary/50 transition-colors">
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start mb-3">
                     <div>
@@ -142,10 +131,9 @@ export default function AdminAnfragen() {
                         <p className="text-sm text-muted-foreground">{inquiry.company_name}</p>
                       )}
                     </div>
-                    {getStatusBadge(inquiry.status)}
                   </div>
                   
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-3 text-sm">
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Calendar className="h-4 w-4" />
                       {formatDate(inquiry.created_at)}
@@ -158,6 +146,18 @@ export default function AdminAnfragen() {
                       <Euro className="h-4 w-4" />
                       {formatPrice(inquiry.total_price)}
                     </div>
+
+                    <div className="pt-2 space-y-2">
+                      <InquiryStatusDropdown
+                        inquiryId={inquiry.id}
+                        currentStatus={inquiry.status}
+                        statusUpdatedAt={inquiry.status_updated_at}
+                      />
+                      <div className="flex gap-2">
+                        <InquiryNotesDialog inquiryId={inquiry.id} />
+                        <InquiryDetailsDialog inquiry={inquiry} />
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -165,161 +165,6 @@ export default function AdminAnfragen() {
           </div>
         </>
       )}
-
-      {/* Detail Dialog */}
-      <Dialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          {selectedInquiry && (
-            <>
-              <DialogHeader>
-                <DialogTitle className="text-2xl">Anfrage Details</DialogTitle>
-              </DialogHeader>
-
-              <div className="space-y-6 mt-4">
-                {/* Status & Date */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                  {getStatusBadge(selectedInquiry.status)}
-                  <p className="text-sm text-muted-foreground">
-                    Eingegangen: {formatDate(selectedInquiry.created_at)}
-                  </p>
-                </div>
-
-                <Separator />
-
-                {/* Customer Information */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <User className="h-5 w-5" />
-                    Kundendaten
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">Name</p>
-                      <p className="font-medium">
-                        {selectedInquiry.first_name} {selectedInquiry.last_name}
-                      </p>
-                    </div>
-
-                    {selectedInquiry.company_name && (
-                      <div>
-                        <p className="text-sm text-muted-foreground mb-1">Unternehmen</p>
-                        <p className="font-medium">{selectedInquiry.company_name}</p>
-                      </div>
-                    )}
-
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">Kundentyp</p>
-                      <p className="font-medium">
-                        {selectedInquiry.customer_type === "business" ? "Geschäftlich" : "Privat"}
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
-                        <Mail className="h-4 w-4" />
-                        E-Mail
-                      </p>
-                      <p className="font-medium">{selectedInquiry.email}</p>
-                    </div>
-
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
-                        <Phone className="h-4 w-4" />
-                        Telefon
-                      </p>
-                      <p className="font-medium">{selectedInquiry.phone}</p>
-                    </div>
-
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
-                        <MapPin className="h-4 w-4" />
-                        Adresse
-                      </p>
-                      <p className="font-medium">
-                        {selectedInquiry.street}<br />
-                        {selectedInquiry.zip_code} {selectedInquiry.city}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Branding Info */}
-                {selectedInquiry.brandings && (
-                  <>
-                    <div>
-                      <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                        <Building2 className="h-5 w-5" />
-                        Branding
-                      </h3>
-                      <div className="bg-muted/50 rounded-lg p-4">
-                        <p className="font-medium">{selectedInquiry.brandings.company_name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Az: {selectedInquiry.brandings.case_number}
-                        </p>
-                      </div>
-                    </div>
-                    <Separator />
-                  </>
-                )}
-
-                {/* Selected Vehicles */}
-                <div>
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <Package className="h-5 w-5" />
-                    Ausgewählte Fahrzeuge ({selectedInquiry.selected_vehicles.length})
-                  </h3>
-                  <div className="space-y-3">
-                    {selectedInquiry.selected_vehicles.map((vehicle, index) => (
-                      <div
-                        key={vehicle.chassis}
-                        className="bg-muted/50 rounded-lg p-4 flex justify-between items-start"
-                      >
-                        <div>
-                          <p className="font-semibold">{vehicle.brand} {vehicle.model}</p>
-                          <p className="text-sm text-muted-foreground">FIN: {vehicle.chassis}</p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            EZ: {vehicle.first_registration} • {new Intl.NumberFormat("de-DE").format(vehicle.kilometers)} km
-                          </p>
-                        </div>
-                        <p className="font-semibold text-primary">{formatPrice(vehicle.price)}</p>
-                      </div>
-                    ))}
-
-                    {/* Total Price */}
-                    <div className="bg-primary/10 rounded-lg p-4 flex justify-between items-center border border-primary/20">
-                      <p className="font-semibold text-lg">Gesamtpreis:</p>
-                      <p className="font-bold text-primary text-xl">
-                        {formatPrice(selectedInquiry.total_price)}
-                      </p>
-                    </div>
-                    <p className="text-xs text-muted-foreground text-right">
-                      Alle Preise exkl. MwSt.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Message */}
-                {selectedInquiry.message && (
-                  <>
-                    <Separator />
-                    <div>
-                      <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                        <MessageSquare className="h-5 w-5" />
-                        Nachricht
-                      </h3>
-                      <div className="bg-muted/50 rounded-lg p-4">
-                        <p className="text-sm whitespace-pre-wrap">{selectedInquiry.message}</p>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

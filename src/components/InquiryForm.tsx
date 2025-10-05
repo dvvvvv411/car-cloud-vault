@@ -109,7 +109,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
           message: data.message || null,
           selected_vehicles: vehiclesData,
           total_price: totalPrice,
-          status: 'new',
+          status: 'Neu',
           lead_id: leadId || null,
         })
         .select();

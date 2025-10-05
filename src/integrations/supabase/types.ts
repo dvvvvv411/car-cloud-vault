@@ -92,7 +92,8 @@ export type Database = {
           message: string | null
           phone: string
           selected_vehicles: Json
-          status: string
+          status: Database["public"]["Enums"]["inquiry_status"]
+          status_updated_at: string | null
           street: string
           total_price: number
           zip_code: string
@@ -111,7 +112,8 @@ export type Database = {
           message?: string | null
           phone: string
           selected_vehicles: Json
-          status?: string
+          status?: Database["public"]["Enums"]["inquiry_status"]
+          status_updated_at?: string | null
           street: string
           total_price: number
           zip_code: string
@@ -130,7 +132,8 @@ export type Database = {
           message?: string | null
           phone?: string
           selected_vehicles?: Json
-          status?: string
+          status?: Database["public"]["Enums"]["inquiry_status"]
+          status_updated_at?: string | null
           street?: string
           total_price?: number
           zip_code?: string
@@ -148,6 +151,41 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inquiry_notes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          inquiry_id: string
+          note_text: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          inquiry_id: string
+          note_text: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          inquiry_id?: string
+          note_text?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inquiry_notes_inquiry_id_fkey"
+            columns: ["inquiry_id"]
+            isOneToOne: false
+            referencedRelation: "inquiries"
             referencedColumns: ["id"]
           },
         ]
@@ -367,6 +405,12 @@ export type Database = {
     }
     Enums: {
       app_role: "user" | "admin"
+      inquiry_status:
+        | "Neu"
+        | "Möchte RG/KV"
+        | "RG/KV gesendet"
+        | "Bezahlt"
+        | "Exchanged"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -495,6 +539,13 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["user", "admin"],
+      inquiry_status: [
+        "Neu",
+        "Möchte RG/KV",
+        "RG/KV gesendet",
+        "Bezahlt",
+        "Exchanged",
+      ],
     },
   },
 } as const

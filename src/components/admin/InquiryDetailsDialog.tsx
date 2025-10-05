@@ -1,0 +1,165 @@
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { Eye } from "lucide-react";
+import { Inquiry } from "@/hooks/useInquiries";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
+
+interface InquiryDetailsDialogProps {
+  inquiry: Inquiry;
+}
+
+export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => {
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("de-DE", {
+      style: "currency",
+      currency: "EUR",
+    }).format(price);
+  };
+
+  const formatDate = (dateString: string) => {
+    return format(new Date(dateString), "dd.MM.yyyy HH:mm", { locale: de });
+  };
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="h-7 text-xs px-2">
+          <Eye className="h-3 w-3 mr-1" />
+          Details
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Anfragedetails</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-6">
+          {/* Customer Information */}
+          <div>
+            <h3 className="font-semibold mb-3">Kundeninformationen</h3>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <span className="text-muted-foreground">Kundentyp:</span>
+                <p className="font-medium">{inquiry.customer_type === "private" ? "Privatkunde" : "Geschäftskunde"}</p>
+              </div>
+              {inquiry.company_name && (
+                <div>
+                  <span className="text-muted-foreground">Firma:</span>
+                  <p className="font-medium">{inquiry.company_name}</p>
+                </div>
+              )}
+              <div>
+                <span className="text-muted-foreground">Name:</span>
+                <p className="font-medium">{inquiry.first_name} {inquiry.last_name}</p>
+              </div>
+              <div>
+                <span className="text-muted-foreground">E-Mail:</span>
+                <p className="font-medium">{inquiry.email}</p>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Telefon:</span>
+                <p className="font-medium">{inquiry.phone}</p>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Adresse:</span>
+                <p className="font-medium">{inquiry.street}, {inquiry.zip_code} {inquiry.city}</p>
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Branding Information */}
+          {inquiry.brandings && (
+            <>
+              <div>
+                <h3 className="font-semibold mb-3">Branding-Informationen</h3>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Firma:</span>
+                    <p className="font-medium">{inquiry.brandings.company_name}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Fallnummer:</span>
+                    <p className="font-medium">{inquiry.brandings.case_number}</p>
+                  </div>
+                </div>
+              </div>
+              <Separator />
+            </>
+          )}
+
+          {/* Selected Vehicles */}
+          <div>
+            <h3 className="font-semibold mb-3">Ausgewählte Fahrzeuge</h3>
+            <div className="space-y-3">
+              {inquiry.selected_vehicles.map((vehicle, index) => (
+                <div key={index} className="border rounded-lg p-3">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Fahrzeug:</span>
+                      <p className="font-medium">{vehicle.brand} {vehicle.model}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Fahrgestellnummer:</span>
+                      <p className="font-medium text-xs">{vehicle.chassis}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Erstzulassung:</span>
+                      <p className="font-medium">{vehicle.first_registration}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Kilometer:</span>
+                      <p className="font-medium">{vehicle.kilometers.toLocaleString("de-DE")} km</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Preis:</span>
+                      <p className="font-medium">{formatPrice(vehicle.price)}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex justify-between items-center">
+              <span className="font-semibold">Gesamtpreis:</span>
+              <Badge variant="secondary" className="text-base">
+                {formatPrice(inquiry.total_price)}
+              </Badge>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Message */}
+          {inquiry.message && (
+            <>
+              <div>
+                <h3 className="font-semibold mb-3">Nachricht</h3>
+                <p className="text-sm whitespace-pre-wrap p-3 bg-muted rounded-lg">{inquiry.message}</p>
+              </div>
+              <Separator />
+            </>
+          )}
+
+          {/* Meta Information */}
+          <div>
+            <h3 className="font-semibold mb-3">Weitere Informationen</h3>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <span className="text-muted-foreground">Erstellt am:</span>
+                <p className="font-medium">{formatDate(inquiry.created_at)}</p>
+              </div>
+              <div>
+                <span className="text-muted-foreground">Status:</span>
+                <p className="font-medium">{inquiry.status}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
