@@ -10,6 +10,7 @@ export interface InquiryNote {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  user_email: string | null;
 }
 
 export const useInquiryNotes = (inquiryId: string) => {
@@ -18,12 +19,20 @@ export const useInquiryNotes = (inquiryId: string) => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("inquiry_notes")
-        .select("*")
+        .select(`
+          *,
+          user_email:created_by(email)
+        `)
         .eq("inquiry_id", inquiryId)
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      return data as InquiryNote[];
+      
+      // Flatten user_email from nested object to string
+      return (data || []).map(note => ({
+        ...note,
+        user_email: note.user_email?.email || null
+      })) as InquiryNote[];
     },
   });
 };

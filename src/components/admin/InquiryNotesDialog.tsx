@@ -7,6 +7,7 @@ import { Plus } from "lucide-react";
 import { useInquiryNotes, useCreateInquiryNote } from "@/hooks/useInquiryNotes";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { getUserColor } from "@/lib/utils";
 
 interface InquiryNotesDialogProps {
   inquiryId: string;
@@ -42,7 +43,7 @@ export const InquiryNotesDialog = ({ inquiryId }: InquiryNotesDialogProps) => {
                   key={note.id}
                   variant="outline"
                   size="sm"
-                  className="h-6 text-[10px] px-2"
+                  className={`h-6 text-[10px] px-2 ${getUserColor(note.user_email)}`}
                 >
                   Notiz {index + 1}
                 </Button>
@@ -93,7 +94,16 @@ export const InquiryNotesDialog = ({ inquiryId }: InquiryNotesDialogProps) => {
                   {notes.map((note, index) => (
                     <div key={note.id} className="border-b pb-3 last:border-0">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">Notiz {index + 1}</span>
+                        <div className="flex items-center gap-2">
+                          <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-medium border ${getUserColor(note.user_email)}`}>
+                            Notiz {index + 1}
+                          </span>
+                          {note.user_email && (
+                            <span className="text-xs text-muted-foreground">
+                              {note.user_email}
+                            </span>
+                          )}
+                        </div>
                         <span className="text-xs text-muted-foreground">
                           {format(new Date(note.created_at), "dd.MM.yyyy HH:mm", { locale: de })}
                         </span>

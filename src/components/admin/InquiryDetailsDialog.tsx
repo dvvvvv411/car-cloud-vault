@@ -9,6 +9,7 @@ import { Inquiry } from "@/hooks/useInquiries";
 import { useInquiryNotes } from "@/hooks/useInquiryNotes";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { getUserColor } from "@/lib/utils";
 
 interface InquiryDetailsDialogProps {
   inquiry: Inquiry;
@@ -197,9 +198,19 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
                 <div className="space-y-3">
                   {notes.map((note) => (
                     <div key={note.id} className="border-b pb-3 last:border-0 last:pb-0">
-                      <p className="text-xs text-muted-foreground mb-1">
-                        {formatDate(note.created_at)}
-                      </p>
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-2">
+                          <span className={`inline-block w-3 h-3 rounded-full ${getUserColor(note.user_email).replace('bg-', 'bg-').replace(' text-', ' ').split(' ')[0]}`}></span>
+                          {note.user_email && (
+                            <span className="text-xs font-medium text-muted-foreground">
+                              {note.user_email}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDate(note.created_at)}
+                        </p>
+                      </div>
                       <p className="text-sm whitespace-pre-wrap">{note.note_text}</p>
                     </div>
                   ))}
