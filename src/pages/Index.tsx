@@ -50,6 +50,7 @@ const Index = ({ branding }: IndexProps = {}) => {
   const [currentPdfUrl, setCurrentPdfUrl] = useState<string | null>(null);
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+  const [beschlussPdfDialogOpen, setBeschlussPdfDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Reset to page 1 when search changes
@@ -202,48 +203,86 @@ const Index = ({ branding }: IndexProps = {}) => {
                   </Badge>
                   
                   <div className="flex flex-col tour-beschluss">
-                    {/* Drawer für Mobile/Tablet */}
-                    <Drawer open={isBeschlusskDrawerOpen} onOpenChange={setIsBeschlusskDrawerOpen}>
-                  <DrawerTrigger asChild>
-                    <div className="relative group lg:hidden w-full md:w-auto">
-                      <img src={branding?.court_decision_pdf_url || beschlussImage} alt="Gerichtsbeschluss" className="h-[6rem] md:h-[7rem] w-full md:w-auto object-cover md:object-none cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all brightness-[0.85] md:brightness-100" />
-                      
-                      {/* Permanente Kennzeichnung nur auf Mobile */}
-                      <div className="absolute inset-0 rounded bg-black/30 md:bg-transparent flex flex-col items-center justify-center pointer-events-none">
-                        <FileText className="h-6 w-6 text-white md:hidden mb-1" />
-                        <span className="text-white text-xs md:hidden font-medium">Gerichtsbeschluss</span>
-                      </div>
-                      
-                      {/* Hover-Effekt (Eye) bleibt zusätzlich */}
-                      <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
-                        <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
-                      </div>
-                    </div>
-                  </DrawerTrigger>
-                  <DrawerContent className="h-screen rounded-none mt-0 border-0 bg-black p-0">
-                    <DrawerClose className="fixed top-4 right-4 z-[60] rounded-full bg-black/50 p-2 text-white hover:bg-black/70 transition-colors">
-                      <X className="h-6 w-6" />
-                    </DrawerClose>
-                    <div className="h-full w-full flex items-center justify-center">
-                      <img src={branding?.court_decision_pdf_url || beschlussImage} alt="Gerichtsbeschluss" className="max-h-full max-w-full object-contain" />
-                    </div>
-                  </DrawerContent>
-                </Drawer>
+                    {branding?.court_decision_pdf_url ? (
+                      // Wenn PDF vorhanden: Klick öffnet PDF-Dialog
+                      <>
+                        {/* Mobile/Tablet Button */}
+                        <button
+                          onClick={() => setBeschlussPdfDialogOpen(true)}
+                          className="relative group lg:hidden w-full md:w-auto block"
+                        >
+                          <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[6rem] md:h-[7rem] w-full md:w-auto object-cover md:object-none cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all brightness-[0.85] md:brightness-100" />
+                          
+                          {/* Permanente Kennzeichnung nur auf Mobile */}
+                          <div className="absolute inset-0 rounded bg-black/30 md:bg-transparent flex flex-col items-center justify-center pointer-events-none">
+                            <FileText className="h-6 w-6 text-white md:hidden mb-1" />
+                            <span className="text-white text-xs md:hidden font-medium">Gerichtsbeschluss</span>
+                          </div>
+                          
+                          {/* Hover-Effekt (Eye) bleibt zusätzlich */}
+                          <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
+                            <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
+                          </div>
+                        </button>
 
-                {/* Dialog für Desktop */}
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <div className="relative group hidden lg:block">
-                      <img src={branding?.court_decision_pdf_url || beschlussImage} alt="Gerichtsbeschluss" className="h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105" />
-                      <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
-                        <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
-                      </div>
-                    </div>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
-                    <img src={branding?.court_decision_pdf_url || beschlussImage} alt="Gerichtsbeschluss" className="w-full h-auto" />
-                  </DialogContent>
-                </Dialog>
+                        {/* Desktop Button */}
+                        <button
+                          onClick={() => setBeschlussPdfDialogOpen(true)}
+                          className="relative group hidden lg:block"
+                        >
+                          <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105" />
+                          <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
+                            <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
+                          </div>
+                        </button>
+                      </>
+                    ) : (
+                      // Wenn keine PDF: Bild-Dialog wie bisher
+                      <>
+                        {/* Drawer für Mobile/Tablet */}
+                        <Drawer open={isBeschlusskDrawerOpen} onOpenChange={setIsBeschlusskDrawerOpen}>
+                          <DrawerTrigger asChild>
+                            <div className="relative group lg:hidden w-full md:w-auto">
+                              <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[6rem] md:h-[7rem] w-full md:w-auto object-cover md:object-none cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all brightness-[0.85] md:brightness-100" />
+                              
+                              {/* Permanente Kennzeichnung nur auf Mobile */}
+                              <div className="absolute inset-0 rounded bg-black/30 md:bg-transparent flex flex-col items-center justify-center pointer-events-none">
+                                <FileText className="h-6 w-6 text-white md:hidden mb-1" />
+                                <span className="text-white text-xs md:hidden font-medium">Gerichtsbeschluss</span>
+                              </div>
+                              
+                              {/* Hover-Effekt (Eye) bleibt zusätzlich */}
+                              <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
+                                <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
+                              </div>
+                            </div>
+                          </DrawerTrigger>
+                          <DrawerContent className="h-screen rounded-none mt-0 border-0 bg-black p-0">
+                            <DrawerClose className="fixed top-4 right-4 z-[60] rounded-full bg-black/50 p-2 text-white hover:bg-black/70 transition-colors">
+                              <X className="h-6 w-6" />
+                            </DrawerClose>
+                            <div className="h-full w-full flex items-center justify-center">
+                              <img src={beschlussImage} alt="Gerichtsbeschluss" className="max-h-full max-w-full object-contain" />
+                            </div>
+                          </DrawerContent>
+                        </Drawer>
+
+                        {/* Dialog für Desktop */}
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <div className="relative group hidden lg:block">
+                              <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105" />
+                              <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
+                                <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
+                              </div>
+                            </div>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+                            <img src={beschlussImage} alt="Gerichtsbeschluss" className="w-full h-auto" />
+                          </DialogContent>
+                        </Dialog>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -739,6 +778,43 @@ const Index = ({ branding }: IndexProps = {}) => {
                   src={`${currentPdfUrl}#view=FitH`}
                   className="w-full h-full"
                   title="DEKRA Bericht"
+                />
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Gerichtsbeschluss PDF Viewer Dialog */}
+      <Dialog open={beschlussPdfDialogOpen} onOpenChange={setBeschlussPdfDialogOpen}>
+        <DialogContent className="max-w-5xl max-h-[90vh] p-0">
+          <DialogTitle className="sr-only">Gerichtsbeschluss</DialogTitle>
+          <div className="flex flex-col h-[85vh]">
+            <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+              <div className="flex items-center gap-2">
+                <div className="bg-primary p-2 rounded">
+                  <FileText className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900">Gerichtsbeschluss</h3>
+              </div>
+              {branding?.court_decision_pdf_url && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(branding.court_decision_pdf_url, '_blank')}
+                  className="gap-2"
+                >
+                  <FileDown className="h-4 w-4" />
+                  Herunterladen
+                </Button>
+              )}
+            </div>
+            <div className="flex-1 overflow-hidden">
+              {branding?.court_decision_pdf_url && (
+                <iframe
+                  src={`${branding.court_decision_pdf_url}#view=FitH`}
+                  className="w-full h-full"
+                  title="Gerichtsbeschluss"
                 />
               )}
             </div>
