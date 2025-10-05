@@ -89,6 +89,22 @@ export default function AdminAnfragen() {
     return format(new Date(dateString), "dd.MM.yy HH:mm", { locale: de });
   };
 
+  const copyToClipboard = async (text: string, type: 'email' | 'phone') => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "Kopiert!",
+        description: `${type === 'email' ? 'E-Mail' : 'Telefonnummer'} wurde in die Zwischenablage kopiert.`,
+      });
+    } catch (err) {
+      toast({
+        title: "Fehler",
+        description: "Kopieren fehlgeschlagen.",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -123,15 +139,15 @@ export default function AdminAnfragen() {
                   <table className="w-full">
                     <thead className="bg-muted/50">
                       <tr className="border-b">
-                        <th className="text-left p-2 font-semibold text-xs">Datum</th>
-                        <th className="text-left p-2 font-semibold text-xs">Name</th>
-                        <th className="text-left p-2 font-semibold text-xs">E-Mail</th>
-                        <th className="text-left p-2 font-semibold text-xs">Telefon</th>
-                        <th className="text-center p-2 font-semibold text-xs">Fzg.</th>
-                        <th className="text-right p-2 font-semibold text-xs">Preis</th>
-                        <th className="text-left p-2 font-semibold text-xs">Notizen</th>
+                        <th className="text-left p-2 font-semibold text-sm">Datum</th>
+                        <th className="text-left p-2 font-semibold text-sm">Name</th>
+                        <th className="text-left p-2 font-semibold text-sm">E-Mail</th>
+                        <th className="text-left p-2 font-semibold text-sm">Telefon</th>
+                        <th className="text-center p-2 font-semibold text-sm">Fzg.</th>
+                        <th className="text-right p-2 font-semibold text-sm">Preis</th>
+                        <th className="text-left p-2 font-semibold text-sm">Notizen</th>
                         <th 
-                          className="text-left p-2 font-semibold text-xs cursor-pointer hover:bg-muted/70 transition-colors"
+                          className="text-left p-2 font-semibold text-sm cursor-pointer hover:bg-muted/70 transition-colors"
                           onClick={() => handleSort('status')}
                         >
                           <div className="flex items-center gap-1">
@@ -147,8 +163,8 @@ export default function AdminAnfragen() {
                             )}
                           </div>
                         </th>
-                        <th className="text-center p-2 font-semibold text-xs">Call</th>
-                        <th className="text-center p-2 font-semibold text-xs">Details</th>
+                        <th className="text-center p-2 font-semibold text-sm">Call</th>
+                        <th className="text-center p-2 font-semibold text-sm">Details</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -161,25 +177,35 @@ export default function AdminAnfragen() {
                               : "hover:bg-muted/30"
                           }`}
                         >
-                          <td className="p-2 text-xs text-muted-foreground whitespace-nowrap">
+                          <td className="p-2 text-sm text-muted-foreground whitespace-nowrap">
                             {formatDate(inquiry.created_at)}
                           </td>
-                          <td className="p-2 text-xs">
+                          <td className="p-2 text-sm">
                             <div className="font-medium">{inquiry.first_name} {inquiry.last_name}</div>
                             {inquiry.company_name && (
-                              <div className="text-[10px] text-muted-foreground truncate max-w-[120px]">
+                              <div className="text-xs text-muted-foreground truncate max-w-[120px]">
                                 {inquiry.company_name}
                               </div>
                             )}
                           </td>
-                          <td className="p-2 text-xs truncate max-w-[150px]">{inquiry.email}</td>
-                          <td className="p-2 text-xs whitespace-nowrap">{inquiry.phone}</td>
+                          <td 
+                            className="p-2 text-sm truncate max-w-[150px] cursor-pointer hover:underline hover:text-primary transition-colors"
+                            onClick={() => copyToClipboard(inquiry.email, 'email')}
+                          >
+                            {inquiry.email}
+                          </td>
+                          <td 
+                            className="p-2 text-sm whitespace-nowrap cursor-pointer hover:underline hover:text-primary transition-colors"
+                            onClick={() => copyToClipboard(inquiry.phone, 'phone')}
+                          >
+                            {inquiry.phone}
+                          </td>
                           <td className="p-2 text-center">
-                            <Badge variant="secondary" className="text-xs px-1.5 py-0">
+                            <Badge variant="secondary" className="text-sm px-1.5 py-0">
                               {inquiry.selected_vehicles.length}
                             </Badge>
                           </td>
-                          <td className="p-2 text-xs text-right font-semibold text-primary whitespace-nowrap">
+                          <td className="p-2 text-sm text-right font-semibold text-primary whitespace-nowrap">
                             {formatPrice(inquiry.total_price)}
                           </td>
                           <td className="p-2" onClick={(e) => e.stopPropagation()}>
@@ -231,7 +257,7 @@ export default function AdminAnfragen() {
                         {inquiry.first_name} {inquiry.last_name}
                       </p>
                       {inquiry.company_name && (
-                        <p className="text-sm text-muted-foreground">{inquiry.company_name}</p>
+                        <p className="text-base text-muted-foreground">{inquiry.company_name}</p>
                       )}
                     </div>
                   </div>
@@ -244,10 +270,10 @@ export default function AdminAnfragen() {
                       }
                       aria-label="Als Anruf markieren"
                     />
-                    <span className="text-sm text-muted-foreground">Call-Priorität</span>
+                    <span className="text-base text-muted-foreground">Call-Priorität</span>
                   </div>
                   
-                  <div className="space-y-3 text-sm">
+                  <div className="space-y-3 text-base">
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Calendar className="h-4 w-4" />
                       {formatDate(inquiry.created_at)}
@@ -259,6 +285,20 @@ export default function AdminAnfragen() {
                     <div className="flex items-center gap-2 font-semibold text-primary">
                       <Euro className="h-4 w-4" />
                       {formatPrice(inquiry.total_price)}
+                    </div>
+                    <div 
+                      className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors"
+                      onClick={() => copyToClipboard(inquiry.email, 'email')}
+                    >
+                      <Mail className="h-4 w-4" />
+                      {inquiry.email}
+                    </div>
+                    <div 
+                      className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors"
+                      onClick={() => copyToClipboard(inquiry.phone, 'phone')}
+                    >
+                      <Phone className="h-4 w-4" />
+                      {inquiry.phone}
                     </div>
 
                     <div className="pt-2 space-y-2">
