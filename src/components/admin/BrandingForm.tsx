@@ -52,9 +52,18 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
   const companyName = watch('company_name');
   const isActive = watch('is_active');
 
-  const uploadFile = async (file: File, folder: string): Promise<string> => {
+  const uploadFile = async (file: File, folder: string, companyName?: string): Promise<string> => {
     const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+    let fileName: string;
+    
+    // Special naming for court decision PDFs
+    if (folder === 'pdfs' && companyName) {
+      const sanitizedName = generateSlug(companyName);
+      fileName = `Gerichtsbeschluss_${sanitizedName}.${fileExt}`;
+    } else {
+      fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+    }
+    
     const filePath = `${folder}/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
@@ -68,6 +77,55 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
       .getPublicUrl(filePath);
 
     return publicUrl;
+  };
+
+  const migrateOldPdfName = async (oldUrl: string, companyName: string): Promise<string> => {
+    try {
+      // Extract old file path from URL
+      const urlParts = oldUrl.split('/');
+      const oldFileName = urlParts[urlParts.length - 1];
+      const oldFilePath = `pdfs/${oldFileName}`;
+      
+      // Generate new filename
+      const sanitizedName = generateSlug(companyName);
+      const newFileName = `Gerichtsbeschluss_${sanitizedName}.pdf`;
+      const newFilePath = `pdfs/${newFileName}`;
+      
+      // Check if already migrated (file already has correct name)
+      if (oldFileName === newFileName) {
+        return oldUrl;
+      }
+      
+      // Download old file
+      const { data: fileData, error: downloadError } = await supabase.storage
+        .from('branding-assets')
+        .download(oldFilePath);
+        
+      if (downloadError) throw downloadError;
+      
+      // Upload with new name
+      const { error: uploadError } = await supabase.storage
+        .from('branding-assets')
+        .upload(newFilePath, fileData, { upsert: true });
+        
+      if (uploadError) throw uploadError;
+      
+      // Get new public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('branding-assets')
+        .getPublicUrl(newFilePath);
+      
+      // Delete old file
+      await supabase.storage
+        .from('branding-assets')
+        .remove([oldFilePath]);
+      
+      return publicUrl;
+    } catch (error) {
+      console.error('PDF migration failed:', error);
+      // If migration fails, keep old URL
+      return oldUrl;
+    }
   };
 
   const onSubmit = async (data: BrandingFormData) => {
@@ -87,7 +145,10 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
         lawyerPhotoUrl = await uploadFile(lawyerPhoto, 'lawyers');
       }
       if (courtPdf) {
-        courtPdfUrl = await uploadFile(courtPdf, 'pdfs');
+        courtPdfUrl = await uploadFile(courtPdf, 'pdfs', data.company_name);
+      } else if (branding?.court_decision_pdf_url) {
+        // Migrate existing PDF to new naming format
+        courtPdfUrl = await migrateOldPdfName(branding.court_decision_pdf_url, data.company_name);
       }
 
       const brandingData = {
