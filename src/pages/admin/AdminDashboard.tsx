@@ -6,17 +6,28 @@ import { useLeadCampaigns } from "@/hooks/useLeads";
 import { useBrandings } from "@/hooks/useBranding";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { format, subDays, startOfDay } from "date-fns";
 import { de } from "date-fns/locale";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))', 'hsl(var(--muted))'];
+const INQUIRY_ONLY_USER_ID = '8d7a682d-5d5e-43ff-8b73-513464eb16fc';
 
 export default function AdminDashboard() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const { data: vehicles, isLoading: vehiclesLoading } = useVehicles();
   const { data: inquiries, isLoading: inquiriesLoading } = useInquiries();
   const { data: leadCampaigns, isLoading: leadsLoading } = useLeadCampaigns();
   const { data: brandings, isLoading: brandingsLoading } = useBrandings();
+
+  useEffect(() => {
+    if (user?.id === INQUIRY_ONLY_USER_ID) {
+      navigate('/admin/anfragen', { replace: true });
+    }
+  }, [user, navigate]);
 
   // Calculate statistics
   const stats = useMemo(() => {

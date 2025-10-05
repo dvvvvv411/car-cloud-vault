@@ -1,10 +1,12 @@
-import { Outlet, NavLink } from "react-router-dom";
+import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { LayoutDashboard, Car, MessageSquare, Users, LogOut, Menu, Palette, UserPlus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+const INQUIRY_ONLY_USER_ID = '8d7a682d-5d5e-43ff-8b73-513464eb16fc';
 
 const navItems = [
   { title: 'Dashboard', url: '/admin', icon: LayoutDashboard },
@@ -18,6 +20,19 @@ const navItems = [
 export default function AdminLayout() {
   const { user, signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  const isInquiryOnlyUser = user?.id === INQUIRY_ONLY_USER_ID;
+  const visibleNavItems = isInquiryOnlyUser 
+    ? navItems.filter(item => item.url === '/admin/anfragen')
+    : navItems;
+
+  useEffect(() => {
+    if (isInquiryOnlyUser && location.pathname === '/admin') {
+      navigate('/admin/anfragen', { replace: true });
+    }
+  }, [isInquiryOnlyUser, location.pathname, navigate]);
 
   const handleLogout = async () => {
     await signOut();
@@ -30,7 +45,7 @@ export default function AdminLayout() {
           <SidebarGroupLabel className="text-xs text-muted-foreground/70 uppercase tracking-wider px-4 mb-2">Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="space-y-1 px-2">
-              {navItems.map((item) => (
+              {visibleNavItems.map((item) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild>
                     <NavLink 
