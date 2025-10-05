@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Lock, Shield } from 'lucide-react';
+import { Lock, Loader2 } from 'lucide-react';
 import kbsLogo from '@/assets/kbs_blue.png';
 
 interface PasswordProtectionProps {
@@ -16,13 +16,18 @@ interface PasswordProtectionProps {
 export const PasswordProtection = ({ onSuccess, branding, slug }: PasswordProtectionProps) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (password === '123') {
       setError('');
-      onSuccess();
+      setIsLoading(true);
+      
+      setTimeout(() => {
+        onSuccess();
+      }, 500);
     } else {
       setError('Falsches Passwort. Bitte versuchen Sie es erneut.');
       setPassword('');
@@ -59,6 +64,7 @@ export const PasswordProtection = ({ onSuccess, branding, slug }: PasswordProtec
                 }}
                 className="pl-10 h-12 rounded-full"
                 autoFocus
+                disabled={isLoading}
               />
             </div>
             {error && (
@@ -66,8 +72,15 @@ export const PasswordProtection = ({ onSuccess, branding, slug }: PasswordProtec
                 {error}
               </p>
             )}
-            <Button type="submit" className="w-full h-12 rounded-full text-base font-semibold">
-              Zugang erhalten
+            <Button type="submit" className="w-full h-12 rounded-full text-base font-semibold" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Lädt...
+                </>
+              ) : (
+                'Zugang erhalten'
+              )}
             </Button>
           </form>
 
