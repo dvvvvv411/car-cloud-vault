@@ -1,12 +1,14 @@
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, Car, MessageSquare, Users, LogOut, Menu, Palette, UserPlus } from "lucide-react";
+import { LayoutDashboard, Car, MessageSquare, Users, LogOut, Menu, Palette, UserPlus, KeyRound } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { useState, useEffect } from "react";
+import { ChangePasswordDialog } from "@/components/admin/ChangePasswordDialog";
 
 const INQUIRY_ONLY_USER_ID = '8d7a682d-5d5e-43ff-8b73-513464eb16fc';
+const ADMIN_EMAIL = 'admin@admin.de';
 
 const navItems = [
   { title: 'Dashboard', url: '/admin', icon: LayoutDashboard },
@@ -20,10 +22,12 @@ const navItems = [
 export default function AdminLayout() {
   const { user, signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   
   const isInquiryOnlyUser = user?.id === INQUIRY_ONLY_USER_ID;
+  const isAdmin = user?.email === ADMIN_EMAIL;
   const visibleNavItems = isInquiryOnlyUser 
     ? navItems.filter(item => item.url === '/admin/anfragen')
     : navItems;
@@ -75,6 +79,16 @@ export default function AdminLayout() {
         <div className="mb-3 px-2 py-1.5 rounded-lg bg-background/60 text-xs text-muted-foreground truncate">
           {user?.email}
         </div>
+        {isAdmin && (
+          <Button 
+            onClick={() => setPasswordDialogOpen(true)}
+            variant="outline" 
+            className="w-full justify-start mb-2 hover:bg-accent transition-all duration-200"
+          >
+            <KeyRound className="mr-2 h-4 w-4" />
+            <span className="text-sm">Passwort ändern</span>
+          </Button>
+        )}
         <Button 
           onClick={handleLogout} 
           variant="outline" 
@@ -138,6 +152,7 @@ export default function AdminLayout() {
           </main>
         </div>
       </div>
+      <ChangePasswordDialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen} />
     </SidebarProvider>
   );
 }
