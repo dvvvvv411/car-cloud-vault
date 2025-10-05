@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Upload, Download, Eye, Calendar, Building2, Users, UserCheck, FileText, Package } from "lucide-react";
+import { Loader2, Upload, Download, Eye, Calendar, Building2, Users, UserCheck, FileText, Package, Search } from "lucide-react";
+import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
 import { useLeadCampaigns, useCampaignLeads, useUploadLeadCampaign, LeadCampaign, Lead } from "@/hooks/useLeads";
 import { useBrandings } from "@/hooks/useBranding";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,6 +23,7 @@ const AdminLeads = () => {
   const [filterStatus, setFilterStatus] = useState<"all" | "logged-in" | "not-logged-in" | "with-inquiry">("all");
   const [reservationDialogOpen, setReservationDialogOpen] = useState(false);
   const [selectedLeadForReservation, setSelectedLeadForReservation] = useState<Lead | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const { data: campaigns, isLoading: campaignsLoading } = useLeadCampaigns();
   const { data: brandings, isLoading: brandingsLoading } = useBrandings();
@@ -54,15 +56,10 @@ const AdminLeads = () => {
   };
 
   const exportToCSV = (campaign: LeadCampaign, campaignLeads: Lead[]) => {
-    const headers = ["Email", "Passwort", "Eingeloggt", "Erster Login", "Letzter Login", "Login-Anzahl", "Anfrage ID"];
+    const headers = ["Email", "Passwort"];
     const rows = campaignLeads.map(lead => [
       lead.email,
-      lead.password,
-      lead.has_logged_in ? "Ja" : "Nein",
-      lead.first_login_at ? format(new Date(lead.first_login_at), "dd.MM.yyyy HH:mm", { locale: de }) : "",
-      lead.last_login_at ? format(new Date(lead.last_login_at), "dd.MM.yyyy HH:mm", { locale: de }) : "",
-      lead.login_count.toString(),
-      lead.inquiry_id || "",
+      lead.password
     ]);
 
     const csv = [headers, ...rows].map(row => row.join(",")).join("\n");
@@ -85,10 +82,47 @@ const AdminLeads = () => {
 
   return (
     <div className="space-y-8 animate-fade-in">
-      <div>
-        <h1 className="text-4xl font-bold text-foreground tracking-tight">Lead-Management</h1>
-        <p className="text-muted-foreground mt-2 text-base">Lade Lead-Listen hoch und tracke Conversions</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-4xl font-bold text-foreground tracking-tight">Lead-Management</h1>
+          <p className="text-muted-foreground mt-2 text-base">Lade Lead-Listen hoch und tracke Conversions</p>
+        </div>
+        <Button variant="outline" onClick={() => setSearchOpen(true)}>
+          <Search className="h-4 w-4 mr-2" />
+          Lead suchen
+        </Button>
       </div>
+
+      {/* Search Dialog */}
+      <CommandDialog open={searchOpen} onOpenChange={setSearchOpen}>
+        <CommandInput placeholder="Lead nach E-Mail suchen..." />
+        <CommandList>
+          <CommandEmpty>Kein Lead gefunden</CommandEmpty>
+          {campaigns?.map(campaign => {
+            // Note: This shows only campaigns, search filters on client side via CommandInput
+            return (
+              <CommandGroup key={campaign.id} heading={`${campaign.campaign_name} (${campaign.total_leads} Leads)`}>
+                <CommandItem
+                  onSelect={() => {
+                    setSelectedCampaign(campaign);
+                    setSearchOpen(false);
+                  }}
+                  className="cursor-pointer"
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <div className="flex flex-col">
+                      <span className="font-medium">{campaign.brandings?.company_name}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {campaign.logged_in_count} eingeloggt • {campaign.inquiry_count} Anfragen
+                      </span>
+                    </div>
+                  </div>
+                </CommandItem>
+              </CommandGroup>
+            );
+          })}
+        </CommandList>
+      </CommandDialog>
 
       {/* Upload Area */}
       <Card className="modern-card">
