@@ -43,7 +43,6 @@ export const PasswordProtection = ({ onSuccess, branding, slug }: PasswordProtec
           },
           body: JSON.stringify({
             password: password,
-            brandingSlug: slug || '',
           }),
         }
       );

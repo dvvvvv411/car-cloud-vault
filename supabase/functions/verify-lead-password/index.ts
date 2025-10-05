@@ -7,7 +7,6 @@ const corsHeaders = {
 
 interface RequestBody {
   password: string;
-  brandingSlug: string;
 }
 
 Deno.serve(async (req) => {
@@ -17,14 +16,14 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { password, brandingSlug }: RequestBody = await req.json();
+    const { password }: RequestBody = await req.json();
     
-    console.log(`Verification attempt - Slug: ${brandingSlug}, Password length: ${password.length}`);
+    console.log(`Verification attempt - Password length: ${password.length}`);
 
     // Validate input
-    if (!password || !brandingSlug) {
+    if (!password) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Passwort und Branding-Slug erforderlich' }),
+        JSON.stringify({ success: false, error: 'Passwort erforderlich' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -43,29 +42,11 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get branding ID from slug
-    const { data: branding, error: brandingError } = await supabase
-      .from('brandings')
-      .select('id')
-      .eq('slug', brandingSlug)
-      .single();
-
-    if (brandingError || !branding) {
-      console.error('Branding not found:', brandingError);
-      return new Response(
-        JSON.stringify({ success: false, error: 'Branding nicht gefunden' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-    
-    console.log(`Branding found: ${branding.id}`);
-
-    // Verify lead credentials
+    // Find lead by password only
     const { data: lead, error: leadError } = await supabase
       .from('leads')
-      .select('id, has_logged_in, login_count')
+      .select('id, branding_id, has_logged_in, login_count')
       .eq('password', password)
-      .eq('branding_id', branding.id)
       .maybeSingle();
     
     console.log(`Lead query result - Found: ${!!lead}, Error: ${!!leadError}`);
@@ -77,6 +58,23 @@ Deno.serve(async (req) => {
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    // Get branding slug from branding_id
+    const { data: branding, error: brandingError } = await supabase
+      .from('brandings')
+      .select('slug')
+      .eq('id', lead.branding_id)
+      .single();
+
+    if (brandingError || !branding) {
+      console.error('Branding not found for lead:', brandingError);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Branding nicht gefunden' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
+    console.log(`Branding found: ${branding.slug}`);
 
     // Update login tracking
     const now = new Date().toISOString();
@@ -103,7 +101,7 @@ Deno.serve(async (req) => {
     console.log(`Lead ${lead.id} logged in successfully. Login count: ${updateData.login_count}`);
 
     return new Response(
-      JSON.stringify({ success: true, leadId: lead.id }),
+      JSON.stringify({ success: true, leadId: lead.id, brandingSlug: branding.slug }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
