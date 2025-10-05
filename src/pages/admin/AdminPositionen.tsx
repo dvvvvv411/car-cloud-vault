@@ -406,6 +406,7 @@ export default function AdminPositionen() {
                     <TableHead>Modell</TableHead>
                     <TableHead>Fahrgestell-Nr.</TableHead>
                     <TableHead>Bericht-Nr.</TableHead>
+                    <TableHead>DEKRA Status</TableHead>
                     <TableHead>Erstzulassung</TableHead>
                     <TableHead>Kilometerstand</TableHead>
                     <TableHead>Preis</TableHead>
@@ -432,6 +433,18 @@ export default function AdminPositionen() {
                       <TableCell>{vehicle.model}</TableCell>
                       <TableCell className="font-mono text-sm">{vehicle.chassis}</TableCell>
                       <TableCell>{vehicle.report_nr}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className={`h-3 w-3 rounded-full ${
+                              vehicle.dekra_url ? 'bg-green-500' : 'bg-red-500'
+                            }`}
+                          />
+                          <span className="text-sm text-muted-foreground">
+                            {vehicle.dekra_url ? 'Vorhanden' : 'Fehlt'}
+                          </span>
+                        </div>
+                      </TableCell>
                       <TableCell>{vehicle.first_registration}</TableCell>
                       <TableCell>{formatKilometers(vehicle.kilometers)}</TableCell>
                       <TableCell className="font-semibold">{formatPrice(vehicle.price)}</TableCell>
