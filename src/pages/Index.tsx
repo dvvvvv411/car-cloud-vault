@@ -500,11 +500,11 @@ const Index = () => {
             </div>
 
             {/* Vehicle Cards - Mobile */}
-            <div className="block lg:hidden space-y-4 mb-24 animate-fade-in pb-[220px]" style={{
+            <div className="block lg:hidden space-y-4 mb-4 animate-fade-in" style={{
           animationDelay: "0.2s"
         }}>
               {/* Fixed height wrapper to keep pagination position consistent */}
-              <div className="min-h-[3600px]">
+              <div>
                   {paginatedVehicles.map((vehicle, index) => {
                 const isSelected = selectedVehicles.includes(vehicle.chassis);
                 return <div key={index} onClick={() => toggleVehicleSelection(vehicle.chassis)} className={`glassmorphism rounded-2xl overflow-hidden cursor-pointer transition-all ${isSelected ? "ring-2 ring-primary" : ""}`} style={{
