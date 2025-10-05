@@ -77,6 +77,71 @@ export type Database = {
         }
         Relationships: []
       }
+      inquiries: {
+        Row: {
+          branding_id: string | null
+          city: string
+          company_name: string | null
+          created_at: string
+          customer_type: string
+          email: string
+          first_name: string
+          id: string
+          last_name: string
+          message: string | null
+          phone: string
+          selected_vehicles: Json
+          status: string
+          street: string
+          total_price: number
+          zip_code: string
+        }
+        Insert: {
+          branding_id?: string | null
+          city: string
+          company_name?: string | null
+          created_at?: string
+          customer_type: string
+          email: string
+          first_name: string
+          id?: string
+          last_name: string
+          message?: string | null
+          phone: string
+          selected_vehicles: Json
+          status?: string
+          street: string
+          total_price: number
+          zip_code: string
+        }
+        Update: {
+          branding_id?: string | null
+          city?: string
+          company_name?: string | null
+          created_at?: string
+          customer_type?: string
+          email?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          message?: string | null
+          phone?: string
+          selected_vehicles?: Json
+          status?: string
+          street?: string
+          total_price?: number
+          zip_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inquiries_branding_id_fkey"
+            columns: ["branding_id"]
+            isOneToOne: false
+            referencedRelation: "brandings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string | null

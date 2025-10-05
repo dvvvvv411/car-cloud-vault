@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Info, ChevronLeft, ChevronDown } from "lucide-react";
+import { ChevronLeft, ChevronDown, Loader2 } from "lucide-react";
 import { Vehicle } from "@/hooks/useVehicles";
 import { inquirySchema, InquiryFormData } from "@/lib/validation/inquirySchema";
 import { Button } from "./ui/button";
@@ -19,12 +19,14 @@ import {
   FormLabel,
 } from "./ui/form";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface InquiryFormProps {
   selectedVehicles: string[];
   vehicles: Vehicle[];
   onRemoveVehicle: (chassis: string) => void;
   onBack: () => void;
+  brandingId?: string;
 }
 
 export const InquiryForm: React.FC<InquiryFormProps> = ({
@@ -32,10 +34,13 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
   vehicles,
   onRemoveVehicle,
   onBack,
+  brandingId,
 }) => {
   const { toast } = useToast();
   const [isVehiclesOpen, setIsVehiclesOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<InquiryFormData>({
+    resolver: zodResolver(inquirySchema),
     defaultValues: {
       customerType: "private",
       companyName: "",
@@ -64,18 +69,66 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
     }).format(price);
   };
 
-  const onSubmit = (data: InquiryFormData) => {
-    const totalPrice = selectedVehicleData.reduce((sum, v) => sum + v.price, 0);
+  const onSubmit = async (data: InquiryFormData) => {
+    setIsSubmitting(true);
     
-    console.log("Inquiry submitted:", {
-      formData: data,
-      selectedVehicles: selectedVehicleData,
-      totalPrice,
-    });
+    try {
+      const totalPrice = selectedVehicleData.reduce((sum, v) => sum + v.price, 0);
+      
+      // Prepare selected vehicles data
+      const vehiclesData = selectedVehicleData.map(v => ({
+        chassis: v.chassis,
+        brand: v.brand,
+        model: v.model,
+        price: v.price,
+        kilometers: v.kilometers,
+        first_registration: v.first_registration,
+      }));
 
+      // Insert into database
+      const { error } = await supabase
+        .from("inquiries")
+        .insert({
+          branding_id: brandingId || null,
+          customer_type: data.customerType,
+          company_name: data.companyName || null,
+          first_name: data.firstName,
+          last_name: data.lastName,
+          street: data.street,
+          zip_code: data.zipCode,
+          city: data.city,
+          email: data.email,
+          phone: data.phone,
+          message: data.message || null,
+          selected_vehicles: vehiclesData,
+          total_price: totalPrice,
+          status: 'new',
+        });
 
-    // Reset form
-    form.reset();
+      if (error) throw error;
+
+      // Success
+      toast({
+        title: "Anfrage erfolgreich gesendet",
+        description: "Wir werden uns schnellstmöglich bei Ihnen melden.",
+      });
+
+      // Reset form and go back
+      form.reset();
+      setTimeout(() => {
+        onBack();
+      }, 1500);
+
+    } catch (error) {
+      console.error("Error submitting inquiry:", error);
+      toast({
+        title: "Fehler beim Senden",
+        description: "Ihre Anfrage konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -84,6 +137,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
       <Button
         variant="ghost"
         onClick={onBack}
+        disabled={isSubmitting}
         className="mb-6 text-foreground hover:text-primary transition-colors w-full sm:w-auto h-12"
       >
         <ChevronLeft className="h-5 w-5 mr-2" />
@@ -388,6 +442,24 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                     </FormItem>
                   )}
                 />
+              
+              {/* Submit Button */}
+              <div className="mt-6">
+                <Button
+                  type="submit"
+                  disabled={isSubmitting || selectedVehicleData.length === 0}
+                  className="w-full h-12 text-base font-semibold"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                      Anfrage wird gesendet...
+                    </>
+                  ) : (
+                    `Anfrage absenden (${selectedVehicleData.length} ${selectedVehicleData.length === 1 ? 'Fahrzeug' : 'Fahrzeuge'})`
+                  )}
+                </Button>
+              </div>
               </div>
             </form>
           </Form>

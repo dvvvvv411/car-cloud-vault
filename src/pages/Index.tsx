@@ -742,7 +742,7 @@ const Index = ({ branding }: IndexProps = {}) => {
               })}
                 </div>
             </div>
-          </> : <InquiryForm selectedVehicles={selectedVehicles} vehicles={vehicles} onRemoveVehicle={toggleVehicleSelection} onBack={() => setShowInquiryForm(false)} />}
+          </> : <InquiryForm selectedVehicles={selectedVehicles} vehicles={vehicles} onRemoveVehicle={toggleVehicleSelection} onBack={() => setShowInquiryForm(false)} brandingId={branding?.id} />}
 
         {/* Lawyer Contact Card - Always Visible, Desktop Only */}
         <LawyerContactCard 
