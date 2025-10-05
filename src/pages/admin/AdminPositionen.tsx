@@ -9,6 +9,7 @@ import { Plus, Pencil, Trash2, Car, FileUp, RefreshCw } from "lucide-react";
 import { VehicleForm } from "@/components/admin/VehicleForm";
 import { DeleteVehicleDialog } from "@/components/admin/DeleteVehicleDialog";
 import { BulkPDFUpload } from "@/components/admin/BulkPDFUpload";
+import { BulkImageUpload } from "@/components/admin/BulkImageUpload";
 import { VehicleFormData } from "@/lib/validation/vehicleSchema";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,6 +22,7 @@ export default function AdminPositionen() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
+  const [isBulkImageUploadDialogOpen, setIsBulkImageUploadDialogOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMigrating, setIsMigrating] = useState(false);
@@ -374,6 +376,10 @@ export default function AdminPositionen() {
             <FileUp className="mr-2 h-4 w-4" />
             PDF Massen-Upload
           </Button>
+          <Button variant="outline" onClick={() => setIsBulkImageUploadDialogOpen(true)}>
+            <FileUp className="mr-2 h-4 w-4" />
+            Bilder Massen-Upload
+          </Button>
           <Button 
             variant="outline" 
             onClick={handleMigratePDFs}
@@ -532,6 +538,21 @@ export default function AdminPositionen() {
             onComplete={() => {
               refetch();
               setIsBulkUploadDialogOpen(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Image Upload Dialog */}
+      <Dialog open={isBulkImageUploadDialogOpen} onOpenChange={setIsBulkImageUploadDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>Bilder Massen-Upload</DialogTitle>
+          </DialogHeader>
+          <BulkImageUpload 
+            onComplete={() => {
+              refetch();
+              setIsBulkImageUploadDialogOpen(false);
             }}
           />
         </DialogContent>
