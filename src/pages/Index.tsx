@@ -257,179 +257,182 @@ const Index = () => {
           animationDelay: "0.2s"
         }}>
               <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b" style={{
-                  borderColor: "hsl(var(--divider))"
-                }}>
-                      <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
-                    color: "hsl(var(--text-tertiary))"
+                {/* Fixed height wrapper to keep pagination position consistent */}
+                <div className="min-h-[740px]">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b" style={{
+                    borderColor: "hsl(var(--divider))"
                   }}>
-                        <Checkbox checked={allSelected} onCheckedChange={checked => {
-                      if (checked) {
-                        selectAll();
-                      } else {
-                        deselectAll();
-                      }
-                    }} className={someSelected ? "data-[state=checked]:bg-primary/50" : ""} />
-                      </th>
-                      <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
-                    color: "hsl(var(--text-tertiary))"
-                  }}>
-                        Fahrzeug
-                      </th>
-                      <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
-                    color: "hsl(var(--text-tertiary))"
-                  }}>
-                        <Button variant="ghost" onClick={() => handleSort("model")} className="hover:bg-transparent p-0 h-auto font-medium -ml-2" style={{
+                        <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
                       color: "hsl(var(--text-tertiary))"
                     }}>
-                          Modell
-                          <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
-                        </Button>
-                      </th>
-                      <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
-                    color: "hsl(var(--text-tertiary))"
-                  }}>
-                        Fahrgestell-Nr.
-                      </th>
-                      <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
-                    color: "hsl(var(--text-tertiary))"
-                  }}>
-                        Bericht-Nr.
-                      </th>
-                      <th className="text-left px-3 py-4 text-sm font-medium uppercase tracking-wider" style={{
-                    color: "hsl(var(--text-tertiary))"
-                  }}>
-                        <Button variant="ghost" onClick={() => handleSort("first_registration")} className="hover:bg-transparent p-0 h-auto font-medium -ml-2" style={{
+                          <Checkbox checked={allSelected} onCheckedChange={checked => {
+                        if (checked) {
+                          selectAll();
+                        } else {
+                          deselectAll();
+                        }
+                      }} className={someSelected ? "data-[state=checked]:bg-primary/50" : ""} />
+                        </th>
+                        <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
                       color: "hsl(var(--text-tertiary))"
                     }}>
-                          Erstzulassung
-                          <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
-                        </Button>
-                      </th>
-                      <th className="text-right px-3 py-4 text-sm font-medium uppercase tracking-wider" style={{
-                    color: "hsl(var(--text-tertiary))"
-                  }}>
-                        <Button variant="ghost" onClick={() => handleSort("kilometers")} className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto" style={{
+                          Fahrzeug
+                        </th>
+                        <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
                       color: "hsl(var(--text-tertiary))"
                     }}>
-                          Kilometer
-                          <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
-                        </Button>
-                      </th>
-                      <th className="text-right px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
-                    color: "hsl(var(--text-tertiary))"
-                  }}>
-                        <Button variant="ghost" onClick={() => handleSort("price")} className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto" style={{
+                          <Button variant="ghost" onClick={() => handleSort("model")} className="hover:bg-transparent p-0 h-auto font-medium -ml-2" style={{
+                        color: "hsl(var(--text-tertiary))"
+                      }}>
+                            Modell
+                            <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
+                          </Button>
+                        </th>
+                        <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
                       color: "hsl(var(--text-tertiary))"
                     }}>
-                          Einzelpreis
-                          <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
-                        </Button>
-                      </th>
-                      <th className="text-center px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
-                    color: "hsl(var(--text-tertiary))"
-                  }}>
-                        Bericht
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedVehicles.map((vehicle, index) => {
-                  const isSelected = selectedVehicles.includes(vehicle.chassis);
-                  return <tr key={index} className={`border-b hover-lift cursor-pointer group transition-colors ${isSelected ? "bg-primary/5" : ""}`} style={{
-                    borderColor: "hsl(var(--divider))",
-                    animationDelay: `${0.3 + index * 0.05}s`
-                  }} onClick={() => toggleVehicleSelection(vehicle.chassis)}>
-                          <td className="px-6 py-4" onClick={e => e.stopPropagation()}>
-                            <Checkbox checked={isSelected} onCheckedChange={() => toggleVehicleSelection(vehicle.chassis)} />
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="w-24 h-16 rounded-lg overflow-hidden bg-muted">
-                              <img src={vehicle.image_url || demoVehicle} alt={`${vehicle.brand} ${vehicle.model}`} className="w-full h-full object-cover" />
-                            </div>
-                          </td>
-                          <td className="px-6 py-5">
-                            <div>
-                              <div className="font-medium text-base" style={{
-                          color: "hsl(var(--text-primary))"
-                        }}>
-                                {vehicle.brand}
+                          Fahrgestell-Nr.
+                        </th>
+                        <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
+                      color: "hsl(var(--text-tertiary))"
+                    }}>
+                          Bericht-Nr.
+                        </th>
+                        <th className="text-left px-3 py-4 text-sm font-medium uppercase tracking-wider" style={{
+                      color: "hsl(var(--text-tertiary))"
+                    }}>
+                          <Button variant="ghost" onClick={() => handleSort("first_registration")} className="hover:bg-transparent p-0 h-auto font-medium -ml-2" style={{
+                        color: "hsl(var(--text-tertiary))"
+                      }}>
+                            Erstzulassung
+                            <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
+                          </Button>
+                        </th>
+                        <th className="text-right px-3 py-4 text-sm font-medium uppercase tracking-wider" style={{
+                      color: "hsl(var(--text-tertiary))"
+                    }}>
+                          <Button variant="ghost" onClick={() => handleSort("kilometers")} className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto" style={{
+                        color: "hsl(var(--text-tertiary))"
+                      }}>
+                            Kilometer
+                            <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
+                          </Button>
+                        </th>
+                        <th className="text-right px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
+                      color: "hsl(var(--text-tertiary))"
+                    }}>
+                          <Button variant="ghost" onClick={() => handleSort("price")} className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto" style={{
+                        color: "hsl(var(--text-tertiary))"
+                      }}>
+                            Einzelpreis
+                            <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
+                          </Button>
+                        </th>
+                        <th className="text-center px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
+                      color: "hsl(var(--text-tertiary))"
+                    }}>
+                          Bericht
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedVehicles.map((vehicle, index) => {
+                    const isSelected = selectedVehicles.includes(vehicle.chassis);
+                    return <tr key={index} className={`border-b hover-lift cursor-pointer group transition-colors ${isSelected ? "bg-primary/5" : ""}`} style={{
+                      borderColor: "hsl(var(--divider))",
+                      animationDelay: `${0.3 + index * 0.05}s`
+                    }} onClick={() => toggleVehicleSelection(vehicle.chassis)}>
+                            <td className="px-6 py-4" onClick={e => e.stopPropagation()}>
+                              <Checkbox checked={isSelected} onCheckedChange={() => toggleVehicleSelection(vehicle.chassis)} />
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="w-24 h-16 rounded-lg overflow-hidden bg-muted">
+                                <img src={vehicle.image_url || demoVehicle} alt={`${vehicle.brand} ${vehicle.model}`} className="w-full h-full object-cover" />
                               </div>
-                              <div className="text-base mt-0.5" style={{
+                            </td>
+                            <td className="px-6 py-5">
+                              <div>
+                                <div className="font-medium text-base" style={{
+                            color: "hsl(var(--text-primary))"
+                          }}>
+                                  {vehicle.brand}
+                                </div>
+                                <div className="text-base mt-0.5" style={{
+                            color: "hsl(var(--text-secondary))"
+                          }}>
+                                  {vehicle.model}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-5">
+                              <span className="text-base font-mono" style={{
                           color: "hsl(var(--text-secondary))"
                         }}>
-                                {vehicle.model}
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-5">
-                            <span className="text-base font-mono" style={{
-                        color: "hsl(var(--text-secondary))"
-                      }}>
-                              {vehicle.chassis}
-                            </span>
-                          </td>
-                          <td className="px-6 py-5">
-                            <span className="text-base" style={{
-                        color: "hsl(var(--text-secondary))"
-                      }}>
-                              {vehicle.report_nr}
-                            </span>
-                          </td>
-                          <td className="px-3 py-5">
-                            <span className="text-base" style={{
-                        color: "hsl(var(--text-secondary))"
-                      }}>
-                              {vehicle.first_registration}
-                            </span>
-                          </td>
-                          <td className="px-3 py-5 text-right">
-                            <span className="text-base font-medium" style={{
-                        color: "hsl(var(--text-primary))"
-                      }}>
-                              {formatKilometers(vehicle.kilometers)}
-                            </span>
-                          </td>
-                          <td className="px-6 py-5 text-right">
-                            <span className="text-lg font-semibold" style={{
-                        color: "hsl(var(--text-primary))"
-                      }}>
-                              {formatPrice(vehicle.price)}
-                            </span>
-                          </td>
-                          <td className="px-6 py-5 text-center">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button 
-                                  className="h-14 w-28 rounded-lg bg-[#018c4f] hover:bg-[#018c4f]/90 border-0 shadow-md hover:shadow-lg transition-all flex items-center justify-center px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#018c4f] focus-visible:ring-offset-2" 
-                                  onClick={e => {
-                                    e.stopPropagation();
-                                    if (vehicle.dekra_url) {
-                                      setCurrentPdfUrl(vehicle.dekra_url);
-                                      setPdfDialogOpen(true);
-                                    }
-                                  }}
-                                  disabled={!vehicle.dekra_url}
-                                >
-                                  <img src={dekraLogoWhite} alt="DEKRA" className="h-10 w-auto object-contain" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>DEKRA Bericht öffnen</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </td>
-                        </tr>;
-                })}
-                  </tbody>
-                </table>
+                                {vehicle.chassis}
+                              </span>
+                            </td>
+                            <td className="px-6 py-5">
+                              <span className="text-base" style={{
+                          color: "hsl(var(--text-secondary))"
+                        }}>
+                                {vehicle.report_nr}
+                              </span>
+                            </td>
+                            <td className="px-3 py-5">
+                              <span className="text-base" style={{
+                          color: "hsl(var(--text-secondary))"
+                        }}>
+                                {vehicle.first_registration}
+                              </span>
+                            </td>
+                            <td className="px-3 py-5 text-right">
+                              <span className="text-base font-medium" style={{
+                          color: "hsl(var(--text-primary))"
+                        }}>
+                                {formatKilometers(vehicle.kilometers)}
+                              </span>
+                            </td>
+                            <td className="px-6 py-5 text-right">
+                              <span className="text-lg font-semibold" style={{
+                          color: "hsl(var(--text-primary))"
+                        }}>
+                                {formatPrice(vehicle.price)}
+                              </span>
+                            </td>
+                            <td className="px-6 py-5 text-center">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button 
+                                    className="h-14 w-28 rounded-lg bg-[#018c4f] hover:bg-[#018c4f]/90 border-0 shadow-md hover:shadow-lg transition-all flex items-center justify-center px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#018c4f] focus-visible:ring-offset-2" 
+                                    onClick={e => {
+                                      e.stopPropagation();
+                                      if (vehicle.dekra_url) {
+                                        setCurrentPdfUrl(vehicle.dekra_url);
+                                        setPdfDialogOpen(true);
+                                      }
+                                    }}
+                                    disabled={!vehicle.dekra_url}
+                                  >
+                                    <img src={dekraLogoWhite} alt="DEKRA" className="h-10 w-auto object-contain" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>DEKRA Bericht öffnen</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </td>
+                          </tr>;
+                  })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
-              {/* Desktop Pagination - Fixed at bottom */}
+              {/* Desktop Pagination - Fixed at consistent position */}
               {totalPages > 1 && (
-                <div className="sticky bottom-0 mt-8 z-50 bg-background/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.05)] rounded-t-2xl">
+                <div className="mt-8 z-50 bg-background/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.05)] rounded-t-2xl">
                   <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-6">
                     <Pagination>
                       <PaginationContent className="gap-2">
@@ -496,92 +499,95 @@ const Index = () => {
             <div className="block lg:hidden space-y-4 mb-24 animate-fade-in" style={{
           animationDelay: "0.2s"
         }}>
-              {paginatedVehicles.map((vehicle, index) => {
-            const isSelected = selectedVehicles.includes(vehicle.chassis);
-            return <div key={index} onClick={() => toggleVehicleSelection(vehicle.chassis)} className={`glassmorphism rounded-2xl overflow-hidden cursor-pointer transition-all ${isSelected ? "ring-2 ring-primary" : ""}`} style={{
-              animationDelay: `${0.3 + index * 0.05}s`
-            }}>
-                    {/* Image */}
-                    <div className="relative h-48 bg-muted">
-                      <img src={vehicle.image_url || demoVehicle} alt={`${vehicle.brand} ${vehicle.model}`} className="w-full h-full object-cover" />
-                      {/* Checkbox overlay */}
-                      <div className="absolute top-3 right-3" onClick={e => e.stopPropagation()}>
-                        <Checkbox checked={isSelected} onCheckedChange={() => toggleVehicleSelection(vehicle.chassis)} className="w-6 h-6 bg-background/80" />
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-4 space-y-3">
-                      {/* Brand & Model */}
-                      <div>
-                        <h3 className="text-xl font-medium" style={{
-                color: "hsl(var(--text-primary))"
-              }}>{vehicle.brand}</h3>
-                        <p className="text-lg" style={{
-                color: "hsl(var(--text-secondary))"
-              }}>{vehicle.model}</p>
-                      </div>
-
-                      {/* Details Grid */}
-                      <div className="grid grid-cols-2 gap-2 text-sm">
-                        <div>
-                          <span style={{
-                  color: "hsl(var(--text-tertiary))"
-                }}>Erstzulassung:</span>
-                          <span className="ml-2 font-medium" style={{
-                  color: "hsl(var(--text-primary))"
-                }}>{vehicle.first_registration}</span>
-                        </div>
-                        <div>
-                          <span style={{
-                  color: "hsl(var(--text-tertiary))"
-                }}>KM:</span>
-                          <span className="ml-2 font-medium" style={{
-                  color: "hsl(var(--text-primary))"
-                }}>{formatKilometers(vehicle.kilometers)}</span>
-                        </div>
-                        <div className="col-span-2">
-                          <span style={{
-                  color: "hsl(var(--text-tertiary))"
-                }}>Bericht-Nr.:</span>
-                          <span className="ml-2 font-medium" style={{
-                  color: "hsl(var(--text-primary))"
-                }}>{vehicle.report_nr}</span>
-                        </div>
-                      </div>
-
-                      {/* Chassis Number */}
-                      <div className="text-xs font-mono" style={{
-                color: "hsl(var(--text-tertiary))"
+              {/* Fixed height wrapper to keep pagination position consistent */}
+              <div className="min-h-[3600px]">
+                {paginatedVehicles.map((vehicle, index) => {
+              const isSelected = selectedVehicles.includes(vehicle.chassis);
+              return <div key={index} onClick={() => toggleVehicleSelection(vehicle.chassis)} className={`glassmorphism rounded-2xl overflow-hidden cursor-pointer transition-all ${isSelected ? "ring-2 ring-primary" : ""}`} style={{
+                animationDelay: `${0.3 + index * 0.05}s`
               }}>
-                        Fahrgestell: {vehicle.chassis}
+                      {/* Image */}
+                      <div className="relative h-48 bg-muted">
+                        <img src={vehicle.image_url || demoVehicle} alt={`${vehicle.brand} ${vehicle.model}`} className="w-full h-full object-cover" />
+                        {/* Checkbox overlay */}
+                        <div className="absolute top-3 right-3" onClick={e => e.stopPropagation()}>
+                          <Checkbox checked={isSelected} onCheckedChange={() => toggleVehicleSelection(vehicle.chassis)} className="w-6 h-6 bg-background/80" />
+                        </div>
                       </div>
 
-                      {/* Price */}
-                      <div className="text-2xl font-semibold" style={{
-                color: "hsl(var(--text-primary))"
-              }}>
-                        {formatPrice(vehicle.price)}
-                      </div>
+                      {/* Content */}
+                      <div className="p-4 space-y-3">
+                        {/* Brand & Model */}
+                        <div>
+                          <h3 className="text-xl font-medium" style={{
+                  color: "hsl(var(--text-primary))"
+                }}>{vehicle.brand}</h3>
+                          <p className="text-lg" style={{
+                  color: "hsl(var(--text-secondary))"
+                }}>{vehicle.model}</p>
+                        </div>
 
-                      {/* DEKRA Button */}
-                      <Button 
-                        className="w-full min-h-12 bg-[#018c4f] hover:bg-[#018c4f]/90 border-0 shadow-md hover:shadow-lg transition-all flex items-center justify-center" 
-                        onClick={e => {
-                          e.stopPropagation();
-                          if (vehicle.dekra_url) {
-                            setCurrentPdfUrl(vehicle.dekra_url);
-                            setPdfDialogOpen(true);
-                          }
-                        }}
-                        disabled={!vehicle.dekra_url}
-                      >
-                        <img src={dekraLogoWhite} alt="DEKRA" className="h-8 w-auto object-contain mr-2" />
-                        <span>Bericht öffnen</span>
-                      </Button>
-                    </div>
-                  </div>;
-          })}
+                        {/* Details Grid */}
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <span style={{
+                    color: "hsl(var(--text-tertiary))"
+                  }}>Erstzulassung:</span>
+                            <span className="ml-2 font-medium" style={{
+                    color: "hsl(var(--text-primary))"
+                  }}>{vehicle.first_registration}</span>
+                          </div>
+                          <div>
+                            <span style={{
+                    color: "hsl(var(--text-tertiary))"
+                  }}>KM:</span>
+                            <span className="ml-2 font-medium" style={{
+                    color: "hsl(var(--text-primary))"
+                  }}>{formatKilometers(vehicle.kilometers)}</span>
+                          </div>
+                          <div className="col-span-2">
+                            <span style={{
+                    color: "hsl(var(--text-tertiary))"
+                  }}>Bericht-Nr.:</span>
+                            <span className="ml-2 font-medium" style={{
+                    color: "hsl(var(--text-primary))"
+                  }}>{vehicle.report_nr}</span>
+                          </div>
+                        </div>
+
+                        {/* Chassis Number */}
+                        <div className="text-xs font-mono" style={{
+                  color: "hsl(var(--text-tertiary))"
+                }}>
+                          Fahrgestell: {vehicle.chassis}
+                        </div>
+
+                        {/* Price */}
+                        <div className="text-2xl font-semibold" style={{
+                  color: "hsl(var(--text-primary))"
+                }}>
+                          {formatPrice(vehicle.price)}
+                        </div>
+
+                        {/* DEKRA Button */}
+                        <Button 
+                          className="w-full min-h-12 bg-[#018c4f] hover:bg-[#018c4f]/90 border-0 shadow-md hover:shadow-lg transition-all flex items-center justify-center" 
+                          onClick={e => {
+                            e.stopPropagation();
+                            if (vehicle.dekra_url) {
+                              setCurrentPdfUrl(vehicle.dekra_url);
+                              setPdfDialogOpen(true);
+                            }
+                          }}
+                          disabled={!vehicle.dekra_url}
+                        >
+                          <img src={dekraLogoWhite} alt="DEKRA" className="h-8 w-auto object-contain mr-2" />
+                          <span>Bericht öffnen</span>
+                        </Button>
+                      </div>
+                    </div>;
+            })}
+              </div>
               
               {/* Mobile Pagination - Fixed at bottom */}
               {totalPages > 1 && (
