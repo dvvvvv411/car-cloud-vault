@@ -340,7 +340,7 @@ const Index = () => {
                       <tbody>
                         {paginatedVehicles.map((vehicle, index) => {
                       const isSelected = selectedVehicles.includes(vehicle.chassis);
-                      return <tr key={index} className={`h-[120px] border-b hover-lift cursor-pointer group transition-colors ${isSelected ? "bg-primary/5" : ""}`} style={{
+                      return <tr key={index} className={`h-[100px] border-b hover-lift cursor-pointer group transition-colors ${isSelected ? "bg-primary/5" : ""}`} style={{
                         borderColor: "hsl(var(--divider))",
                         animationDelay: `${0.3 + index * 0.05}s`
                       }} onClick={() => toggleVehicleSelection(vehicle.chassis)}>
