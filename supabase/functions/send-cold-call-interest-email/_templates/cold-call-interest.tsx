@@ -20,7 +20,7 @@ interface ColdCallInterestEmailProps {
     last_name: string;
   };
   password: string;
-  logoBase64: string | null;
+  hasLogo: boolean;
   brandingSlug: string;
 }
 
@@ -28,7 +28,7 @@ export const ColdCallInterestEmail = ({
   branding,
   caller,
   password,
-  logoBase64,
+  hasLogo,
   brandingSlug,
 }: ColdCallInterestEmailProps) => {
   const insolvenzLink = `https://insolvenz.kbs-kanzlei.de/insolvenz/${brandingSlug}`;
@@ -39,15 +39,15 @@ export const ColdCallInterestEmail = ({
       <Preview>Informationen zur Insolvenz der {branding.company_name} – Übernahmemöglichkeiten</Preview>
       <Body style={main}>
         <Container style={container}>
-          {/* Logo */}
-          {logoBase64 && (
-            <Img
-              src={logoBase64}
-              width="180"
-              alt={branding.lawyer_firm_name}
-              style={logo}
-            />
-          )}
+        {/* Logo via CID attachment */}
+        {hasLogo && (
+          <Img
+            src="cid:logo"
+            width="180"
+            alt={branding.lawyer_firm_name}
+            style={logo}
+          />
+        )}
           
           <Text style={greeting}>
             Sehr geehrte Damen und Herren,
