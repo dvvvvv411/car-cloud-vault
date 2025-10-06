@@ -541,6 +541,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_all_users: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          created_at: string
+          email: string
+          id: string
+          last_sign_in_at: string
+          role: Database["public"]["Enums"]["app_role"]
+        }[]
+      }
       get_user_email: {
         Args: { user_id: string }
         Returns: string
