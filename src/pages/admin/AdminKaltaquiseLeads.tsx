@@ -267,6 +267,44 @@ const AdminKaltaquiseLeads = () => {
                               </Button>
                             </>
                           )}
+                          {lead.status === 'invalid' && (
+                            <div className="flex items-center gap-2">
+                              <Badge variant="destructive">
+                                <X className="h-3 w-3 mr-1" />
+                                Ungültig
+                              </Badge>
+                              {lead.invalid_timestamp && (
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(lead.invalid_timestamp).toLocaleString('de-DE', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                          {lead.status === 'not_interested' && (
+                            <div className="flex items-center gap-2">
+                              <Badge variant="secondary" className="bg-gray-500 text-white">
+                                <ThumbsDown className="h-3 w-3 mr-1" />
+                                Nicht interessiert
+                              </Badge>
+                              {lead.not_interested_timestamp && (
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(lead.not_interested_timestamp).toLocaleString('de-DE', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </span>
+                              )}
+                            </div>
+                          )}
                           {lead.status === 'mailbox' && (
                             <div className="flex items-center gap-2">
                               <Badge variant="secondary">
@@ -296,10 +334,23 @@ const AdminKaltaquiseLeads = () => {
                             </div>
                           )}
                           {lead.status === 'interested' && (
-                            <Badge className="bg-green-500 hover:bg-green-600">
-                              <CheckCircle2 className="h-3 w-3 mr-1" />
-                              Interessiert
-                            </Badge>
+                            <div className="flex items-center gap-2">
+                              <Badge className="bg-green-500 hover:bg-green-600">
+                                <CheckCircle2 className="h-3 w-3 mr-1" />
+                                Interessiert
+                              </Badge>
+                              {lead.interested_timestamp && (
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(lead.interested_timestamp).toLocaleString('de-DE', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </span>
+                              )}
+                            </div>
                           )}
                         </div>
                       </TableCell>

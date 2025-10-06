@@ -174,7 +174,10 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          interested_timestamp: string | null
+          invalid_timestamp: string | null
           mailbox_timestamp: string | null
+          not_interested_timestamp: string | null
           phone_number: string
           status: string
           updated_at: string
@@ -185,7 +188,10 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          interested_timestamp?: string | null
+          invalid_timestamp?: string | null
           mailbox_timestamp?: string | null
+          not_interested_timestamp?: string | null
           phone_number: string
           status?: string
           updated_at?: string
@@ -196,7 +202,10 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          interested_timestamp?: string | null
+          invalid_timestamp?: string | null
           mailbox_timestamp?: string | null
+          not_interested_timestamp?: string | null
           phone_number?: string
           status?: string
           updated_at?: string

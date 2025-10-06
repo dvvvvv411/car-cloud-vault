@@ -10,6 +10,9 @@ export interface ColdCallLead {
   email: string | null;
   status: 'active' | 'invalid' | 'mailbox' | 'interested' | 'not_interested';
   mailbox_timestamp?: string | null;
+  invalid_timestamp?: string | null;
+  not_interested_timestamp?: string | null;
+  interested_timestamp?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -47,13 +50,25 @@ export const useUpdateLeadStatus = () => {
       // Prepare update data
       const updateData: any = { status };
       
-      // Set mailbox_timestamp when status is mailbox
+      // Set timestamp for status changes
+      if (status === 'invalid') {
+        updateData.invalid_timestamp = new Date().toISOString();
+      }
+      if (status === 'not_interested') {
+        updateData.not_interested_timestamp = new Date().toISOString();
+      }
+      if (status === 'interested') {
+        updateData.interested_timestamp = new Date().toISOString();
+      }
       if (status === 'mailbox') {
         updateData.mailbox_timestamp = new Date().toISOString();
       }
       
-      // Clear mailbox_timestamp when changing from mailbox to active
+      // Clear all timestamps when status is reset to active
       if (status === 'active') {
+        updateData.invalid_timestamp = null;
+        updateData.not_interested_timestamp = null;
+        updateData.interested_timestamp = null;
         updateData.mailbox_timestamp = null;
       }
       
