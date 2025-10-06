@@ -47,9 +47,16 @@ const AdminKaltaquiseLeads = () => {
   };
 
   const handleEmailSave = async (leadId: string) => {
-    if (emailValue.trim()) {
-      await updateEmail.mutateAsync({ leadId, email: emailValue, campaignId: campaignId || '' });
+    if (!emailValue.trim()) {
+      toast({
+        title: 'E-Mail erforderlich',
+        description: 'Bitte geben Sie eine gültige E-Mail-Adresse ein',
+        variant: 'destructive',
+      });
+      return;
     }
+    
+    await updateEmail.mutateAsync({ leadId, email: emailValue.trim(), campaignId: campaignId || '' });
     setEditingEmailId(null);
     setEmailValue('');
   };
@@ -90,13 +97,25 @@ const AdminKaltaquiseLeads = () => {
     });
   };
 
-  // Filter leads based on selected filter
-  const filteredLeads = leads?.filter(lead => {
-    if (filter === 'invalid') return lead.status === 'invalid';
-    if (filter === 'not_interested') return lead.status === 'not_interested';
-    // 'active' filter: show everything except invalid & not_interested
-    return !['invalid', 'not_interested'].includes(lead.status);
-  });
+  // Filter and sort leads - those with emails appear first
+  const filteredAndSortedLeads = leads
+    ?.filter(lead => {
+      if (filter === 'invalid') return lead.status === 'invalid';
+      if (filter === 'not_interested') return lead.status === 'not_interested';
+      // 'active' filter: show everything except invalid & not_interested
+      return !['invalid', 'not_interested'].includes(lead.status);
+    })
+    .sort((a, b) => {
+      // Leads WITH email come first
+      const aHasEmail = !!a.email && a.email.trim().length > 0;
+      const bHasEmail = !!b.email && b.email.trim().length > 0;
+      
+      if (aHasEmail && !bHasEmail) return -1;  // a comes before b
+      if (!aHasEmail && bHasEmail) return 1;   // b comes before a
+      
+      // If both have email or both don't have email: sort alphabetically by company name
+      return a.company_name.localeCompare(b.company_name);
+    });
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -197,19 +216,19 @@ const AdminKaltaquiseLeads = () => {
                 <Skeleton key={i} className="h-12" />
               ))}
             </div>
-          ) : filteredLeads && filteredLeads.length > 0 ? (
+          ) : filteredAndSortedLeads && filteredAndSortedLeads.length > 0 ? (
             <div className="border rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Unternehmensname</TableHead>
                     <TableHead>Telefonnummer</TableHead>
-                    <TableHead>E-Mail</TableHead>
+                    <TableHead className="min-w-[280px]">E-Mail</TableHead>
                     <TableHead>Aktionen</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredLeads.map((lead) => (
+                  {filteredAndSortedLeads.map((lead) => (
                     <TableRow key={lead.id}>
                       <TableCell className="font-medium">{lead.company_name}</TableCell>
                       <TableCell>
@@ -223,24 +242,48 @@ const AdminKaltaquiseLeads = () => {
                       </TableCell>
                       <TableCell>
                         {editingEmailId === lead.id ? (
-                          <Input
-                            type="email"
-                            value={emailValue}
-                            onChange={(e) => setEmailValue(e.target.value)}
-                            onBlur={() => handleEmailSave(lead.id)}
-                            onKeyDown={(e) => handleEmailKeyDown(e, lead.id)}
-                            placeholder="email@example.com"
-                            className="h-8"
-                            autoFocus
-                          />
+                          <div className="flex items-center gap-2 min-w-[280px]">
+                            <Input
+                              type="email"
+                              value={emailValue}
+                              onChange={(e) => setEmailValue(e.target.value)}
+                              onKeyDown={(e) => handleEmailKeyDown(e, lead.id)}
+                              placeholder="email@example.com"
+                              className="h-9 flex-1"
+                              autoFocus
+                            />
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-9 w-9 p-0"
+                              onClick={() => handleEmailSave(lead.id)}
+                              disabled={!emailValue.trim()}
+                            >
+                              <CheckCircle2 className="h-4 w-4 text-green-600" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-9 w-9 p-0"
+                              onClick={() => {
+                                setEditingEmailId(null);
+                                setEmailValue('');
+                              }}
+                            >
+                              <X className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                          </div>
                         ) : (
                           <div 
-                            className="cursor-pointer hover:bg-accent/50 p-1 rounded transition-colors"
+                            className="cursor-pointer hover:bg-accent/50 p-2 rounded transition-colors min-w-[280px] truncate"
                             onClick={() => handleEmailEdit(lead.id, lead.email)}
+                            title={lead.email || 'Klicken zum Hinzufügen'}
                           >
-                            {lead.email || (
-                              <span className="text-muted-foreground text-sm">
-                                Klicken zum Hinzufügen
+                            {lead.email ? (
+                              <span className="text-sm">{lead.email}</span>
+                            ) : (
+                              <span className="text-muted-foreground text-sm italic">
+                                + E-Mail hinzufügen
                               </span>
                             )}
                           </div>
