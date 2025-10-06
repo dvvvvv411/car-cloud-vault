@@ -17,6 +17,8 @@ import AdminAnfragen from "./pages/admin/AdminAnfragen";
 import AdminBenutzer from "./pages/admin/AdminBenutzer";
 import AdminBranding from "./pages/admin/AdminBranding";
 import AdminLeads from "./pages/admin/AdminLeads";
+import AdminKaltaquise from "./pages/admin/AdminKaltaquise";
+import AdminKaltaquiseCallerDetails from "./pages/admin/AdminKaltaquiseCallerDetails";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -52,6 +54,8 @@ const App = () => (
               <Route path="positionen" element={<AdminPositionen />} />
               <Route path="anfragen" element={<AdminAnfragen />} />
               <Route path="leads" element={<AdminLeads />} />
+              <Route path="kaltaquise" element={<AdminKaltaquise />} />
+              <Route path="kaltaquise/:callerId" element={<AdminKaltaquiseCallerDetails />} />
               <Route path="benutzer" element={<AdminBenutzer />} />
               <Route path="branding" element={<AdminBranding />} />
             </Route>

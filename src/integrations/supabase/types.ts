@@ -86,6 +86,125 @@ export type Database = {
         }
         Relationships: []
       }
+      cold_call_callers: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          first_name: string
+          id: string
+          last_name: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+        }
+        Relationships: []
+      }
+      cold_call_campaigns: {
+        Row: {
+          branding_id: string
+          caller_id: string
+          campaign_date: string
+          created_at: string
+          id: string
+          interested_count: number
+          invalid_count: number
+          mailbox_count: number
+          total_leads: number
+          upload_date: string
+        }
+        Insert: {
+          branding_id: string
+          caller_id: string
+          campaign_date?: string
+          created_at?: string
+          id?: string
+          interested_count?: number
+          invalid_count?: number
+          mailbox_count?: number
+          total_leads?: number
+          upload_date?: string
+        }
+        Update: {
+          branding_id?: string
+          caller_id?: string
+          campaign_date?: string
+          created_at?: string
+          id?: string
+          interested_count?: number
+          invalid_count?: number
+          mailbox_count?: number
+          total_leads?: number
+          upload_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cold_call_campaigns_branding_id_fkey"
+            columns: ["branding_id"]
+            isOneToOne: false
+            referencedRelation: "brandings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cold_call_campaigns_caller_id_fkey"
+            columns: ["caller_id"]
+            isOneToOne: false
+            referencedRelation: "cold_call_callers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cold_call_leads: {
+        Row: {
+          campaign_id: string
+          company_name: string
+          created_at: string
+          email: string | null
+          id: string
+          phone_number: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          campaign_id: string
+          company_name: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          phone_number: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          campaign_id?: string
+          company_name?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          phone_number?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cold_call_leads_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "cold_call_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inquiries: {
         Row: {
           branding_id: string | null
