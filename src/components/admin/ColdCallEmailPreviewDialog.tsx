@@ -24,27 +24,6 @@ export const ColdCallEmailPreviewDialog = ({
 
   useEffect(() => {
     const generatePreview = async () => {
-      let logoBase64 = null;
-      
-      // Convert logo to Base64
-      if (branding.kanzlei_logo_url) {
-        try {
-          const response = await fetch(branding.kanzlei_logo_url);
-          const blob = await response.blob();
-          const reader = new FileReader();
-          
-          await new Promise((resolve) => {
-            reader.onloadend = () => {
-              logoBase64 = reader.result as string;
-              resolve(null);
-            };
-            reader.readAsDataURL(blob);
-          });
-        } catch (error) {
-          console.error('Failed to load logo:', error);
-        }
-      }
-
       const insolvenzLink = `https://insolvenz.kbs-kanzlei.de/insolvenz/${branding.slug}`;
       const dummyPassword = 'ABC12345';
 
@@ -64,11 +43,6 @@ export const ColdCallEmailPreviewDialog = ({
       max-width: 600px;
       margin: 0 auto;
       padding: 40px 20px;
-    }
-    .logo {
-      display: block;
-      margin: 0 auto 30px;
-      width: 180px;
     }
     .greeting, .paragraph {
       color: #000000;
@@ -149,8 +123,6 @@ export const ColdCallEmailPreviewDialog = ({
 </head>
 <body>
   <div class="container">
-    ${logoBase64 ? `<img src="${logoBase64}" alt="${branding.lawyer_firm_name}" class="logo" />` : ''}
-    
     <p class="greeting">Sehr geehrte Damen und Herren,</p>
     
     <p class="paragraph">
@@ -209,7 +181,7 @@ export const ColdCallEmailPreviewDialog = ({
         ${branding.lawyer_address_street}<br>
         ${branding.lawyer_address_city}<br><br>
         Telefon: ${branding.lawyer_phone}<br>
-        E-Mail: <a href="mailto:${branding.lawyer_email}">${branding.lawyer_email}</a><br>
+        E-Mail: <a href="mailto:info@kbs-kanzlei.de">info@kbs-kanzlei.de</a><br>
         Web: <a href="${branding.lawyer_website_url}" target="_blank">${branding.lawyer_website_url}</a>
       </p>
     </div>

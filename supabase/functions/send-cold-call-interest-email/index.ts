@@ -71,34 +71,12 @@ Deno.serve(async (req) => {
       })
     }
     
-    // 4. Fetch logo as binary if available
-    let logoAttachment = null
-    if (branding.kanzlei_logo_url) {
-      try {
-        const logoResponse = await fetch(branding.kanzlei_logo_url)
-        if (logoResponse.ok) {
-          const logoBlob = await logoResponse.arrayBuffer()
-          const contentType = logoResponse.headers.get('content-type') || 'image/png'
-          const logoBuffer = new Uint8Array(logoBlob)
-          
-          logoAttachment = {
-            filename: 'logo.png',
-            content: logoBuffer,
-            content_id: 'logo',
-          }
-        }
-      } catch (logoError) {
-        console.error('Failed to fetch logo:', logoError)
-      }
-    }
-    
-    // 5. Render email template
+    // 4. Render email template
     const html = render(
       React.createElement(ColdCallInterestEmail, {
         branding,
         caller,
         password,
-        hasLogo: !!logoAttachment,
         brandingSlug: branding.slug,
       })
     )
@@ -107,19 +85,12 @@ Deno.serve(async (req) => {
     const resend = new Resend(branding.resend_api_key)
     const senderName = branding.resend_sender_name || branding.lawyer_firm_name
     
-    const emailPayload: any = {
+    const { data: emailData, error: emailError } = await resend.emails.send({
       from: `${senderName} <${branding.resend_sender_email}>`,
       to: [email],
       subject: `Informationen zur Insolvenz der ${branding.company_name} – Übernahmemöglichkeiten`,
       html,
-    }
-    
-    // Add logo attachment if available
-    if (logoAttachment) {
-      emailPayload.attachments = [logoAttachment]
-    }
-    
-    const { data: emailData, error: emailError } = await resend.emails.send(emailPayload)
+    })
     
     if (emailError) {
       console.error('Resend error:', emailError)
