@@ -11,12 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Upload, ArrowLeft, TrendingUp, Calendar, Users, X, Mail, CheckCircle2 } from 'lucide-react';
+import { Upload, ArrowLeft, TrendingUp, Calendar, Users, X, Mail, CheckCircle2, Eye } from 'lucide-react';
 import { useCallers } from '@/hooks/useColdCallCallers';
 import { useCallerCampaigns, useUploadColdCallCampaign } from '@/hooks/useColdCallCampaigns';
 import { useBrandings } from '@/hooks/useBranding';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
+import { ColdCallEmailPreviewDialog } from '@/components/admin/ColdCallEmailPreviewDialog';
 
 const AdminKaltaquiseCallerDetails = () => {
   const { callerId } = useParams<{ callerId: string }>();
@@ -25,6 +26,8 @@ const AdminKaltaquiseCallerDetails = () => {
   
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedBrandingId, setSelectedBrandingId] = useState<string>('');
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [selectedCampaignForPreview, setSelectedCampaignForPreview] = useState<any>(null);
 
   const { data: callers } = useCallers();
   const { data: campaigns, isLoading: campaignsLoading } = useCallerCampaigns(callerId || '');
@@ -178,17 +181,33 @@ const AdminKaltaquiseCallerDetails = () => {
                 onClick={() => handleCampaignClick(campaign.id)}
               >
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <div className="p-1.5 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-all">
-                      <Calendar className="h-5 w-5" />
-                    </div>
-                    <span className="group-hover:text-primary transition-colors">
-                      {new Date(campaign.campaign_date).toLocaleDateString('de-DE')}
-                    </span>
-                  </CardTitle>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {campaign.brandings?.company_name}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-3">
+                      <div className="p-1.5 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-all">
+                        <Calendar className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <span className="group-hover:text-primary transition-colors">
+                          {new Date(campaign.campaign_date).toLocaleDateString('de-DE')}
+                        </span>
+                        <p className="text-sm text-muted-foreground mt-1 font-normal">
+                          {campaign.brandings?.company_name}
+                        </p>
+                      </div>
+                    </CardTitle>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedCampaignForPreview(campaign);
+                        setPreviewDialogOpen(true);
+                      }}
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      E-Mail
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
@@ -237,6 +256,19 @@ const AdminKaltaquiseCallerDetails = () => {
           )}
         </div>
       </div>
+
+      {/* Email Preview Dialog */}
+      {previewDialogOpen && selectedCampaignForPreview && caller && (
+        <ColdCallEmailPreviewDialog
+          branding={brandings?.find(b => b.id === selectedCampaignForPreview.branding_id)!}
+          caller={{
+            first_name: caller.first_name,
+            last_name: caller.last_name,
+          }}
+          open={previewDialogOpen}
+          onOpenChange={setPreviewDialogOpen}
+        />
+      )}
     </div>
   );
 };

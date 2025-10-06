@@ -94,6 +94,7 @@ const AdminKaltaquiseLeads = () => {
       email: email,
       coldCallCampaignId: campaignId || '',
       brandingId: campaign?.branding_id || '',
+      callerId: campaign?.caller_id || '',
     });
   };
 

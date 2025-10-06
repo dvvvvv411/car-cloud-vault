@@ -198,11 +198,13 @@ export const useConvertLeadToRegularLead = () => {
       email,
       coldCallCampaignId,
       brandingId,
+      callerId,
     }: { 
       coldCallLeadId: string;
       email: string;
       coldCallCampaignId: string;
       brandingId: string;
+      callerId: string;
     }) => {
       // 1. Find or create Kaltaquise campaign
       const kaltaquiseCampaign = await findOrCreateKaltaquiseCampaign(brandingId);
@@ -271,6 +273,23 @@ export const useConvertLeadToRegularLead = () => {
           .from('lead_campaigns')
           .update({ total_leads: kaltaquiseLeads.length })
           .eq('id', kaltaquiseCampaign.id);
+      }
+      
+      // 7. Send email notification via edge function
+      try {
+        await supabase.functions.invoke('send-cold-call-interest-email', {
+          body: {
+            coldCallLeadId,
+            email: email.toLowerCase(),
+            password,
+            brandingId,
+            callerId,
+          },
+        });
+        console.log('Email sent successfully');
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+        // Don't throw - lead conversion was successful even if email fails
       }
       
       return { newLead, password };
