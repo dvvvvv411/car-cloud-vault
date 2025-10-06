@@ -166,12 +166,10 @@ export const ColdCallEmailPreviewDialog = ({
     </p>
     
     <p class="paragraph">
-      Vielen Dank für Ihre Zeit im Gespräch vorhin – wir freuen uns auf Ihre Rückmeldung.
-    </p>
-    
-    <hr class="hr">
-    
-    <div class="footer">
+       Vielen Dank für Ihre Zeit im Gespräch vorhin – wir freuen uns auf Ihre Rückmeldung.
+     </p>
+     
+     <div class="footer">
       <p class="signature-name">${caller.first_name} ${caller.last_name}</p>
       <p class="signature-role">im Auftrag der Insolvenzverwaltung</p>
       <hr class="footer-hr">

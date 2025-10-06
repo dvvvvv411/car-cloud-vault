@@ -101,8 +101,6 @@ export const ColdCallInterestEmail = ({
             Vielen Dank für Ihre Zeit im Gespräch vorhin – wir freuen uns auf Ihre Rückmeldung.
           </Text>
           
-          <Hr style={hr} />
-          
           {/* Footer / Signature */}
           <Section style={footer}>
             <Text style={signatureName}>
