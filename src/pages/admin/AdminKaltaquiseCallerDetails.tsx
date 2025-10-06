@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Upload, ArrowLeft, TrendingUp, Calendar } from 'lucide-react';
+import { Upload, ArrowLeft, TrendingUp, Calendar, Users, X, Mail, CheckCircle2 } from 'lucide-react';
 import { useCallers } from '@/hooks/useColdCallCallers';
 import { useCallerCampaigns, useUploadColdCallCampaign } from '@/hooks/useColdCallCampaigns';
 import { useBrandings } from '@/hooks/useBranding';
@@ -97,24 +97,26 @@ const AdminKaltaquiseCallerDetails = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-8 animate-fade-in">
       <div className="flex items-center gap-4">
         <Button variant="outline" onClick={() => navigate('/admin/kaltaquise')}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Zurück
         </Button>
         <div>
-          <h1 className="text-3xl font-bold">
+          <h1 className="text-4xl font-bold text-foreground tracking-tight">
             {caller.first_name} {caller.last_name}
           </h1>
-          <p className="text-muted-foreground">Cold Call Kampagnen</p>
+          <p className="text-muted-foreground mt-2 text-base">Cold Call Kampagnen</p>
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5" />
+      <Card className="modern-card">
+        <CardHeader className="border-b border-border/40 bg-muted/20">
+          <CardTitle className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-primary/10 text-primary">
+              <Upload className="h-5 w-5" />
+            </div>
             Neue Kampagne erstellen
           </CardTitle>
         </CardHeader>
@@ -162,7 +164,7 @@ const AdminKaltaquiseCallerDetails = () => {
       </Card>
 
       <div>
-        <h2 className="text-2xl font-bold mb-4">Kampagnen</h2>
+        <h2 className="text-3xl font-bold tracking-tight mb-6">Kampagnen</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {campaignsLoading ? (
             [...Array(3)].map((_, i) => (
@@ -172,38 +174,54 @@ const AdminKaltaquiseCallerDetails = () => {
             campaigns.map((campaign) => (
               <Card
                 key={campaign.id}
-                className="cursor-pointer hover:shadow-lg transition-shadow"
+                className="modern-hover border-border/40 group cursor-pointer"
                 onClick={() => handleCampaignClick(campaign.id)}
               >
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5 text-primary" />
-                    {new Date(campaign.campaign_date).toLocaleDateString('de-DE')}
+                  <CardTitle className="flex items-center gap-3">
+                    <div className="p-1.5 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-all">
+                      <Calendar className="h-5 w-5" />
+                    </div>
+                    <span className="group-hover:text-primary transition-colors">
+                      {new Date(campaign.campaign_date).toLocaleDateString('de-DE')}
+                    </span>
                   </CardTitle>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-muted-foreground mt-1">
                     {campaign.brandings?.company_name}
                   </p>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Gesamt:</span>
+                    <div className="flex justify-between items-center p-2 rounded-lg bg-muted/30">
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">Gesamt</span>
+                      </div>
                       <span className="font-semibold">{campaign.total_leads}</span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Ungültig:</span>
+                    <div className="flex justify-between items-center p-2 rounded-lg bg-muted/30">
+                      <div className="flex items-center gap-2">
+                        <X className="h-4 w-4 text-destructive" />
+                        <span className="text-sm text-muted-foreground">Ungültig</span>
+                      </div>
                       <span className="font-semibold text-destructive">
                         {campaign.invalid_count}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Mailbox:</span>
+                    <div className="flex justify-between items-center p-2 rounded-lg bg-muted/30">
+                      <div className="flex items-center gap-2">
+                        <Mail className="h-4 w-4 text-orange-500" />
+                        <span className="text-sm text-muted-foreground">Mailbox</span>
+                      </div>
                       <span className="font-semibold text-orange-500">
                         {campaign.mailbox_count}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">Interessiert:</span>
+                    <div className="flex justify-between items-center p-2 rounded-lg bg-muted/30">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                        <span className="text-sm text-muted-foreground">Interessiert</span>
+                      </div>
                       <span className="font-semibold text-green-500">
                         {campaign.interested_count}
                       </span>

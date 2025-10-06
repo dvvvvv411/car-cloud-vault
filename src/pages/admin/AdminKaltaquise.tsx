@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { UserPlus, Phone } from 'lucide-react';
+import { UserPlus, Phone, Users } from 'lucide-react';
 import { useCallers } from '@/hooks/useColdCallCallers';
 import { AddCallerDialog } from '@/components/admin/AddCallerDialog';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -13,11 +13,11 @@ const AdminKaltaquise = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-8 animate-fade-in">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Kaltaquise</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-4xl font-bold text-foreground tracking-tight">Kaltaquise</h1>
+          <p className="text-muted-foreground mt-2 text-base">
             Verwalten Sie Ihre Caller und deren Cold Call Kampagnen
           </p>
         </div>
@@ -36,13 +36,17 @@ const AdminKaltaquise = () => {
           callers.map((caller) => (
             <Card
               key={caller.id}
-              className="cursor-pointer hover:shadow-lg transition-shadow"
+              className="modern-hover border-border/40 group cursor-pointer"
               onClick={() => navigate(`/admin/kaltaquise/${caller.id}`)}
             >
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Phone className="h-5 w-5 text-primary" />
-                  {caller.first_name} {caller.last_name}
+                <CardTitle className="flex items-center gap-3">
+                  <div className="p-1.5 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-all">
+                    <Users className="h-5 w-5" />
+                  </div>
+                  <span className="group-hover:text-primary transition-colors">
+                    {caller.first_name} {caller.last_name}
+                  </span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
