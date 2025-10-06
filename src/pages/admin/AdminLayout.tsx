@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { ChangePasswordDialog } from "@/components/admin/ChangePasswordDialog";
 
 const INQUIRY_ONLY_USER_ID = '8d7a682d-5d5e-43ff-8b73-513464eb16fc';
+const KALTAQUISE_ONLY_USER_ID = 'd173101f-803b-4531-8ff3-722be030b267';
 const ADMIN_EMAIL = 'admin@admin.de';
 
 const navItems = [
@@ -28,16 +29,21 @@ export default function AdminLayout() {
   const location = useLocation();
   
   const isInquiryOnlyUser = user?.id === INQUIRY_ONLY_USER_ID;
+  const isKaltaquiseOnlyUser = user?.id === KALTAQUISE_ONLY_USER_ID;
   const isAdmin = user?.email === ADMIN_EMAIL;
   const visibleNavItems = isInquiryOnlyUser 
     ? navItems.filter(item => item.url === '/admin/anfragen')
+    : isKaltaquiseOnlyUser
+    ? navItems.filter(item => item.url === '/admin/kaltaquise')
     : navItems;
 
   useEffect(() => {
     if (isInquiryOnlyUser && location.pathname === '/admin') {
       navigate('/admin/anfragen', { replace: true });
+    } else if (isKaltaquiseOnlyUser && location.pathname === '/admin') {
+      navigate('/admin/kaltaquise', { replace: true });
     }
-  }, [isInquiryOnlyUser, location.pathname, navigate]);
+  }, [isInquiryOnlyUser, isKaltaquiseOnlyUser, location.pathname, navigate]);
 
   const handleLogout = async () => {
     await signOut();
@@ -80,7 +86,7 @@ export default function AdminLayout() {
         <div className="mb-3 px-2 py-1.5 rounded-lg bg-background/60 text-xs text-muted-foreground truncate">
           {user?.email}
         </div>
-        {isAdmin && (
+        {(isAdmin || isKaltaquiseOnlyUser) && (
           <Button 
             onClick={() => setPasswordDialogOpen(true)}
             variant="outline" 
