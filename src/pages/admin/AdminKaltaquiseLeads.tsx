@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Users, X, Mail, CheckCircle2, Copy, ThumbsDown, RotateCcw } from 'lucide-react';
 import { useCallers } from '@/hooks/useColdCallCallers';
 import { useCallerCampaigns } from '@/hooks/useColdCallCampaigns';
-import { useCampaignLeads, useUpdateLeadStatus, useUpdateLeadEmail } from '@/hooks/useColdCallLeads';
+import { useCampaignLeads, useUpdateLeadStatus, useUpdateLeadEmail, useConvertLeadToRegularLead } from '@/hooks/useColdCallLeads';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
 
@@ -28,6 +28,7 @@ const AdminKaltaquiseLeads = () => {
   const { data: leads, isLoading } = useCampaignLeads(campaignId || '');
   const updateStatus = useUpdateLeadStatus();
   const updateEmail = useUpdateLeadEmail();
+  const convertToLead = useConvertLeadToRegularLead();
   
   const [editingEmailId, setEditingEmailId] = useState<string | null>(null);
   const [emailValue, setEmailValue] = useState('');
@@ -67,6 +68,25 @@ const AdminKaltaquiseLeads = () => {
     toast({
       title: 'Telefonnummer kopiert',
       description: phone,
+    });
+  };
+
+  const handleInterested = async (leadId: string, email: string | null) => {
+    if (!email || !email.trim()) {
+      toast({
+        title: 'E-Mail erforderlich',
+        description: 'Bitte geben Sie zuerst eine E-Mail-Adresse ein',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    // Convert to regular lead
+    await convertToLead.mutateAsync({
+      coldCallLeadId: leadId,
+      email: email,
+      coldCallCampaignId: campaignId || '',
+      brandingId: campaign?.branding_id || '',
     });
   };
 
@@ -259,8 +279,9 @@ const AdminKaltaquiseLeads = () => {
                               </Button>
                               <Button
                                 size="sm"
-                                onClick={() => handleStatusUpdate(lead.id, 'interested')}
-                                disabled={updateStatus.isPending}
+                                onClick={() => handleInterested(lead.id, lead.email)}
+                                disabled={!lead.email || !lead.email.trim() || convertToLead.isPending}
+                                title={!lead.email ? "Bitte zuerst E-Mail eingeben" : "Lead als interessiert markieren und konvertieren"}
                               >
                                 <CheckCircle2 className="h-4 w-4 mr-1" />
                                 Interessiert

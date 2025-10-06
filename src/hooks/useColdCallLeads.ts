@@ -151,3 +151,145 @@ export const useUpdateLeadEmail = () => {
     },
   });
 };
+
+// Helper function to generate unique password
+const generateUniquePassword = (): string => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let password = '';
+  for (let i = 0; i < 8; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+};
+
+// Helper function to find or create "Kaltaquise" campaign
+const findOrCreateKaltaquiseCampaign = async (brandingId: string) => {
+  // Check if Kaltaquise campaign already exists for this branding
+  const { data: existing } = await supabase
+    .from('lead_campaigns')
+    .select('*')
+    .eq('branding_id', brandingId)
+    .eq('campaign_name', 'Kaltaquise')
+    .maybeSingle();
+  
+  if (existing) return existing;
+  
+  // Create new Kaltaquise campaign
+  const { data: newCampaign, error } = await supabase
+    .from('lead_campaigns')
+    .insert({
+      branding_id: brandingId,
+      campaign_name: 'Kaltaquise',
+      total_leads: 0,
+    })
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return newCampaign;
+};
+
+export const useConvertLeadToRegularLead = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ 
+      coldCallLeadId,
+      email,
+      coldCallCampaignId,
+      brandingId,
+    }: { 
+      coldCallLeadId: string;
+      email: string;
+      coldCallCampaignId: string;
+      brandingId: string;
+    }) => {
+      // 1. Find or create Kaltaquise campaign
+      const kaltaquiseCampaign = await findOrCreateKaltaquiseCampaign(brandingId);
+      
+      // 2. Generate unique password
+      const password = generateUniquePassword();
+      
+      // 3. Create new lead in leads table
+      const { data: newLead, error: leadError } = await supabase
+        .from('leads')
+        .insert({
+          campaign_id: kaltaquiseCampaign.id,
+          email: email.toLowerCase(),
+          password: password,
+          branding_id: brandingId,
+        })
+        .select()
+        .single();
+      
+      if (leadError) throw leadError;
+      
+      // 4. Update cold call lead status to 'interested'
+      const updateData: any = { 
+        status: 'interested',
+        interested_timestamp: new Date().toISOString(),
+      };
+      
+      const { error: updateError } = await supabase
+        .from('cold_call_leads')
+        .update(updateData)
+        .eq('id', coldCallLeadId);
+      
+      if (updateError) throw updateError;
+      
+      // 5. Update cold call campaign statistics
+      const { data: coldCallLeads } = await supabase
+        .from('cold_call_leads')
+        .select('status')
+        .eq('campaign_id', coldCallCampaignId);
+      
+      if (coldCallLeads) {
+        const invalidCount = coldCallLeads.filter(l => l.status === 'invalid').length;
+        const mailboxCount = coldCallLeads.filter(l => l.status === 'mailbox').length;
+        const interestedCount = coldCallLeads.filter(l => l.status === 'interested').length;
+        const notInterestedCount = coldCallLeads.filter(l => l.status === 'not_interested').length;
+        
+        await supabase
+          .from('cold_call_campaigns')
+          .update({
+            invalid_count: invalidCount,
+            mailbox_count: mailboxCount,
+            interested_count: interestedCount,
+            not_interested_count: notInterestedCount,
+          })
+          .eq('id', coldCallCampaignId);
+      }
+      
+      // 6. Update Kaltaquise campaign total_leads count
+      const { data: kaltaquiseLeads } = await supabase
+        .from('leads')
+        .select('id')
+        .eq('campaign_id', kaltaquiseCampaign.id);
+      
+      if (kaltaquiseLeads) {
+        await supabase
+          .from('lead_campaigns')
+          .update({ total_leads: kaltaquiseLeads.length })
+          .eq('id', kaltaquiseCampaign.id);
+      }
+      
+      return { newLead, password };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['cold-call-leads'] });
+      queryClient.invalidateQueries({ queryKey: ['cold-call-campaigns'] });
+      queryClient.invalidateQueries({ queryKey: ['lead-campaigns'] });
+      toast({
+        title: 'Lead erfolgreich konvertiert',
+        description: `Lead wurde zur Kaltaquise-Kampagne hinzugefügt. Passwort: ${data.password}`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Fehler beim Konvertieren',
+        description: error.message,
+        variant: 'destructive',
+      });
+    },
+  });
+};
