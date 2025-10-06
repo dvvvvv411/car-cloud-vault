@@ -15,7 +15,6 @@ import { Upload, ArrowLeft, TrendingUp, Calendar } from 'lucide-react';
 import { useCallers } from '@/hooks/useColdCallCallers';
 import { useCallerCampaigns, useUploadColdCallCampaign } from '@/hooks/useColdCallCampaigns';
 import { useBrandings } from '@/hooks/useBranding';
-import { ColdCallLeadsDialog } from '@/components/admin/ColdCallLeadsDialog';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
 
@@ -26,11 +25,6 @@ const AdminKaltaquiseCallerDetails = () => {
   
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedBrandingId, setSelectedBrandingId] = useState<string>('');
-  const [leadsDialogOpen, setLeadsDialogOpen] = useState(false);
-  const [selectedCampaign, setSelectedCampaign] = useState<{
-    id: string;
-    date: string;
-  } | null>(null);
 
   const { data: callers } = useCallers();
   const { data: campaigns, isLoading: campaignsLoading } = useCallerCampaigns(callerId || '');
@@ -85,9 +79,8 @@ const AdminKaltaquiseCallerDetails = () => {
     }
   };
 
-  const handleCampaignClick = (campaignId: string, campaignDate: string) => {
-    setSelectedCampaign({ id: campaignId, date: campaignDate });
-    setLeadsDialogOpen(true);
+  const handleCampaignClick = (campaignId: string) => {
+    navigate(`/admin/kaltaquise/${callerId}/${campaignId}`);
   };
 
   if (!caller) {
@@ -180,7 +173,7 @@ const AdminKaltaquiseCallerDetails = () => {
               <Card
                 key={campaign.id}
                 className="cursor-pointer hover:shadow-lg transition-shadow"
-                onClick={() => handleCampaignClick(campaign.id, campaign.campaign_date)}
+                onClick={() => handleCampaignClick(campaign.id)}
               >
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -226,15 +219,6 @@ const AdminKaltaquiseCallerDetails = () => {
           )}
         </div>
       </div>
-
-      {selectedCampaign && (
-        <ColdCallLeadsDialog
-          open={leadsDialogOpen}
-          onOpenChange={setLeadsDialogOpen}
-          campaignId={selectedCampaign.id}
-          campaignDate={new Date(selectedCampaign.date).toLocaleDateString('de-DE')}
-        />
-      )}
     </div>
   );
 };
