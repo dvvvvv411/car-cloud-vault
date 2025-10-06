@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Users, X, Mail, CheckCircle2, Copy } from 'lucide-react';
+import { ArrowLeft, Users, X, Mail, CheckCircle2, Copy, ThumbsDown, RotateCcw } from 'lucide-react';
 import { useCallers } from '@/hooks/useColdCallCallers';
 import { useCallerCampaigns } from '@/hooks/useColdCallCampaigns';
 import { useCampaignLeads, useUpdateLeadStatus, useUpdateLeadEmail } from '@/hooks/useColdCallLeads';
@@ -31,11 +31,12 @@ const AdminKaltaquiseLeads = () => {
   
   const [editingEmailId, setEditingEmailId] = useState<string | null>(null);
   const [emailValue, setEmailValue] = useState('');
+  const [filter, setFilter] = useState<'active' | 'invalid' | 'not_interested'>('active');
 
   const caller = callers?.find(c => c.id === callerId);
   const campaign = campaigns?.find(c => c.id === campaignId);
 
-  const handleStatusUpdate = async (leadId: string, status: 'invalid' | 'mailbox' | 'interested') => {
+  const handleStatusUpdate = async (leadId: string, status: 'active' | 'invalid' | 'mailbox' | 'interested' | 'not_interested') => {
     await updateStatus.mutateAsync({ leadId, status, campaignId: campaignId || '' });
   };
 
@@ -69,6 +70,14 @@ const AdminKaltaquiseLeads = () => {
     });
   };
 
+  // Filter leads based on selected filter
+  const filteredLeads = leads?.filter(lead => {
+    if (filter === 'invalid') return lead.status === 'invalid';
+    if (filter === 'not_interested') return lead.status === 'not_interested';
+    // 'active' filter: show everything except invalid & not_interested
+    return !['invalid', 'not_interested'].includes(lead.status);
+  });
+
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="flex items-center gap-4">
@@ -92,7 +101,7 @@ const AdminKaltaquiseLeads = () => {
           <CardTitle className="text-2xl">Statistiken</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <div className="p-3 rounded-lg bg-muted/30">
               <div className="flex items-center gap-2 mb-2">
                 <Users className="h-4 w-4 text-muted-foreground" />
@@ -106,6 +115,13 @@ const AdminKaltaquiseLeads = () => {
                 <p className="text-sm text-muted-foreground">Ungültig</p>
               </div>
               <p className="text-2xl font-bold text-destructive">{campaign?.invalid_count || 0}</p>
+            </div>
+            <div className="p-3 rounded-lg bg-muted/30">
+              <div className="flex items-center gap-2 mb-2">
+                <ThumbsDown className="h-4 w-4 text-gray-500" />
+                <p className="text-sm text-muted-foreground">Nicht interessiert</p>
+              </div>
+              <p className="text-2xl font-bold text-gray-500">{campaign?.not_interested_count || 0}</p>
             </div>
             <div className="p-3 rounded-lg bg-muted/30">
               <div className="flex items-center gap-2 mb-2">
@@ -127,7 +143,32 @@ const AdminKaltaquiseLeads = () => {
 
       <Card className="modern-card">
         <CardHeader>
-          <CardTitle className="text-2xl">Leads</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl">Leads</CardTitle>
+            <div className="flex gap-2">
+              <Button 
+                variant={filter === 'active' ? 'default' : 'outline'}
+                onClick={() => setFilter('active')}
+                size="sm"
+              >
+                Aktive Leads
+              </Button>
+              <Button 
+                variant={filter === 'invalid' ? 'default' : 'outline'}
+                onClick={() => setFilter('invalid')}
+                size="sm"
+              >
+                Ungültige
+              </Button>
+              <Button 
+                variant={filter === 'not_interested' ? 'default' : 'outline'}
+                onClick={() => setFilter('not_interested')}
+                size="sm"
+              >
+                Nicht interessierte
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -136,7 +177,7 @@ const AdminKaltaquiseLeads = () => {
                 <Skeleton key={i} className="h-12" />
               ))}
             </div>
-          ) : leads && leads.length > 0 ? (
+          ) : filteredLeads && filteredLeads.length > 0 ? (
             <div className="border rounded-lg overflow-hidden">
               <Table>
                 <TableHeader>
@@ -148,7 +189,7 @@ const AdminKaltaquiseLeads = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {leads.map((lead) => (
+                  {filteredLeads.map((lead) => (
                     <TableRow key={lead.id}>
                       <TableCell className="font-medium">{lead.company_name}</TableCell>
                       <TableCell>
@@ -186,19 +227,7 @@ const AdminKaltaquiseLeads = () => {
                         )}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          {lead.status === 'mailbox' && (
-                            <Badge variant="secondary" className="mr-2">
-                              <Mail className="h-3 w-3 mr-1" />
-                              Mailbox
-                            </Badge>
-                          )}
-                          {lead.status === 'interested' && (
-                            <Badge className="mr-2 bg-green-500 hover:bg-green-600">
-                              <CheckCircle2 className="h-3 w-3 mr-1" />
-                              Interessiert
-                            </Badge>
-                          )}
+                        <div className="flex justify-end gap-2 items-center">
                           {lead.status === 'active' && (
                             <>
                               <Button
@@ -209,6 +238,15 @@ const AdminKaltaquiseLeads = () => {
                               >
                                 <X className="h-4 w-4 mr-1" />
                                 Ungültig
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleStatusUpdate(lead.id, 'not_interested')}
+                                disabled={updateStatus.isPending}
+                              >
+                                <ThumbsDown className="h-4 w-4 mr-1" />
+                                Nicht interessiert
                               </Button>
                               <Button
                                 size="sm"
@@ -229,6 +267,40 @@ const AdminKaltaquiseLeads = () => {
                               </Button>
                             </>
                           )}
+                          {lead.status === 'mailbox' && (
+                            <div className="flex items-center gap-2">
+                              <Badge variant="secondary">
+                                <Mail className="h-3 w-3 mr-1" />
+                                Mailbox
+                              </Badge>
+                              {lead.mailbox_timestamp && (
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(lead.mailbox_timestamp).toLocaleString('de-DE', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </span>
+                              )}
+                              <Button 
+                                size="sm" 
+                                variant="ghost"
+                                onClick={() => handleStatusUpdate(lead.id, 'active')}
+                                title="Zurücksetzen"
+                                disabled={updateStatus.isPending}
+                              >
+                                <RotateCcw className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          )}
+                          {lead.status === 'interested' && (
+                            <Badge className="bg-green-500 hover:bg-green-600">
+                              <CheckCircle2 className="h-3 w-3 mr-1" />
+                              Interessiert
+                            </Badge>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -238,7 +310,7 @@ const AdminKaltaquiseLeads = () => {
             </div>
           ) : (
             <div className="text-center py-12 text-muted-foreground">
-              Keine Leads vorhanden
+              Keine Leads in dieser Kategorie
             </div>
           )}
         </CardContent>

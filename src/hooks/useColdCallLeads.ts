@@ -8,7 +8,8 @@ export interface ColdCallLead {
   company_name: string;
   phone_number: string;
   email: string | null;
-  status: 'active' | 'invalid' | 'mailbox' | 'interested';
+  status: 'active' | 'invalid' | 'mailbox' | 'interested' | 'not_interested';
+  mailbox_timestamp?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -40,12 +41,25 @@ export const useUpdateLeadStatus = () => {
       campaignId,
     }: { 
       leadId: string; 
-      status: 'invalid' | 'mailbox' | 'interested';
+      status: 'active' | 'invalid' | 'mailbox' | 'interested' | 'not_interested';
       campaignId: string;
     }) => {
+      // Prepare update data
+      const updateData: any = { status };
+      
+      // Set mailbox_timestamp when status is mailbox
+      if (status === 'mailbox') {
+        updateData.mailbox_timestamp = new Date().toISOString();
+      }
+      
+      // Clear mailbox_timestamp when changing from mailbox to active
+      if (status === 'active') {
+        updateData.mailbox_timestamp = null;
+      }
+      
       const { error } = await supabase
         .from('cold_call_leads')
-        .update({ status })
+        .update(updateData)
         .eq('id', leadId);
       
       if (error) throw error;
@@ -60,6 +74,7 @@ export const useUpdateLeadStatus = () => {
         const invalidCount = leads.filter(l => l.status === 'invalid').length;
         const mailboxCount = leads.filter(l => l.status === 'mailbox').length;
         const interestedCount = leads.filter(l => l.status === 'interested').length;
+        const notInterestedCount = leads.filter(l => l.status === 'not_interested').length;
         
         await supabase
           .from('cold_call_campaigns')
@@ -67,6 +82,7 @@ export const useUpdateLeadStatus = () => {
             invalid_count: invalidCount,
             mailbox_count: mailboxCount,
             interested_count: interestedCount,
+            not_interested_count: notInterestedCount,
           })
           .eq('id', campaignId);
       }

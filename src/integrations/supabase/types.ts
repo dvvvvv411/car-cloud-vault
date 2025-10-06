@@ -120,6 +120,7 @@ export type Database = {
           interested_count: number
           invalid_count: number
           mailbox_count: number
+          not_interested_count: number
           total_leads: number
           upload_date: string
         }
@@ -132,6 +133,7 @@ export type Database = {
           interested_count?: number
           invalid_count?: number
           mailbox_count?: number
+          not_interested_count?: number
           total_leads?: number
           upload_date?: string
         }
@@ -144,6 +146,7 @@ export type Database = {
           interested_count?: number
           invalid_count?: number
           mailbox_count?: number
+          not_interested_count?: number
           total_leads?: number
           upload_date?: string
         }
@@ -171,6 +174,7 @@ export type Database = {
           created_at: string
           email: string | null
           id: string
+          mailbox_timestamp: string | null
           phone_number: string
           status: string
           updated_at: string
@@ -181,6 +185,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          mailbox_timestamp?: string | null
           phone_number: string
           status?: string
           updated_at?: string
@@ -191,6 +196,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           id?: string
+          mailbox_timestamp?: string | null
           phone_number?: string
           status?: string
           updated_at?: string

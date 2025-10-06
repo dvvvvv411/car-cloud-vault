@@ -12,6 +12,7 @@ export interface ColdCallCampaign {
   invalid_count: number;
   mailbox_count: number;
   interested_count: number;
+  not_interested_count: number;
   created_at: string;
   brandings?: {
     company_name: string;
