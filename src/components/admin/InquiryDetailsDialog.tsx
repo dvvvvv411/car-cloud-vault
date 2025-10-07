@@ -13,6 +13,7 @@ import { de } from "date-fns/locale";
 import { getUserColor } from "@/lib/utils";
 import { DekraNumbersDialog } from "./DekraNumbersDialog";
 import { CustomerInfoDialog } from "./CustomerInfoDialog";
+import { EditInquiryVehiclesDialog } from "./EditInquiryVehiclesDialog";
 
 interface InquiryDetailsDialogProps {
   inquiry: Inquiry;
@@ -124,6 +125,7 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
                 <h3 className="font-semibold">Ausgewählte Fahrzeuge</h3>
               </div>
               <div className="flex gap-2">
+                <EditInquiryVehiclesDialog inquiry={inquiry} />
                 <DekraNumbersDialog 
                   reportNumbers={reportNumbers} 
                 />
