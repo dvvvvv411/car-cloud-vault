@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -78,6 +78,22 @@ export const EditInquiryVehiclesDialog = ({ inquiry }: EditInquiryVehiclesDialog
       vehicle.chassis.toLowerCase().includes(query)
     );
   });
+
+  const sortedVehicles = useMemo(() => {
+    return [...filteredVehicles].sort((a, b) => {
+      const aSelected = selectedChassis.includes(a.chassis);
+      const bSelected = selectedChassis.includes(b.chassis);
+      
+      // Selected vehicles first
+      if (aSelected && !bSelected) return -1;
+      if (!aSelected && bSelected) return 1;
+      
+      // Then sort alphabetically by brand and model
+      const aName = `${a.brand} ${a.model}`;
+      const bName = `${b.brand} ${b.model}`;
+      return aName.localeCompare(bName, 'de');
+    });
+  }, [filteredVehicles, selectedChassis]);
 
   const handleSelectAll = () => {
     setSelectedChassis(filteredVehicles.map(v => v.chassis));
@@ -164,10 +180,14 @@ export const EditInquiryVehiclesDialog = ({ inquiry }: EditInquiryVehiclesDialog
                   Keine Fahrzeuge gefunden
                 </p>
               ) : (
-                filteredVehicles.map((vehicle) => (
+                sortedVehicles.map((vehicle) => {
+                  const isSelected = selectedChassis.includes(vehicle.chassis);
+                  return (
                   <div 
                     key={vehicle.chassis} 
-                    className="flex items-start gap-3 p-3 border rounded-lg hover:bg-accent/50 transition-colors cursor-pointer"
+                    className={`flex items-start gap-3 p-3 border rounded-lg transition-colors cursor-pointer ${
+                      isSelected ? 'bg-accent' : 'hover:bg-accent/50'
+                    }`}
                     onClick={() => handleToggleVehicle(vehicle.chassis)}
                   >
                     <Checkbox 
@@ -195,7 +215,8 @@ export const EditInquiryVehiclesDialog = ({ inquiry }: EditInquiryVehiclesDialog
                       </div>
                     </div>
                   </div>
-                ))
+                  );
+                })
               )}
             </div>
           </ScrollArea>

@@ -14,6 +14,7 @@ import { getUserColor } from "@/lib/utils";
 import { DekraNumbersDialog } from "./DekraNumbersDialog";
 import { CustomerInfoDialog } from "./CustomerInfoDialog";
 import { EditInquiryVehiclesDialog } from "./EditInquiryVehiclesDialog";
+import { AddNoteButton } from "./AddNoteButton";
 
 interface InquiryDetailsDialogProps {
   inquiry: Inquiry;
@@ -215,6 +216,7 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
               <StickyNote className="h-4 w-4 text-muted-foreground" />
               <h3 className="font-semibold">Notizen</h3>
               <Badge variant="outline" className="text-xs">{notes.length}</Badge>
+              <AddNoteButton inquiryId={inquiry.id} />
             </div>
             {notesLoading ? (
               <p className="text-sm text-muted-foreground">Lade Notizen...</p>
