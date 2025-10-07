@@ -28,7 +28,7 @@ const BrandedIndex = () => {
     return (
       <PasswordProtection 
         onSuccess={() => {
-          sessionStorage.setItem(`passwordVerified_${slug}`, 'true');
+          // sessionStorage is already set in PasswordProtection component
           setIsPasswordVerified(true);
         }} 
         branding={branding}

@@ -61,6 +61,10 @@ export const PasswordProtection = ({ onSuccess, branding, slug }: PasswordProtec
         if (data.leadId) {
           localStorage.setItem('leadId', data.leadId);
         }
+        // Set sessionStorage BEFORE calling onSuccess to avoid race condition
+        if (slug) {
+          sessionStorage.setItem(`passwordVerified_${slug}`, 'true');
+        }
         onSuccess();
       } else {
         setError('Falsches Passwort. Bitte versuchen Sie es erneut.');
