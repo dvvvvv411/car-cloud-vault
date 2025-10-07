@@ -192,6 +192,54 @@ const AdminKaltaquiseLeads = () => {
         </CardContent>
       </Card>
 
+      <Card className="modern-card border-border/40">
+        <CardHeader>
+          <CardTitle className="text-2xl">Buchstabieralphabet (DIN 5009)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {[
+              { letter: 'A', word: 'Anton' },
+              { letter: 'Ä', word: 'Ärger' },
+              { letter: 'B', word: 'Berta' },
+              { letter: 'C', word: 'Cäsar' },
+              { letter: 'D', word: 'Dora' },
+              { letter: 'E', word: 'Emil' },
+              { letter: 'F', word: 'Friedrich' },
+              { letter: 'G', word: 'Gustav' },
+              { letter: 'H', word: 'Heinrich' },
+              { letter: 'I', word: 'Ida' },
+              { letter: 'J', word: 'Julius' },
+              { letter: 'K', word: 'Kaufmann' },
+              { letter: 'L', word: 'Ludwig' },
+              { letter: 'M', word: 'Martha' },
+              { letter: 'N', word: 'Nordpol' },
+              { letter: 'O', word: 'Otto' },
+              { letter: 'Ö', word: 'Ökonom' },
+              { letter: 'P', word: 'Paula' },
+              { letter: 'Q', word: 'Quelle' },
+              { letter: 'R', word: 'Richard' },
+              { letter: 'S', word: 'Samuel' },
+              { letter: 'ß', word: 'Eszett' },
+              { letter: 'T', word: 'Theodor' },
+              { letter: 'U', word: 'Ulrich' },
+              { letter: 'Ü', word: 'Übermut' },
+              { letter: 'V', word: 'Viktor' },
+              { letter: 'W', word: 'Wilhelm' },
+              { letter: 'X', word: 'Xanthippe' },
+              { letter: 'Y', word: 'Ypsilon' },
+              { letter: 'Z', word: 'Zacharias' },
+            ].map(({ letter, word }) => (
+              <div key={letter} className="flex items-center gap-2 p-2 rounded-lg bg-muted/30">
+                <span className="font-bold text-lg">{letter}</span>
+                <span className="text-sm text-muted-foreground">=</span>
+                <span className="text-sm">{word}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
       <Card className="modern-card">
         <CardHeader>
           <div className="flex items-center justify-between">
