@@ -15,6 +15,7 @@ import { DekraNumbersDialog } from "./DekraNumbersDialog";
 import { CustomerInfoDialog } from "./CustomerInfoDialog";
 import { EditInquiryVehiclesDialog } from "./EditInquiryVehiclesDialog";
 import { AddNoteButton } from "./AddNoteButton";
+import { InquiryStatusDropdown } from "./InquiryStatusDropdown";
 
 interface InquiryDetailsDialogProps {
   inquiry: Inquiry;
@@ -203,7 +204,13 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
               </div>
               <div>
                 <span className="text-muted-foreground">Status:</span>
-                <p className="font-medium">{inquiry.status}</p>
+                <div className="mt-1">
+                  <InquiryStatusDropdown 
+                    inquiryId={inquiry.id}
+                    currentStatus={inquiry.status}
+                    statusUpdatedAt={inquiry.status_updated_at}
+                  />
+                </div>
               </div>
             </div>
           </div>
