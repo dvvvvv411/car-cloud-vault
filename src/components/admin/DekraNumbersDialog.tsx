@@ -5,9 +5,10 @@ import { Copy } from "lucide-react";
 
 interface DekraNumbersDialogProps {
   reportNumbers: string[];
+  trigger?: React.ReactNode;
 }
 
-export const DekraNumbersDialog = ({ reportNumbers }: DekraNumbersDialogProps) => {
+export const DekraNumbersDialog = ({ reportNumbers, trigger }: DekraNumbersDialogProps) => {
   // Filter out undefined/null/empty values and add fallback
   const validReportNumbers = reportNumbers.filter(nr => nr && nr.trim() !== '');
   const reportNumbersText = validReportNumbers.length > 0 
@@ -17,14 +18,16 @@ export const DekraNumbersDialog = ({ reportNumbers }: DekraNumbersDialogProps) =
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-7 text-xs px-2"
-        >
-          <Copy className="h-3 w-3 mr-1" />
-          DEKRA-Nummern kopieren
-        </Button>
+        {trigger || (
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 text-xs px-2"
+          >
+            <Copy className="h-3 w-3 mr-1" />
+            DEKRA-Nummern kopieren
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>

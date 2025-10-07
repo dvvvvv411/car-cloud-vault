@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { InquiryStatusDropdown } from "@/components/admin/InquiryStatusDropdown";
 import { InquiryNotesDialog } from "@/components/admin/InquiryNotesDialog";
 import { InquiryDetailsDialog } from "@/components/admin/InquiryDetailsDialog";
+import { DekraNumbersDialog } from "@/components/admin/DekraNumbersDialog";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { useState, useMemo } from "react";
@@ -235,9 +236,14 @@ export default function AdminAnfragen() {
                             {inquiry.phone}
                           </td>
                           <td className="text-center">
-                            <Badge variant="secondary" className="text-xs px-2 py-1 font-semibold">
-                              {inquiry.selected_vehicles.length}
-                            </Badge>
+                            <DekraNumbersDialog 
+                              reportNumbers={inquiry.selected_vehicles.map(v => v.report_nr)}
+                              trigger={
+                                <Badge variant="secondary" className="text-xs px-2 py-1 font-semibold cursor-pointer hover:bg-secondary/80 transition-colors">
+                                  {inquiry.selected_vehicles.length}
+                                </Badge>
+                              }
+                            />
                           </td>
                           <td className="text-right font-bold text-primary whitespace-nowrap">
                             {formatPrice(inquiry.total_price)}
@@ -312,10 +318,15 @@ export default function AdminAnfragen() {
                       <Calendar className="h-4 w-4" />
                       {formatDate(inquiry.created_at)}
                     </div>
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Package className="h-4 w-4" />
-                      {inquiry.selected_vehicles.length} Fahrzeuge
-                    </div>
+                    <DekraNumbersDialog 
+                      reportNumbers={inquiry.selected_vehicles.map(v => v.report_nr)}
+                      trigger={
+                        <div className="flex items-center gap-2 text-muted-foreground cursor-pointer hover:text-primary transition-colors">
+                          <Package className="h-4 w-4" />
+                          {inquiry.selected_vehicles.length} Fahrzeuge
+                        </div>
+                      }
+                    />
                     <div className="flex items-center gap-2 font-semibold text-primary">
                       <Euro className="h-4 w-4" />
                       {formatPrice(inquiry.total_price)}
