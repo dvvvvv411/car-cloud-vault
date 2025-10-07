@@ -17,7 +17,28 @@ export const campaignUploadSchema = z.object({
 });
 
 export const leadEmailSchema = z.object({
-  email: z.string().email('Bitte geben Sie eine gültige E-Mail-Adresse ein'),
+  email: z.string()
+    .trim()
+    .min(1, 'E-Mail-Adresse ist erforderlich')
+    .email('Ungültiges E-Mail-Format')
+    .refine(
+      (email) => !/[äöüÄÖÜß]/.test(email),
+      'E-Mail-Adressen dürfen keine Umlaute enthalten (ä, ö, ü, Ä, Ö, Ü, ß)'
+    )
+    .refine(
+      (email) => {
+        const domain = email.split('@')[1];
+        return domain && !domain.endsWith('.');
+      },
+      'Domain darf nicht mit einem Punkt enden'
+    )
+    .refine(
+      (email) => {
+        const domain = email.split('@')[1];
+        return domain && !domain.startsWith('.');
+      },
+      'Domain darf nicht mit einem Punkt beginnen'
+    ),
 });
 
 export type CallerFormData = z.infer<typeof callerSchema>;

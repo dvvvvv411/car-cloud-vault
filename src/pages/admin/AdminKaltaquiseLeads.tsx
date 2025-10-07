@@ -18,6 +18,7 @@ import { useCallerCampaigns } from '@/hooks/useColdCallCampaigns';
 import { useCampaignLeads, useUpdateLeadStatus, useUpdateLeadEmail, useConvertLeadToRegularLead } from '@/hooks/useColdCallLeads';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
+import { leadEmailSchema } from '@/lib/validation/coldCallSchema';
 
 const AdminKaltaquiseLeads = () => {
   const { callerId, campaignId } = useParams<{ callerId: string; campaignId: string }>();
@@ -47,16 +48,24 @@ const AdminKaltaquiseLeads = () => {
   };
 
   const handleEmailSave = async (leadId: string) => {
-    if (!emailValue.trim()) {
+    // Validierung mit Zod-Schema
+    const validation = leadEmailSchema.safeParse({ email: emailValue });
+    
+    if (!validation.success) {
+      const errorMessage = validation.error.errors[0]?.message || 'Ungültige E-Mail-Adresse';
       toast({
-        title: 'E-Mail erforderlich',
-        description: 'Bitte geben Sie eine gültige E-Mail-Adresse ein',
+        title: 'Validierungsfehler',
+        description: errorMessage,
         variant: 'destructive',
       });
       return;
     }
     
-    await updateEmail.mutateAsync({ leadId, email: emailValue.trim(), campaignId: campaignId || '' });
+    await updateEmail.mutateAsync({ 
+      leadId, 
+      email: validation.data.email, 
+      campaignId: campaignId || '' 
+    });
     setEditingEmailId(null);
     setEmailValue('');
   };
