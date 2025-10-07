@@ -9,6 +9,7 @@ export interface ColdCallLead {
   phone_number: string;
   email: string | null;
   status: 'active' | 'invalid' | 'mailbox' | 'interested' | 'not_interested';
+  email_sent_status?: 'pending' | 'sent' | 'failed' | null;
   mailbox_timestamp?: string | null;
   invalid_timestamp?: string | null;
   not_interested_timestamp?: string | null;
@@ -276,23 +277,40 @@ export const useConvertLeadToRegularLead = () => {
       }
       
       // 7. Send email notification via edge function
+      let emailStatus: 'sent' | 'failed' = 'failed';
       try {
-        await supabase.functions.invoke('send-cold-call-interest-email', {
-          body: {
-            coldCallLeadId,
-            email: email.toLowerCase(),
-            password,
-            brandingId,
-            callerId,
-          },
-        });
+        const { data: emailResponse, error: invokeError } = await supabase.functions.invoke(
+          'send-cold-call-interest-email',
+          {
+            body: {
+              coldCallLeadId,
+              email: email.toLowerCase(),
+              password,
+              brandingId,
+              callerId,
+            },
+          }
+        );
+        
+        if (invokeError || !emailResponse?.success) {
+          throw new Error(emailResponse?.error || 'E-Mail konnte nicht versendet werden');
+        }
+        
+        emailStatus = 'sent';
         console.log('Email sent successfully');
       } catch (emailError) {
         console.error('Email sending failed:', emailError);
+        emailStatus = 'failed';
         // Don't throw - lead conversion was successful even if email fails
       }
       
-      return { newLead, password };
+      // Update email_sent_status in cold_call_leads
+      await supabase
+        .from('cold_call_leads')
+        .update({ email_sent_status: emailStatus })
+        .eq('id', coldCallLeadId);
+      
+      return { newLead, password, emailStatus };
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['cold-call-leads'] });

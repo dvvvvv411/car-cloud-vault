@@ -298,6 +298,7 @@ const AdminKaltaquiseLeads = () => {
                     <TableHead>Unternehmensname</TableHead>
                     <TableHead>Telefonnummer</TableHead>
                     <TableHead className="min-w-[280px]">E-Mail</TableHead>
+                    <TableHead className="w-[100px] text-center">Status</TableHead>
                     <TableHead>Aktionen</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -362,6 +363,28 @@ const AdminKaltaquiseLeads = () => {
                             )}
                           </div>
                         )}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <div className="flex justify-center items-center">
+                          {lead.status === 'interested' && lead.email_sent_status === 'sent' && (
+                            <div 
+                              className="w-3 h-3 rounded-full bg-green-500" 
+                              title="E-Mail erfolgreich zugestellt"
+                            />
+                          )}
+                          {lead.status === 'interested' && lead.email_sent_status === 'failed' && (
+                            <div 
+                              className="w-3 h-3 rounded-full bg-red-500" 
+                              title="E-Mail-Zustellung fehlgeschlagen"
+                            />
+                          )}
+                          {(!lead.email_sent_status || lead.status !== 'interested') && (
+                            <div 
+                              className="w-3 h-3 rounded-full bg-gray-300" 
+                              title="Noch keine E-Mail versendet"
+                            />
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2 items-center">

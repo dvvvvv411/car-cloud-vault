@@ -173,6 +173,7 @@ export type Database = {
           company_name: string
           created_at: string
           email: string | null
+          email_sent_status: string | null
           id: string
           interested_timestamp: string | null
           invalid_timestamp: string | null
@@ -187,6 +188,7 @@ export type Database = {
           company_name: string
           created_at?: string
           email?: string | null
+          email_sent_status?: string | null
           id?: string
           interested_timestamp?: string | null
           invalid_timestamp?: string | null
@@ -201,6 +203,7 @@ export type Database = {
           company_name?: string
           created_at?: string
           email?: string | null
+          email_sent_status?: string | null
           id?: string
           interested_timestamp?: string | null
           invalid_timestamp?: string | null
