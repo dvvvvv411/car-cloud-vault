@@ -12,12 +12,6 @@ const BrandedIndex = () => {
     return sessionStorage.getItem(`passwordVerified_${slug}`) === 'true';
   });
 
-  useEffect(() => {
-    return () => {
-      sessionStorage.removeItem(`passwordVerified_${slug}`);
-    };
-  }, [slug]);
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
