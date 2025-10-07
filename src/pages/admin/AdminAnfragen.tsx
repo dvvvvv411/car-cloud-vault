@@ -48,7 +48,7 @@ export default function AdminAnfragen() {
   const sortedInquiries = useMemo(() => {
     // First: Filter out "Kein Interesse" inquiries (if toggle is off)
     let filtered = showKeinInteresse 
-      ? inquiries 
+      ? inquiries.filter((inquiry) => inquiry.status === "Kein Interesse")
       : inquiries.filter((inquiry) => inquiry.status !== "Kein Interesse");
     
     // Second: Filter by search query
