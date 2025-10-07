@@ -1,7 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Mail, Phone, MapPin, Building2, User, Calendar, Package, Euro, MessageSquare, Loader2, ArrowUpDown, ArrowUp, ArrowDown, Search } from "lucide-react";
+import { Mail, Phone, MapPin, Building2, User, Calendar, Package, Euro, MessageSquare, Loader2, ArrowUpDown, ArrowUp, ArrowDown, Search, Eye, EyeOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useInquiries, useUpdateInquiryCallPriority, InquiryStatus } from "@/hooks/useInquiries";
 import { useToast } from "@/hooks/use-toast";
 import { InquiryStatusDropdown } from "@/components/admin/InquiryStatusDropdown";
@@ -17,6 +18,7 @@ export default function AdminAnfragen() {
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [searchQuery, setSearchQuery] = useState("");
+  const [showKeinInteresse, setShowKeinInteresse] = useState(false);
   const updateCallPriority = useUpdateInquiryCallPriority();
   const { toast } = useToast();
 
@@ -44,8 +46,10 @@ export default function AdminAnfragen() {
   };
 
   const sortedInquiries = useMemo(() => {
-    // First: Filter out "Kein Interesse" inquiries
-    let filtered = inquiries.filter((inquiry) => inquiry.status !== "Kein Interesse");
+    // First: Filter out "Kein Interesse" inquiries (if toggle is off)
+    let filtered = showKeinInteresse 
+      ? inquiries 
+      : inquiries.filter((inquiry) => inquiry.status !== "Kein Interesse");
     
     // Second: Filter by search query
     filtered = filtered.filter((inquiry) => {
@@ -84,7 +88,7 @@ export default function AdminAnfragen() {
     });
     
     return sorted;
-  }, [inquiries, sortBy, sortOrder, searchQuery]);
+  }, [inquiries, sortBy, sortOrder, searchQuery, showKeinInteresse]);
 
   const handleCallPriorityChange = (inquiryId: string, checked: boolean) => {
     updateCallPriority.mutate(
@@ -145,15 +149,35 @@ export default function AdminAnfragen() {
       </div>
 
       {inquiries.length > 0 && (
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Suche nach Name, E-Mail, Telefon oder Unternehmen..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-10 pl-10 pr-4 rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="relative flex-1 w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Suche nach Name, E-Mail, Telefon oder Unternehmen..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-10 pl-10 pr-4 rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            />
+          </div>
+          <Button
+            variant={showKeinInteresse ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowKeinInteresse(!showKeinInteresse)}
+            className="whitespace-nowrap w-full sm:w-auto"
+          >
+            {showKeinInteresse ? (
+              <>
+                <EyeOff className="h-4 w-4 mr-2" />
+                "Kein Interesse" ausblenden
+              </>
+            ) : (
+              <>
+                <Eye className="h-4 w-4 mr-2" />
+                "Kein Interesse" anzeigen ({inquiries.filter(i => i.status === "Kein Interesse").length})
+              </>
+            )}
+          </Button>
         </div>
       )}
 
