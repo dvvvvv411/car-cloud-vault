@@ -12,6 +12,7 @@ import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { getUserColor } from "@/lib/utils";
 import { DekraNumbersDialog } from "./DekraNumbersDialog";
+import { CustomerInfoDialog } from "./CustomerInfoDialog";
 
 interface InquiryDetailsDialogProps {
   inquiry: Inquiry;
@@ -59,7 +60,10 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
         <div className="space-y-6">
           {/* Customer Information */}
           <div>
-            <h3 className="font-semibold mb-3">Kundeninformationen</h3>
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-semibold">Kundeninformationen</h3>
+              <CustomerInfoDialog inquiry={inquiry} />
+            </div>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
                 <span className="text-muted-foreground">Kundentyp:</span>
