@@ -33,7 +33,7 @@ const AdminKaltaquiseLeads = () => {
   
   const [editingEmailId, setEditingEmailId] = useState<string | null>(null);
   const [emailValue, setEmailValue] = useState('');
-  const [filter, setFilter] = useState<'active' | 'invalid' | 'not_interested'>('active');
+  const [filter, setFilter] = useState<'active' | 'invalid' | 'not_interested' | 'mailbox' | 'interested'>('active');
 
   const caller = callers?.find(c => c.id === callerId);
   const campaign = campaigns?.find(c => c.id === campaignId);
@@ -112,8 +112,10 @@ const AdminKaltaquiseLeads = () => {
     ?.filter(lead => {
       if (filter === 'invalid') return lead.status === 'invalid';
       if (filter === 'not_interested') return lead.status === 'not_interested';
-      // 'active' filter: show everything except invalid & not_interested
-      return !['invalid', 'not_interested'].includes(lead.status);
+      if (filter === 'mailbox') return lead.status === 'mailbox';
+      if (filter === 'interested') return lead.status === 'interested';
+      // 'active' filter: only show truly active leads
+      return lead.status === 'active';
     })
     .sort((a, b) => {
       // Leads WITH email come first
@@ -215,6 +217,20 @@ const AdminKaltaquiseLeads = () => {
                 size="sm"
               >
                 Nicht interessierte
+              </Button>
+              <Button 
+                variant={filter === 'mailbox' ? 'default' : 'outline'}
+                onClick={() => setFilter('mailbox')}
+                size="sm"
+              >
+                Mailbox
+              </Button>
+              <Button 
+                variant={filter === 'interested' ? 'default' : 'outline'}
+                onClick={() => setFilter('interested')}
+                size="sm"
+              >
+                Interessiert
               </Button>
             </div>
           </div>
