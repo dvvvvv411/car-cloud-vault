@@ -44,8 +44,11 @@ export default function AdminAnfragen() {
   };
 
   const sortedInquiries = useMemo(() => {
-    // First: Filter by search query
-    let filtered = inquiries.filter((inquiry) => {
+    // First: Filter out "Kein Interesse" inquiries
+    let filtered = inquiries.filter((inquiry) => inquiry.status !== "Kein Interesse");
+    
+    // Second: Filter by search query
+    filtered = filtered.filter((inquiry) => {
       if (!searchQuery.trim()) return true;
       
       const query = searchQuery.toLowerCase();
