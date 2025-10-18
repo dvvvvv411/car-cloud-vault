@@ -86,17 +86,18 @@ export default function Zustandsbericht() {
         {/* Header */}
         <header className="flex justify-between items-start mb-8 pb-6 border-b-2 border-border">
           <div className="text-sm leading-tight">
-            <p className="font-semibold">KBS Rechtsanwälte Küpper Bredehöft Schwencker PartG</p>
+            <p className="font-semibold">KBS Rechtsanwälte Küpper</p>
+            <p className="font-semibold">Bredehöft Schwencker PartG</p>
             <p>Speldorfer Str. 2</p>
             <p>40239 Düsseldorf</p>
           </div>
           
-          <div className="text-center flex-1 px-8">
-            <h1 className="text-2xl font-bold mb-1">Gebrauchtwagenbericht</h1>
-            <p className="text-lg text-muted-foreground">Bericht-Nr. {vehicle.report_nr}</p>
+          <div className="flex-1 flex flex-col items-center justify-start px-8">
+            <h1 className="text-2xl font-bold mb-1 text-center">Gebrauchtwagenbericht</h1>
+            <p className="text-lg text-muted-foreground text-center">Bericht-Nr. {vehicle.report_nr}</p>
           </div>
           
-          <div className="h-[3.5rem] w-auto">
+          <div className="h-[4.5rem] w-auto">
             <img src={kbsLogo} alt="KBS Logo" className="h-full w-auto object-contain" />
           </div>
         </header>
