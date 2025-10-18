@@ -10,7 +10,6 @@ import {
   serienausstattung,
   sonderausstattung,
   tireData,
-  tireAssessment,
   opticalDamages,
   interiorCondition,
   standardBemerkungen,
@@ -318,31 +317,6 @@ export default function Zustandsbericht() {
           </ul>
         </section>
 
-        {/* Tire Assessment Table */}
-        <section className="mb-8 avoid-break">
-          <h2 className="text-xl font-semibold mb-4">Reifenbewertung</h2>
-          <table className="w-full text-sm border-collapse border border-border">
-            <thead>
-              <tr>
-                <th className="border border-border p-2 text-left">Position</th>
-                <th className="border border-border p-2 text-left">Reifenart</th>
-                <th className="border border-border p-2 text-left">Profiltiefe</th>
-                <th className="border border-border p-2 text-left">Kommentar</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tireAssessment.map((tire, index) => (
-                <tr key={index}>
-                  <td className="border border-border p-2">{tire.position}</td>
-                  <td className="border border-border p-2">{tire.art}</td>
-                  <td className="border border-border p-2">{tire.profiltiefe}</td>
-                  <td className="border border-border p-2 text-destructive font-medium">{tire.kommentar}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <p className="text-xs text-muted-foreground mt-2">Legende: W=Winter / S=Schadhaft</p>
-        </section>
 
         {/* Damage Photos Gallery - Conditional rendering */}
         {damagePhotos.length > 0 && (
