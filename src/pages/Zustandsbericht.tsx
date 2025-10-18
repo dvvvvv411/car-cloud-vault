@@ -359,13 +359,54 @@ export default function Zustandsbericht() {
       <style>{`
         @media print {
           @page {
-            size: A4;
-            margin: 15mm;
+            size: A4 portrait;
+            margin: 10mm 12mm;
           }
           
           body {
             print-color-adjust: exact;
             -webkit-print-color-adjust: exact;
+            margin: 0;
+            padding: 0;
+          }
+          
+          .zustandsbericht-container {
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 15mm !important;
+            width: 210mm !important;
+            max-width: 210mm !important;
+            min-height: auto !important;
+          }
+          
+          .zustandsbericht-container * {
+            font-size: 0.95em;
+          }
+          
+          .zustandsbericht-container h1 {
+            font-size: 1.4rem !important;
+          }
+          
+          .zustandsbericht-container h2 {
+            font-size: 1.1rem !important;
+          }
+          
+          .grid.grid-cols-2 {
+            grid-template-columns: 1fr !important;
+          }
+          
+          .grid.grid-cols-\\[240px_1fr\\] {
+            grid-template-columns: 200px 1fr !important;
+          }
+          
+          .grid.grid-cols-5 {
+            grid-template-columns: repeat(5, 1fr) !important;
+            gap: 0.3rem !important;
+          }
+          
+          .zustandsbericht-container span {
+            word-break: break-word;
+            overflow-wrap: anywhere;
           }
           
           .no-print {
@@ -374,13 +415,7 @@ export default function Zustandsbericht() {
           
           .avoid-break {
             page-break-inside: avoid;
-          }
-          
-          .zustandsbericht-container {
-            box-shadow: none;
-            margin: 0;
-            padding: 0;
-            width: 100%;
+            break-inside: avoid;
           }
           
           * {
