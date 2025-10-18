@@ -149,8 +149,8 @@ const Index = ({ branding }: IndexProps = {}) => {
         console.error('Error parsing vehicle_photos', e);
       }
     }
-    // Fallback to old image_url or demo image
-    return vehicle.image_url || demoVehicle;
+    // Fallback to demo image
+    return demoVehicle;
   };
 
   const toggleVehicleSelection = (chassis: string) => {
@@ -589,29 +589,9 @@ const Index = ({ branding }: IndexProps = {}) => {
                             color: "hsl(var(--text-primary))"
                           }}>
                                   {formatPrice(vehicle.price)}
-                                </span>
+                                 </span>
                               </td>
-                              <td className="px-6 py-0 align-middle text-center">
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <Button 
-                                      className="h-14 w-28 rounded-lg bg-[#018c4f] hover:bg-[#018c4f]/90 border-0 shadow-md hover:shadow-lg transition-all flex items-center justify-center px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#018c4f] focus-visible:ring-offset-2" 
-                                      onClick={e => {
-                                        e.stopPropagation();
-                                        if (vehicle.dekra_url) {
-                                          setCurrentPdfUrl(vehicle.dekra_url);
-                                          setPdfDialogOpen(true);
-                                        }
-                                      }}
-                                      disabled={!vehicle.dekra_url}
-                                    >
-                                      <img src={dekraLogoWhite} alt="DEKRA" className="h-10 w-auto object-contain" />
-                                    </Button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>DEKRA Bericht öffnen</p>
-                                  </TooltipContent>
-                                </Tooltip>
+                              <td className="px-6 py-4 text-right align-middle">
                               </td>
                             </tr>;
                     })}
@@ -769,22 +749,6 @@ const Index = ({ branding }: IndexProps = {}) => {
                   }}>
                             {formatPrice(vehicle.price)}
                           </div>
-
-                          {/* DEKRA Button */}
-                          <Button 
-                            className="w-full min-h-12 bg-[#018c4f] hover:bg-[#018c4f]/90 border-0 shadow-md hover:shadow-lg transition-all flex items-center justify-center" 
-                            onClick={e => {
-                              e.stopPropagation();
-                              if (vehicle.dekra_url) {
-                                setCurrentPdfUrl(vehicle.dekra_url);
-                                setPdfDialogOpen(true);
-                              }
-                            }}
-                            disabled={!vehicle.dekra_url}
-                          >
-                            <img src={dekraLogoWhite} alt="DEKRA" className="h-8 w-auto object-contain mr-2" />
-                            <span>Bericht öffnen</span>
-                          </Button>
                         </div>
                       </div>;
               })}

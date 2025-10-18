@@ -499,11 +499,9 @@ export type Database = {
           brand: string
           chassis: string
           created_at: string | null
-          dekra_url: string | null
           detail_photos: Json | null
           first_registration: string
           id: string
-          image_url: string | null
           kilometers: number
           model: string
           price: number
@@ -515,11 +513,9 @@ export type Database = {
           brand: string
           chassis: string
           created_at?: string | null
-          dekra_url?: string | null
           detail_photos?: Json | null
           first_registration: string
           id?: string
-          image_url?: string | null
           kilometers: number
           model: string
           price: number
@@ -531,11 +527,9 @@ export type Database = {
           brand?: string
           chassis?: string
           created_at?: string | null
-          dekra_url?: string | null
           detail_photos?: Json | null
           first_registration?: string
           id?: string
-          image_url?: string | null
           kilometers?: number
           model?: string
           price?: number

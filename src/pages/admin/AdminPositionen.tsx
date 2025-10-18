@@ -5,10 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Car, FileUp, RefreshCw } from "lucide-react";
+import { Plus, Pencil, Trash2, Car, FileUp } from "lucide-react";
 import { VehicleForm } from "@/components/admin/VehicleForm";
 import { DeleteVehicleDialog } from "@/components/admin/DeleteVehicleDialog";
-import { BulkPDFUpload } from "@/components/admin/BulkPDFUpload";
 import { BulkImageUpload } from "@/components/admin/BulkImageUpload";
 import { VehicleFormData } from "@/lib/validation/vehicleSchema";
 import { useToast } from "@/hooks/use-toast";
@@ -21,11 +20,9 @@ export default function AdminPositionen() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isBulkUploadDialogOpen, setIsBulkUploadDialogOpen] = useState(false);
   const [isBulkImageUploadDialogOpen, setIsBulkImageUploadDialogOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isMigrating, setIsMigrating] = useState(false);
 
   const uploadMultipleImages = async (
     files: File[], 
@@ -55,24 +52,7 @@ export default function AdminPositionen() {
     return urls;
   };
 
-  const uploadPDF = async (file: File, reportNr: string) => {
-    const fileName = `${reportNr}.pdf`;
-    const filePath = `${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('vehicle-reports')
-      .upload(filePath, file, { upsert: true });
-
-    if (uploadError) throw uploadError;
-
-    const { data } = supabase.storage
-      .from('vehicle-reports')
-      .getPublicUrl(filePath);
-
-    return data.publicUrl;
-  };
-
-  const handleCreate = async (data: VehicleFormData, vehiclePhotos?: File[], detailPhotos?: File[], pdfFile?: File) => {
+  const handleCreate = async (data: VehicleFormData, vehiclePhotos?: File[], detailPhotos?: File[]) => {
     setIsSubmitting(true);
     try {
       // First create the vehicle entry
@@ -88,7 +68,6 @@ export default function AdminPositionen() {
           price: data.price,
           vehicle_photos: '[]',
           detail_photos: '[]',
-          dekra_url: null,
         }])
         .select()
         .single();
@@ -98,7 +77,6 @@ export default function AdminPositionen() {
       // Upload files if provided
       let vehiclePhotoUrls: string[] = [];
       let detailPhotoUrls: string[] = [];
-      let pdfUrl = null;
 
       if (vehiclePhotos && vehiclePhotos.length > 0 && newVehicle) {
         vehiclePhotoUrls = await uploadMultipleImages(vehiclePhotos, newVehicle.id, 'vehicle');
@@ -108,19 +86,13 @@ export default function AdminPositionen() {
         detailPhotoUrls = await uploadMultipleImages(detailPhotos, newVehicle.id, 'detail');
       }
 
-      if (pdfFile && newVehicle) {
-        pdfUrl = await uploadPDF(pdfFile, data.report_nr);
-      }
-
       // Update vehicle with file URLs
-      if ((vehiclePhotoUrls.length > 0 || detailPhotoUrls.length > 0 || pdfUrl) && newVehicle) {
+      if ((vehiclePhotoUrls.length > 0 || detailPhotoUrls.length > 0) && newVehicle) {
         const { error: updateError } = await supabase
           .from("vehicles")
           .update({
             vehicle_photos: JSON.stringify(vehiclePhotoUrls),
             detail_photos: JSON.stringify(detailPhotoUrls),
-            dekra_url: pdfUrl,
-            image_url: vehiclePhotoUrls.length > 0 ? vehiclePhotoUrls[0] : null,
           })
           .eq('id', newVehicle.id);
 
@@ -145,7 +117,7 @@ export default function AdminPositionen() {
     }
   };
 
-  const handleEdit = async (data: VehicleFormData, vehiclePhotos?: File[], detailPhotos?: File[], pdfFile?: File) => {
+  const handleEdit = async (data: VehicleFormData, vehiclePhotos?: File[], detailPhotos?: File[]) => {
     if (!selectedVehicle) return;
     
     setIsSubmitting(true);
@@ -173,7 +145,6 @@ export default function AdminPositionen() {
       // Upload new photos if provided
       let vehiclePhotoUrls = existingVehiclePhotos;
       let detailPhotoUrls = existingDetailPhotos;
-      let pdfUrl = selectedVehicle.dekra_url;
 
       if (vehiclePhotos && vehiclePhotos.length > 0) {
         const newUrls = await uploadMultipleImages(vehiclePhotos, selectedVehicle.id, 'vehicle');
@@ -183,10 +154,6 @@ export default function AdminPositionen() {
       if (detailPhotos && detailPhotos.length > 0) {
         const newUrls = await uploadMultipleImages(detailPhotos, selectedVehicle.id, 'detail');
         detailPhotoUrls = [...existingDetailPhotos, ...newUrls];
-      }
-
-      if (pdfFile) {
-        pdfUrl = await uploadPDF(pdfFile, data.report_nr);
       }
 
       // Update vehicle
@@ -202,8 +169,6 @@ export default function AdminPositionen() {
           price: data.price,
           vehicle_photos: JSON.stringify(vehiclePhotoUrls),
           detail_photos: JSON.stringify(detailPhotoUrls),
-          dekra_url: pdfUrl,
-          image_url: vehiclePhotoUrls.length > 0 ? vehiclePhotoUrls[0] : null,
         })
         .eq("id", selectedVehicle.id);
 
@@ -233,22 +198,33 @@ export default function AdminPositionen() {
     
     setIsSubmitting(true);
     try {
-      // Delete files from storage
-      if (selectedVehicle.image_url) {
-        const imagePath = selectedVehicle.image_url.split('/').pop();
-        if (imagePath) {
-          await supabase.storage
-            .from('vehicle-images')
-            .remove([imagePath]);
+      // Delete vehicle photos from storage
+      if (selectedVehicle.vehicle_photos) {
+        try {
+          const vehiclePhotos = JSON.parse(selectedVehicle.vehicle_photos);
+          for (const photoUrl of vehiclePhotos) {
+            const path = photoUrl.split('/vehicle-images/')[1];
+            if (path) {
+              await supabase.storage.from('vehicle-images').remove([path]);
+            }
+          }
+        } catch (e) {
+          console.error('Error deleting vehicle photos', e);
         }
       }
 
-      if (selectedVehicle.dekra_url) {
-        const pdfPath = selectedVehicle.dekra_url.split('/').pop();
-        if (pdfPath) {
-          await supabase.storage
-            .from('vehicle-reports')
-            .remove([pdfPath]);
+      // Delete detail photos from storage
+      if (selectedVehicle.detail_photos) {
+        try {
+          const detailPhotos = JSON.parse(selectedVehicle.detail_photos);
+          for (const photoUrl of detailPhotos) {
+            const path = photoUrl.split('/vehicle-images/')[1];
+            if (path) {
+              await supabase.storage.from('vehicle-images').remove([path]);
+            }
+          }
+        } catch (e) {
+          console.error('Error deleting detail photos', e);
         }
       }
 
@@ -292,121 +268,6 @@ export default function AdminPositionen() {
     return new Intl.NumberFormat('de-DE').format(km) + ' km';
   };
 
-  const handleMigratePDFs = async () => {
-    setIsMigrating(true);
-    
-    try {
-      // Load all vehicles with dekra_url
-      const { data: vehiclesWithPDFs, error: fetchError } = await supabase
-        .from('vehicles')
-        .select('*')
-        .not('dekra_url', 'is', null);
-
-      if (fetchError) throw fetchError;
-      if (!vehiclesWithPDFs || vehiclesWithPDFs.length === 0) {
-        toast({
-          title: "Keine PDFs gefunden",
-          description: "Es gibt keine PDFs zum Umbenennen.",
-        });
-        setIsMigrating(false);
-        return;
-      }
-
-      let successCount = 0;
-      let errorCount = 0;
-      const errors: string[] = [];
-
-      for (const vehicle of vehiclesWithPDFs) {
-        try {
-          // Extract old filename from URL
-          const oldFileName = vehicle.dekra_url.split('/').pop();
-          
-          // Skip if already using report_nr format (not a UUID)
-          if (oldFileName === `${vehicle.report_nr}.pdf`) {
-            successCount++;
-            continue;
-          }
-
-          // Download old PDF
-          const { data: fileData, error: downloadError } = await supabase.storage
-            .from('vehicle-reports')
-            .download(oldFileName!);
-
-          if (downloadError) {
-            errorCount++;
-            errors.push(`${vehicle.brand} ${vehicle.model} (${vehicle.report_nr}): Download fehlgeschlagen`);
-            continue;
-          }
-
-          // Upload with new name
-          const newFileName = `${vehicle.report_nr}.pdf`;
-          const { error: uploadError } = await supabase.storage
-            .from('vehicle-reports')
-            .upload(newFileName, fileData, { upsert: true });
-
-          if (uploadError) {
-            errorCount++;
-            errors.push(`${vehicle.brand} ${vehicle.model} (${vehicle.report_nr}): Upload fehlgeschlagen`);
-            continue;
-          }
-
-          // Get new public URL
-          const { data: urlData } = supabase.storage
-            .from('vehicle-reports')
-            .getPublicUrl(newFileName);
-
-          // Update vehicle record
-          const { error: updateError } = await supabase
-            .from('vehicles')
-            .update({ dekra_url: urlData.publicUrl })
-            .eq('id', vehicle.id);
-
-          if (updateError) {
-            errorCount++;
-            errors.push(`${vehicle.brand} ${vehicle.model} (${vehicle.report_nr}): Datenbank-Update fehlgeschlagen`);
-            continue;
-          }
-
-          // Delete old file (only if different from new name)
-          if (oldFileName !== newFileName) {
-            await supabase.storage
-              .from('vehicle-reports')
-              .remove([oldFileName!]);
-          }
-
-          successCount++;
-        } catch (err) {
-          errorCount++;
-          errors.push(`${vehicle.brand} ${vehicle.model} (${vehicle.report_nr}): Unbekannter Fehler`);
-        }
-      }
-
-      // Show results
-      if (errorCount === 0) {
-        toast({
-          title: "Migration erfolgreich",
-          description: `${successCount} von ${vehiclesWithPDFs.length} PDFs wurden erfolgreich umbenannt.`,
-        });
-      } else {
-        toast({
-          title: "Migration abgeschlossen mit Fehlern",
-          description: `${successCount} erfolgreich, ${errorCount} fehlgeschlagen. ${errors.length > 0 ? 'Fehler: ' + errors.slice(0, 3).join(', ') : ''}`,
-          variant: "destructive",
-        });
-      }
-
-      refetch();
-    } catch (error) {
-      toast({
-        title: "Fehler",
-        description: "PDF Migration ist fehlgeschlagen.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsMigrating(false);
-    }
-  };
-
   return (
     <div className="space-y-8 animate-fade-in">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -419,22 +280,9 @@ export default function AdminPositionen() {
             <Plus className="mr-2 h-4 w-4" />
             Fahrzeug hinzufügen
           </Button>
-          <Button variant="outline" onClick={() => setIsBulkUploadDialogOpen(true)} className="hover:bg-muted/50">
-            <FileUp className="mr-2 h-4 w-4" />
-            PDF Massen-Upload
-          </Button>
           <Button variant="outline" onClick={() => setIsBulkImageUploadDialogOpen(true)} className="hover:bg-muted/50">
             <FileUp className="mr-2 h-4 w-4" />
             Bilder Massen-Upload
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={handleMigratePDFs}
-            disabled={isMigrating}
-            className="hover:bg-muted/50"
-          >
-            <RefreshCw className={`mr-2 h-4 w-4 ${isMigrating ? 'animate-spin' : ''}`} />
-            {isMigrating ? 'Migriere...' : 'PDFs umbenennen'}
           </Button>
         </div>
       </div>
@@ -460,7 +308,6 @@ export default function AdminPositionen() {
                     <TableHead>Modell</TableHead>
                     <TableHead>Fahrgestell-Nr.</TableHead>
                     <TableHead>Bericht-Nr.</TableHead>
-                    <TableHead>DEKRA Status</TableHead>
                     <TableHead>Erstzulassung</TableHead>
                     <TableHead>Kilometerstand</TableHead>
                     <TableHead>Preis</TableHead>
@@ -471,34 +318,36 @@ export default function AdminPositionen() {
                   {vehicles.map((vehicle) => (
                     <TableRow key={vehicle.id}>
                       <TableCell>
-                        {vehicle.image_url ? (
-                          <img 
-                            src={vehicle.image_url} 
-                            alt={`${vehicle.brand} ${vehicle.model}`}
-                            className="h-14 w-20 object-cover rounded-lg shadow-sm"
-                          />
-                        ) : (
-                          <div className="h-14 w-20 bg-muted/50 rounded-lg flex items-center justify-center text-xs text-muted-foreground border border-border/40">
-                            Kein Bild
-                          </div>
-                        )}
+                        {(() => {
+                          let thumbnail = null;
+                          if (vehicle.vehicle_photos) {
+                            try {
+                              const parsed = JSON.parse(vehicle.vehicle_photos);
+                              if (Array.isArray(parsed) && parsed.length > 0) {
+                                thumbnail = parsed[0];
+                              }
+                            } catch (e) {
+                              console.error('Error parsing vehicle_photos', e);
+                            }
+                          }
+                          
+                          return thumbnail ? (
+                            <img 
+                              src={thumbnail} 
+                              alt={`${vehicle.brand} ${vehicle.model}`}
+                              className="h-14 w-20 object-cover rounded-lg shadow-sm"
+                            />
+                          ) : (
+                            <div className="h-14 w-20 bg-muted/50 rounded-lg flex items-center justify-center text-xs text-muted-foreground border border-border/40">
+                              Kein Bild
+                            </div>
+                          );
+                        })()}
                       </TableCell>
                       <TableCell className="font-semibold text-foreground">{vehicle.brand}</TableCell>
                       <TableCell className="text-muted-foreground">{vehicle.model}</TableCell>
                       <TableCell className="font-mono text-xs text-muted-foreground">{vehicle.chassis}</TableCell>
                       <TableCell className="font-medium">{vehicle.report_nr}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <div 
-                            className={`h-2 w-2 rounded-full ${
-                              vehicle.dekra_url ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]'
-                            }`}
-                          />
-                          <span className={`text-xs font-medium ${vehicle.dekra_url ? 'text-green-700' : 'text-red-700'}`}>
-                            {vehicle.dekra_url ? 'Vorhanden' : 'Fehlt'}
-                          </span>
-                        </div>
-                      </TableCell>
                       <TableCell className="text-muted-foreground">{vehicle.first_registration}</TableCell>
                       <TableCell className="text-muted-foreground">{formatKilometers(vehicle.kilometers)}</TableCell>
                       <TableCell className="font-bold text-primary">{formatPrice(vehicle.price)}</TableCell>
@@ -579,21 +428,6 @@ export default function AdminPositionen() {
         onConfirm={handleDelete}
         isDeleting={isSubmitting}
       />
-
-      {/* Bulk PDF Upload Dialog */}
-      <Dialog open={isBulkUploadDialogOpen} onOpenChange={setIsBulkUploadDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle>PDF Massen-Upload</DialogTitle>
-          </DialogHeader>
-          <BulkPDFUpload 
-            onComplete={() => {
-              refetch();
-              setIsBulkUploadDialogOpen(false);
-            }}
-          />
-        </DialogContent>
-      </Dialog>
 
       {/* Bulk Image Upload Dialog */}
       <Dialog open={isBulkImageUploadDialogOpen} onOpenChange={setIsBulkImageUploadDialogOpen}>

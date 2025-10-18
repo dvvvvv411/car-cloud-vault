@@ -166,7 +166,7 @@ export function BulkImageUpload({ onComplete }: BulkImageUploadProps) {
         // Update vehicle with Image URL
         const { error: updateError } = await supabase
           .from('vehicles')
-          .update({ image_url: imageUrl })
+          .update({ vehicle_photos: JSON.stringify([imageUrl]) })
           .eq('id', vehicle.id);
 
         if (updateError) throw updateError;

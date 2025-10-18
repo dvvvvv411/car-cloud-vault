@@ -33,7 +33,19 @@ export const VehicleInquiryCard: React.FC<VehicleInquiryCardProps> = ({
       <div className="flex gap-4">
         <div className="w-24 h-24 flex-shrink-0 bg-white/5 rounded-md overflow-hidden">
           <img
-            src={vehicle.image_url || demoVehicle}
+            src={(() => {
+              if (vehicle.vehicle_photos) {
+                try {
+                  const parsed = JSON.parse(vehicle.vehicle_photos);
+                  if (Array.isArray(parsed) && parsed.length > 0) {
+                    return parsed[0];
+                  }
+                } catch (e) {
+                  console.error('Error parsing vehicle_photos', e);
+                }
+              }
+              return demoVehicle;
+            })()}
             alt={`${vehicle.brand} ${vehicle.model}`}
             className="w-full h-full object-cover"
           />
