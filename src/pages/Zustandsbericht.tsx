@@ -30,16 +30,16 @@ const formatKilometers = (km: number) => {
 };
 
 export default function Zustandsbericht() {
-  const { vehicleId } = useParams();
+  const { reportNr } = useParams();
 
   const { data: vehicle, isLoading } = useQuery({
-    queryKey: ['vehicle', vehicleId],
+    queryKey: ['vehicle', reportNr],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('vehicles')
         .select('*')
-        .eq('id', vehicleId)
-        .single();
+        .eq('report_nr', reportNr)
+        .maybeSingle();
       
       if (error) throw error;
       return data;
@@ -57,7 +57,12 @@ export default function Zustandsbericht() {
   if (!vehicle) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg">Fahrzeug nicht gefunden</div>
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-2">Fahrzeug nicht gefunden</h1>
+          <p className="text-muted-foreground">
+            Kein Fahrzeug mit Bericht-Nr. {reportNr} gefunden.
+          </p>
+        </div>
       </div>
     );
   }

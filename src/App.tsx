@@ -44,7 +44,7 @@ const App = () => (
             <Route path="/insolvenz" element={<Index />} />
             <Route path="/insolvenz/:slug" element={<BrandedIndex />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/zustandsbericht/:vehicleId" element={<Zustandsbericht />} />
+            <Route path="/zustandsbericht/:reportNr" element={<Zustandsbericht />} />
             <Route 
               path="/admin" 
               element={
