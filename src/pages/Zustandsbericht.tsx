@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Printer, Check } from "lucide-react";
+import { ImageLightbox } from "@/components/ImageLightbox";
 import kbsLogo from "@/assets/kbs_blue.png";
 import vehiclePhoto1 from "@/assets/zustandsbericht/vehicle-photo-1.jpg";
 import vehiclePhoto2 from "@/assets/zustandsbericht/vehicle-photo-2.jpg";
@@ -31,6 +33,15 @@ const formatKilometers = (km: number) => {
 
 export default function Zustandsbericht() {
   const { reportNr } = useParams();
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImages, setLightboxImages] = useState<string[]>([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  const openLightbox = (images: string[], index: number) => {
+    setLightboxImages(images);
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
 
   const { data: vehicle, isLoading } = useQuery({
     queryKey: ['vehicle', reportNr],
@@ -74,7 +85,11 @@ export default function Zustandsbericht() {
     <>
       {/* Print Button - Hidden when printing */}
       <div className="no-print fixed top-4 right-4 z-50">
-        <Button onClick={() => window.print()} size="lg">
+        <Button 
+          onClick={() => window.print()} 
+          size="lg"
+          title="Tipp: Deaktivieren Sie 'Kopf- und Fußzeilen' im Druckdialog für ein sauberes PDF"
+        >
           <Printer className="h-5 w-5 mr-2" />
           Als PDF drucken
         </Button>
@@ -107,7 +122,11 @@ export default function Zustandsbericht() {
           <h2 className="text-xl font-semibold mb-4">Fahrzeugfotos</h2>
           <div className="grid grid-cols-5 gap-2">
             {vehiclePhotos.map((photo, index) => (
-              <div key={index} className="border border-border rounded overflow-hidden aspect-video">
+              <div 
+                key={index} 
+                className="border border-border rounded overflow-hidden aspect-video cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => openLightbox(vehiclePhotos, index)}
+              >
                 <img src={photo} alt={`Fahrzeug Ansicht ${index + 1}`} className="w-full h-full object-cover" />
               </div>
             ))}
@@ -315,7 +334,11 @@ export default function Zustandsbericht() {
           <h2 className="text-xl font-semibold mb-4">Detailfotos der Beschädigungen</h2>
           <div className="grid grid-cols-2 gap-4">
             {damagePhotos.map((photo, index) => (
-              <div key={index} className="border border-border rounded overflow-hidden aspect-[4/3]">
+              <div 
+                key={index} 
+                className="border border-border rounded overflow-hidden aspect-[4/3] cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => openLightbox(damagePhotos, index)}
+              >
                 <img src={photo} alt={`Schaden Detail ${index + 1}`} className="w-full h-full object-cover" />
               </div>
             ))}
@@ -323,6 +346,14 @@ export default function Zustandsbericht() {
         </section>
 
       </div>
+
+      {/* Image Lightbox */}
+      <ImageLightbox
+        images={lightboxImages}
+        initialIndex={lightboxIndex}
+        isOpen={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+      />
 
       {/* Print Styles */}
       <style>{`
