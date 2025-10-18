@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import BrandedIndex from "./pages/BrandedIndex";
 import Auth from "./pages/Auth";
 import ExternalRedirect from "./pages/ExternalRedirect";
+import Zustandsbericht from "./pages/Zustandsbericht";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPositionen from "./pages/admin/AdminPositionen";
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/insolvenz" element={<Index />} />
             <Route path="/insolvenz/:slug" element={<BrandedIndex />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/zustandsbericht/:vehicleId" element={<Zustandsbericht />} />
             <Route 
               path="/admin" 
               element={
