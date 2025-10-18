@@ -6,7 +6,6 @@ interface ImageDropZoneProps {
   images: string[];
   onImagesChange: (files: File[]) => void;
   onRemove: (index: number) => void;
-  maxImages?: number;
   label?: string;
 }
 
@@ -14,7 +13,6 @@ export const ImageDropZone = ({
   images,
   onImagesChange,
   onRemove,
-  maxImages = 10,
   label = "Bilder hochladen"
 }: ImageDropZoneProps) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -37,24 +35,14 @@ export const ImageDropZone = ({
       file.type.startsWith('image/')
     );
     
-    if (files.length + images.length > maxImages) {
-      alert(`Maximal ${maxImages} Bilder erlaubt`);
-      return;
-    }
-    
     onImagesChange(files);
-  }, [images.length, maxImages, onImagesChange]);
+  }, [onImagesChange]);
 
   const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     
-    if (files.length + images.length > maxImages) {
-      alert(`Maximal ${maxImages} Bilder erlaubt`);
-      return;
-    }
-    
     onImagesChange(files);
-  }, [images.length, maxImages, onImagesChange]);
+  }, [onImagesChange]);
 
   return (
     <div className="space-y-4">
@@ -70,7 +58,7 @@ export const ImageDropZone = ({
       >
         <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
         <p className="text-sm text-muted-foreground mb-2">
-          {label} ({images.length}/{maxImages})
+          {label} ({images.length} Bilder)
         </p>
         <p className="text-xs text-muted-foreground mb-4">
           Drag & Drop oder klicken zum Auswählen
@@ -87,7 +75,6 @@ export const ImageDropZone = ({
           type="button"
           variant="outline"
           onClick={() => document.getElementById(`file-upload-${label}`)?.click()}
-          disabled={images.length >= maxImages}
         >
           Bilder auswählen
         </Button>

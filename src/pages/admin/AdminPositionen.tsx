@@ -27,18 +27,21 @@ export default function AdminPositionen() {
   const uploadMultipleImages = async (
     files: File[], 
     vehicleId: string, 
-    type: 'vehicle' | 'detail'
+    type: 'vehicle' | 'detail',
+    existingCount: number = 0
   ): Promise<string[]> => {
     const urls: string[] = [];
     
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const fileExt = file.name.split('.').pop();
-      const fileName = `${vehicleId}/${type}_${i + 1}.${fileExt}`;
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(2, 8);
+      const fileName = `${vehicleId}/${type}_${existingCount + i + 1}_${timestamp}_${random}.${fileExt}`;
       
       const { error } = await supabase.storage
         .from('vehicle-images')
-        .upload(fileName, file, { upsert: true });
+        .upload(fileName, file, { upsert: false });
       
       if (error) throw error;
       
@@ -79,11 +82,11 @@ export default function AdminPositionen() {
       let detailPhotoUrls: string[] = [];
 
       if (vehiclePhotos && vehiclePhotos.length > 0 && newVehicle) {
-        vehiclePhotoUrls = await uploadMultipleImages(vehiclePhotos, newVehicle.id, 'vehicle');
+        vehiclePhotoUrls = await uploadMultipleImages(vehiclePhotos, newVehicle.id, 'vehicle', 0);
       }
 
       if (detailPhotos && detailPhotos.length > 0 && newVehicle) {
-        detailPhotoUrls = await uploadMultipleImages(detailPhotos, newVehicle.id, 'detail');
+        detailPhotoUrls = await uploadMultipleImages(detailPhotos, newVehicle.id, 'detail', 0);
       }
 
       // Update vehicle with file URLs
@@ -147,12 +150,22 @@ export default function AdminPositionen() {
       let detailPhotoUrls = existingDetailPhotos;
 
       if (vehiclePhotos && vehiclePhotos.length > 0) {
-        const newUrls = await uploadMultipleImages(vehiclePhotos, selectedVehicle.id, 'vehicle');
+        const newUrls = await uploadMultipleImages(
+          vehiclePhotos, 
+          selectedVehicle.id, 
+          'vehicle',
+          existingVehiclePhotos.length
+        );
         vehiclePhotoUrls = [...existingVehiclePhotos, ...newUrls];
       }
 
       if (detailPhotos && detailPhotos.length > 0) {
-        const newUrls = await uploadMultipleImages(detailPhotos, selectedVehicle.id, 'detail');
+        const newUrls = await uploadMultipleImages(
+          detailPhotos, 
+          selectedVehicle.id, 
+          'detail',
+          existingDetailPhotos.length
+        );
         detailPhotoUrls = [...existingDetailPhotos, ...newUrls];
       }
 

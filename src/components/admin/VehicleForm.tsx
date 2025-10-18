@@ -217,24 +217,22 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
 
         {/* Vehicle Photos Upload */}
         <div className="space-y-2">
-          <Label>Fahrzeugbilder (max. 10)</Label>
-          <ImageDropZone
-            images={vehiclePhotoPreviews}
-            onImagesChange={handleVehiclePhotosChange}
-            onRemove={removeVehiclePhoto}
-            maxImages={10}
-            label="Fahrzeugbilder"
-          />
+          <Label>Fahrzeugbilder</Label>
+              <ImageDropZone
+                images={vehiclePhotoPreviews}
+                onImagesChange={handleVehiclePhotosChange}
+                onRemove={removeVehiclePhoto}
+                label="Fahrzeugbilder"
+              />
         </div>
 
         {/* Detail Photos Upload */}
         <div className="space-y-2">
-          <Label>Detailfotos (max. 10)</Label>
+          <Label>Detailfotos</Label>
           <ImageDropZone
             images={detailPhotoPreviews}
             onImagesChange={handleDetailPhotosChange}
             onRemove={removeDetailPhoto}
-            maxImages={10}
             label="Detailfotos"
           />
         </div>
