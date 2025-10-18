@@ -96,7 +96,7 @@ export default function Zustandsbericht() {
       </div>
 
       {/* A4 Container */}
-      <div className="zustandsbericht-container w-[240mm] min-h-[297mm] mx-auto bg-white p-8 shadow-lg my-8">
+      <div className="zustandsbericht-container w-[210mm] min-h-[297mm] mx-auto bg-white p-8 shadow-lg my-8">
         
         {/* Header */}
         <header className="flex justify-between items-start mb-8 pb-6 border-b-2 border-border">
@@ -136,76 +136,76 @@ export default function Zustandsbericht() {
         {/* Vehicle Description */}
         <section className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Fahrzeugbeschreibung</h2>
-          <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-sm">
-            <div className="grid grid-cols-[240px_1fr] gap-x-4">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
+            <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Preisschild-Nr.</span>
               <span>{vehicle.report_nr}</span>
             </div>
-            <div className="grid grid-cols-[240px_1fr] gap-x-4">
+            <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Hersteller</span>
               <span>{vehicle.brand}</span>
             </div>
-            <div className="grid grid-cols-[240px_1fr] gap-x-4">
+            <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Aufbau</span>
               <span>{vehicleStaticData.aufbau}</span>
             </div>
-            <div className="grid grid-cols-[240px_1fr] gap-x-4">
+            <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">FIN</span>
               <span>{vehicle.chassis}</span>
             </div>
-            <div className="grid grid-cols-[240px_1fr] gap-x-4">
+            <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Kraftstoffart / Energiequelle</span>
               <span>{vehicleStaticData.kraftstoffart}</span>
             </div>
-            <div className="grid grid-cols-[240px_1fr] gap-x-4">
+            <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Motorart / Zylinder</span>
               <span>{vehicleStaticData.motorart}</span>
             </div>
-            <div className="grid grid-cols-[240px_1fr] gap-x-4">
+            <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Leistung</span>
               <span>{vehicleStaticData.leistung}</span>
             </div>
-            <div className="grid grid-cols-[240px_1fr] gap-x-4">
+            <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Getriebeart</span>
               <span>{vehicleStaticData.getriebeart}</span>
             </div>
-            <div className="grid grid-cols-[240px_1fr] gap-x-4">
+            <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Farbe</span>
               <span>{vehicleStaticData.farbe}</span>
             </div>
-            <div className="grid grid-cols-[240px_1fr] gap-x-4">
+            <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Typ / Modell</span>
               <span>{vehicle.model}</span>
             </div>
-            <div className="grid grid-cols-[240px_1fr] gap-x-4">
+            <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Erstzulassung</span>
               <span>{vehicle.first_registration}</span>
             </div>
-            <div className="grid grid-cols-[240px_1fr] gap-x-4">
+            <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Abgelesener Tachostand</span>
               <span>{formatKilometers(vehicle.kilometers)}</span>
             </div>
-            <div className="grid grid-cols-[240px_1fr] gap-x-4">
+            <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Zul. Gesamtgewicht</span>
               <span>{vehicleStaticData.gesamtgewicht}</span>
             </div>
-            <div className="grid grid-cols-[240px_1fr] gap-x-4">
+            <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Hubraum</span>
               <span>{vehicleStaticData.hubraum}</span>
             </div>
-            <div className="grid grid-cols-[240px_1fr] gap-x-4">
+            <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Anzahl Türen</span>
               <span>{vehicleStaticData.anzahlTueren}</span>
             </div>
-            <div className="grid grid-cols-[240px_1fr] gap-x-4">
+            <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Anzahl Sitzplätze</span>
               <span>{vehicleStaticData.anzahlSitzplaetze}</span>
             </div>
-            <div className="grid grid-cols-[240px_1fr] gap-x-4">
+            <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Fälligkeit HU</span>
               <span>{vehicleStaticData.faelligkeitHU}</span>
             </div>
-            <div className="grid grid-cols-[240px_1fr] gap-x-4">
+            <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Polster Typ / Farbe</span>
               <span>{vehicleStaticData.polsterTyp}</span>
             </div>
@@ -254,7 +254,7 @@ export default function Zustandsbericht() {
         {/* Equipment Lists */}
         <section className="mb-8 avoid-break">
           <h2 className="text-xl font-semibold mb-4">Ausstattung</h2>
-          <div className="grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-2 gap-6">
             <div>
               <h3 className="font-semibold text-sm mb-3 border-b border-border pb-1">Serienausstattung</h3>
               <ul className="space-y-1 text-xs">
@@ -377,10 +377,11 @@ export default function Zustandsbericht() {
           }
           
           .zustandsbericht-container {
-            box-shadow: none;
-            margin: 0;
-            padding: 0;
-            width: 100%;
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 15mm !important;
+            width: 210mm !important;
+            max-width: 210mm !important;
           }
           
           * {
