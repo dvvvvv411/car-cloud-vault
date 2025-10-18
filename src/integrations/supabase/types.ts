@@ -500,6 +500,7 @@ export type Database = {
           chassis: string
           created_at: string | null
           dekra_url: string | null
+          detail_photos: Json | null
           first_registration: string
           id: string
           image_url: string | null
@@ -508,12 +509,14 @@ export type Database = {
           price: number
           report_nr: string
           updated_at: string | null
+          vehicle_photos: Json | null
         }
         Insert: {
           brand: string
           chassis: string
           created_at?: string | null
           dekra_url?: string | null
+          detail_photos?: Json | null
           first_registration: string
           id?: string
           image_url?: string | null
@@ -522,12 +525,14 @@ export type Database = {
           price: number
           report_nr: string
           updated_at?: string | null
+          vehicle_photos?: Json | null
         }
         Update: {
           brand?: string
           chassis?: string
           created_at?: string | null
           dekra_url?: string | null
+          detail_photos?: Json | null
           first_registration?: string
           id?: string
           image_url?: string | null
@@ -536,6 +541,7 @@ export type Database = {
           price?: number
           report_nr?: string
           updated_at?: string | null
+          vehicle_photos?: Json | null
         }
         Relationships: []
       }

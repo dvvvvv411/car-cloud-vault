@@ -27,22 +27,32 @@ export default function AdminPositionen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isMigrating, setIsMigrating] = useState(false);
 
-  const uploadImage = async (file: File, vehicleId: string) => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${vehicleId}.${fileExt}`;
-    const filePath = `${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('vehicle-images')
-      .upload(filePath, file, { upsert: true });
-
-    if (uploadError) throw uploadError;
-
-    const { data } = supabase.storage
-      .from('vehicle-images')
-      .getPublicUrl(filePath);
-
-    return data.publicUrl;
+  const uploadMultipleImages = async (
+    files: File[], 
+    vehicleId: string, 
+    type: 'vehicle' | 'detail'
+  ): Promise<string[]> => {
+    const urls: string[] = [];
+    
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${vehicleId}/${type}_${i + 1}.${fileExt}`;
+      
+      const { error } = await supabase.storage
+        .from('vehicle-images')
+        .upload(fileName, file, { upsert: true });
+      
+      if (error) throw error;
+      
+      const { data } = supabase.storage
+        .from('vehicle-images')
+        .getPublicUrl(fileName);
+      
+      urls.push(data.publicUrl);
+    }
+    
+    return urls;
   };
 
   const uploadPDF = async (file: File, reportNr: string) => {
@@ -62,7 +72,7 @@ export default function AdminPositionen() {
     return data.publicUrl;
   };
 
-  const handleCreate = async (data: VehicleFormData, imageFile?: File, pdfFile?: File) => {
+  const handleCreate = async (data: VehicleFormData, vehiclePhotos?: File[], detailPhotos?: File[], pdfFile?: File) => {
     setIsSubmitting(true);
     try {
       // First create the vehicle entry
@@ -76,7 +86,8 @@ export default function AdminPositionen() {
           first_registration: data.first_registration,
           kilometers: data.kilometers,
           price: data.price,
-          image_url: null,
+          vehicle_photos: '[]',
+          detail_photos: '[]',
           dekra_url: null,
         }])
         .select()
@@ -85,11 +96,16 @@ export default function AdminPositionen() {
       if (error) throw error;
 
       // Upload files if provided
-      let imageUrl = null;
+      let vehiclePhotoUrls: string[] = [];
+      let detailPhotoUrls: string[] = [];
       let pdfUrl = null;
 
-      if (imageFile && newVehicle) {
-        imageUrl = await uploadImage(imageFile, newVehicle.id);
+      if (vehiclePhotos && vehiclePhotos.length > 0 && newVehicle) {
+        vehiclePhotoUrls = await uploadMultipleImages(vehiclePhotos, newVehicle.id, 'vehicle');
+      }
+
+      if (detailPhotos && detailPhotos.length > 0 && newVehicle) {
+        detailPhotoUrls = await uploadMultipleImages(detailPhotos, newVehicle.id, 'detail');
       }
 
       if (pdfFile && newVehicle) {
@@ -97,12 +113,14 @@ export default function AdminPositionen() {
       }
 
       // Update vehicle with file URLs
-      if ((imageUrl || pdfUrl) && newVehicle) {
+      if ((vehiclePhotoUrls.length > 0 || detailPhotoUrls.length > 0 || pdfUrl) && newVehicle) {
         const { error: updateError } = await supabase
           .from("vehicles")
           .update({
-            image_url: imageUrl,
+            vehicle_photos: JSON.stringify(vehiclePhotoUrls),
+            detail_photos: JSON.stringify(detailPhotoUrls),
             dekra_url: pdfUrl,
+            image_url: vehiclePhotoUrls.length > 0 ? vehiclePhotoUrls[0] : null,
           })
           .eq('id', newVehicle.id);
 
@@ -127,17 +145,44 @@ export default function AdminPositionen() {
     }
   };
 
-  const handleEdit = async (data: VehicleFormData, imageFile?: File, pdfFile?: File) => {
+  const handleEdit = async (data: VehicleFormData, vehiclePhotos?: File[], detailPhotos?: File[], pdfFile?: File) => {
     if (!selectedVehicle) return;
     
     setIsSubmitting(true);
     try {
-      // Upload new files if provided
-      let imageUrl = selectedVehicle.image_url;
+      // Parse existing photos
+      let existingVehiclePhotos: string[] = [];
+      let existingDetailPhotos: string[] = [];
+      
+      if (selectedVehicle.vehicle_photos) {
+        try {
+          existingVehiclePhotos = JSON.parse(selectedVehicle.vehicle_photos);
+        } catch (e) {
+          console.error('Error parsing vehicle_photos', e);
+        }
+      }
+      
+      if (selectedVehicle.detail_photos) {
+        try {
+          existingDetailPhotos = JSON.parse(selectedVehicle.detail_photos);
+        } catch (e) {
+          console.error('Error parsing detail_photos', e);
+        }
+      }
+
+      // Upload new photos if provided
+      let vehiclePhotoUrls = existingVehiclePhotos;
+      let detailPhotoUrls = existingDetailPhotos;
       let pdfUrl = selectedVehicle.dekra_url;
 
-      if (imageFile) {
-        imageUrl = await uploadImage(imageFile, selectedVehicle.id);
+      if (vehiclePhotos && vehiclePhotos.length > 0) {
+        const newUrls = await uploadMultipleImages(vehiclePhotos, selectedVehicle.id, 'vehicle');
+        vehiclePhotoUrls = [...existingVehiclePhotos, ...newUrls];
+      }
+
+      if (detailPhotos && detailPhotos.length > 0) {
+        const newUrls = await uploadMultipleImages(detailPhotos, selectedVehicle.id, 'detail');
+        detailPhotoUrls = [...existingDetailPhotos, ...newUrls];
       }
 
       if (pdfFile) {
@@ -155,8 +200,10 @@ export default function AdminPositionen() {
           first_registration: data.first_registration,
           kilometers: data.kilometers,
           price: data.price,
-          image_url: imageUrl,
+          vehicle_photos: JSON.stringify(vehiclePhotoUrls),
+          detail_photos: JSON.stringify(detailPhotoUrls),
           dekra_url: pdfUrl,
+          image_url: vehiclePhotoUrls.length > 0 ? vehiclePhotoUrls[0] : null,
         })
         .eq("id", selectedVehicle.id);
 

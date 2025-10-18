@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { vehicleSchema, type VehicleFormData } from "@/lib/validation/vehicleSchema";
@@ -8,20 +8,52 @@ import { Label } from "@/components/ui/label";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Upload, X } from "lucide-react";
 import { Vehicle } from "@/hooks/useVehicles";
+import { ImageDropZone } from "./ImageDropZone";
 
 interface VehicleFormProps {
   vehicle?: Vehicle;
-  onSubmit: (data: VehicleFormData, imageFile?: File, pdfFile?: File) => void;
+  onSubmit: (data: VehicleFormData, vehiclePhotos?: File[], detailPhotos?: File[], pdfFile?: File) => void;
   isSubmitting: boolean;
 }
 
 export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProps) {
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(vehicle?.image_url || null);
+  const [vehiclePhotos, setVehiclePhotos] = useState<File[]>([]);
+  const [vehiclePhotoPreviews, setVehiclePhotoPreviews] = useState<string[]>([]);
+  const [detailPhotos, setDetailPhotos] = useState<File[]>([]);
+  const [detailPhotoPreviews, setDetailPhotoPreviews] = useState<string[]>([]);
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [pdfFileName, setPdfFileName] = useState<string | null>(
     vehicle?.dekra_url ? vehicle.dekra_url.split('/').pop() || null : null
   );
+
+  // Load existing photos when editing
+  useEffect(() => {
+    if (vehicle) {
+      // Load vehicle photos
+      if (vehicle.vehicle_photos) {
+        try {
+          const photos = JSON.parse(vehicle.vehicle_photos);
+          if (Array.isArray(photos)) {
+            setVehiclePhotoPreviews(photos);
+          }
+        } catch (e) {
+          console.error('Error parsing vehicle_photos', e);
+        }
+      }
+      
+      // Load detail photos
+      if (vehicle.detail_photos) {
+        try {
+          const photos = JSON.parse(vehicle.detail_photos);
+          if (Array.isArray(photos)) {
+            setDetailPhotoPreviews(photos);
+          }
+        } catch (e) {
+          console.error('Error parsing detail_photos', e);
+        }
+      }
+    }
+  }, [vehicle]);
 
   const form = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
@@ -33,8 +65,6 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
       first_registration: vehicle.first_registration,
       kilometers: vehicle.kilometers,
       price: vehicle.price,
-      image_url: vehicle.image_url || '',
-      dekra_url: vehicle.dekra_url || '',
     } : {
       brand: '',
       model: '',
@@ -43,25 +73,43 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
       first_registration: '',
       kilometers: 0,
       price: 0,
-      image_url: '',
-      dekra_url: '',
     },
   });
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Bild darf maximal 5MB groß sein');
-        return;
-      }
-      setImageFile(file);
+  const handleVehiclePhotosChange = (files: File[]) => {
+    setVehiclePhotos(prev => [...prev, ...files]);
+    
+    // Create previews
+    files.forEach(file => {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string);
+        setVehiclePhotoPreviews(prev => [...prev, reader.result as string]);
       };
       reader.readAsDataURL(file);
-    }
+    });
+  };
+
+  const handleDetailPhotosChange = (files: File[]) => {
+    setDetailPhotos(prev => [...prev, ...files]);
+    
+    // Create previews
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setDetailPhotoPreviews(prev => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeVehiclePhoto = (index: number) => {
+    setVehiclePhotos(prev => prev.filter((_, i) => i !== index));
+    setVehiclePhotoPreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removeDetailPhoto = (index: number) => {
+    setDetailPhotos(prev => prev.filter((_, i) => i !== index));
+    setDetailPhotoPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   const handlePdfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,11 +124,6 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
     }
   };
 
-  const removeImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
-  };
-
   const removePdf = () => {
     setPdfFile(null);
     setPdfFileName(null);
@@ -88,7 +131,12 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit((data) => onSubmit(data, imageFile || undefined, pdfFile || undefined))} className="space-y-4">
+      <form 
+        onSubmit={form.handleSubmit((data) => 
+          onSubmit(data, vehiclePhotos.length > 0 ? vehiclePhotos : undefined, detailPhotos.length > 0 ? detailPhotos : undefined, pdfFile || undefined)
+        )} 
+        className="space-y-6"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
@@ -187,77 +235,68 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
               </FormItem>
             )}
           />
+        </div>
 
-          {/* Image Upload */}
-          <div className="space-y-2 md:col-span-2">
-            <Label>Fahrzeugbild</Label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-              {imagePreview ? (
-                <div className="relative">
-                  <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover rounded" />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    className="absolute top-2 right-2"
-                    onClick={removeImage}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <label className="flex flex-col items-center justify-center h-32 cursor-pointer hover:bg-gray-50 rounded transition-colors">
-                  <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                  <span className="text-sm text-gray-600 font-medium">Bild hochladen (max. 5MB)</span>
-                  <span className="text-xs text-gray-400 mt-1">JPG, PNG, WEBP</span>
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
-                </label>
-              )}
-            </div>
-          </div>
+        {/* Vehicle Photos Upload */}
+        <div className="space-y-2">
+          <Label>Fahrzeugbilder (max. 10)</Label>
+          <ImageDropZone
+            images={vehiclePhotoPreviews}
+            onImagesChange={handleVehiclePhotosChange}
+            onRemove={removeVehiclePhoto}
+            maxImages={10}
+            label="Fahrzeugbilder"
+          />
+        </div>
 
-          {/* PDF Upload */}
-          <div className="space-y-2 md:col-span-2">
-            <Label>DEKRA Bericht (PDF)</Label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-              {pdfFileName ? (
-                <div className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                  <div className="flex items-center gap-3">
-                    <div className="bg-red-100 p-2 rounded">
-                      <svg className="h-6 w-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
-                      </svg>
-                    </div>
-                    <span className="text-sm text-gray-700 font-medium">{pdfFileName}</span>
+        {/* Detail Photos Upload */}
+        <div className="space-y-2">
+          <Label>Detailfotos (max. 10)</Label>
+          <ImageDropZone
+            images={detailPhotoPreviews}
+            onImagesChange={handleDetailPhotosChange}
+            onRemove={removeDetailPhoto}
+            maxImages={10}
+            label="Detailfotos"
+          />
+        </div>
+
+        {/* PDF Upload */}
+        <div className="space-y-2">
+          <Label>DEKRA Bericht (PDF)</Label>
+          <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-4">
+            {pdfFileName ? (
+              <div className="flex items-center justify-between p-2 bg-muted/50 rounded">
+                <div className="flex items-center gap-3">
+                  <div className="bg-destructive/10 p-2 rounded">
+                    <svg className="h-6 w-6 text-destructive" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" />
+                    </svg>
                   </div>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={removePdf}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                  <span className="text-sm text-foreground font-medium">{pdfFileName}</span>
                 </div>
-              ) : (
-                <label className="flex flex-col items-center justify-center h-32 cursor-pointer hover:bg-gray-50 rounded transition-colors">
-                  <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                  <span className="text-sm text-gray-600 font-medium">PDF hochladen (max. 10MB)</span>
-                  <span className="text-xs text-gray-400 mt-1">Nur PDF-Dateien</span>
-                  <input
-                    type="file"
-                    accept="application/pdf"
-                    onChange={handlePdfChange}
-                    className="hidden"
-                  />
-                </label>
-              )}
-            </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={removePdf}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center h-32 cursor-pointer hover:bg-muted/50 rounded transition-colors">
+                <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                <span className="text-sm text-foreground font-medium">PDF hochladen (max. 10MB)</span>
+                <span className="text-xs text-muted-foreground mt-1">Nur PDF-Dateien</span>
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  onChange={handlePdfChange}
+                  className="hidden"
+                />
+              </label>
+            )}
           </div>
         </div>
 

@@ -6,15 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Printer, Check } from "lucide-react";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import kbsLogo from "@/assets/kbs_blue.png";
-import vehiclePhoto1 from "@/assets/zustandsbericht/vehicle-photo-1.jpg";
-import vehiclePhoto2 from "@/assets/zustandsbericht/vehicle-photo-2.jpg";
-import vehiclePhoto3 from "@/assets/zustandsbericht/vehicle-photo-3.jpg";
-import vehiclePhoto4 from "@/assets/zustandsbericht/vehicle-photo-4.jpg";
-import vehiclePhoto5 from "@/assets/zustandsbericht/vehicle-photo-5.jpg";
-import damagePhoto1 from "@/assets/zustandsbericht/damage-photo-1.jpg";
-import damagePhoto2 from "@/assets/zustandsbericht/damage-photo-2.jpg";
-import damagePhoto3 from "@/assets/zustandsbericht/damage-photo-3.jpg";
-import damagePhoto4 from "@/assets/zustandsbericht/damage-photo-4.jpg";
 import {
   serienausstattung,
   sonderausstattung,
@@ -78,8 +69,30 @@ export default function Zustandsbericht() {
     );
   }
 
-  const vehiclePhotos = [vehiclePhoto1, vehiclePhoto2, vehiclePhoto3, vehiclePhoto4, vehiclePhoto5];
-  const damagePhotos = [damagePhoto1, damagePhoto2, damagePhoto3, damagePhoto4];
+  // Parse vehicle photos and detail photos from database
+  const vehiclePhotos = vehicle.vehicle_photos 
+    ? (() => {
+        try {
+          const parsed = JSON.parse(vehicle.vehicle_photos as string);
+          return Array.isArray(parsed) ? parsed.filter((p): p is string => typeof p === 'string') : [];
+        } catch (e) {
+          console.error('Error parsing vehicle_photos', e);
+          return [];
+        }
+      })()
+    : [];
+
+  const damagePhotos = vehicle.detail_photos 
+    ? (() => {
+        try {
+          const parsed = JSON.parse(vehicle.detail_photos as string);
+          return Array.isArray(parsed) ? parsed.filter((p): p is string => typeof p === 'string') : [];
+        } catch (e) {
+          console.error('Error parsing detail_photos', e);
+          return [];
+        }
+      })()
+    : [];
 
   return (
     <>
@@ -117,21 +130,23 @@ export default function Zustandsbericht() {
           </div>
         </header>
 
-        {/* Vehicle Photo Gallery - 5 columns */}
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Fahrzeugfotos</h2>
-          <div className="grid grid-cols-5 gap-2">
-            {vehiclePhotos.map((photo, index) => (
-              <div 
-                key={index} 
-                className="border border-border rounded overflow-hidden aspect-video cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={() => openLightbox(vehiclePhotos, index)}
-              >
-                <img src={photo} alt={`Fahrzeug Ansicht ${index + 1}`} className="w-full h-full object-cover" />
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* Vehicle Photo Gallery - Conditional rendering */}
+        {vehiclePhotos.length > 0 && (
+          <section className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">Fahrzeugfotos</h2>
+            <div className="grid grid-cols-5 gap-2">
+              {vehiclePhotos.map((photo, index) => (
+                <div 
+                  key={index} 
+                  className="border border-border rounded overflow-hidden aspect-video cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => openLightbox(vehiclePhotos, index)}
+                >
+                  <img src={photo} alt={`Fahrzeug Ansicht ${index + 1}`} className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Vehicle Description */}
         <section className="mb-8">
@@ -329,21 +344,23 @@ export default function Zustandsbericht() {
           <p className="text-xs text-muted-foreground mt-2">Legende: W=Winter / S=Schadhaft</p>
         </section>
 
-        {/* Damage Photos Gallery - 2 columns */}
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Detailfotos der Beschädigungen</h2>
-          <div className="grid grid-cols-2 gap-4">
-            {damagePhotos.map((photo, index) => (
-              <div 
-                key={index} 
-                className="border border-border rounded overflow-hidden aspect-[4/3] cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={() => openLightbox(damagePhotos, index)}
-              >
-                <img src={photo} alt={`Schaden Detail ${index + 1}`} className="w-full h-full object-cover" />
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* Damage Photos Gallery - Conditional rendering */}
+        {damagePhotos.length > 0 && (
+          <section className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">Detailfotos der Beschädigungen</h2>
+            <div className="grid grid-cols-2 gap-4">
+              {damagePhotos.map((photo, index) => (
+                <div 
+                  key={index} 
+                  className="border border-border rounded overflow-hidden aspect-[4/3] cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => openLightbox(damagePhotos, index)}
+                >
+                  <img src={photo} alt={`Schaden Detail ${index + 1}`} className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
       </div>
 

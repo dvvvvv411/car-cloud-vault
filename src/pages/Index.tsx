@@ -137,8 +137,20 @@ const Index = ({ branding }: IndexProps = {}) => {
     navigate('/auth');
   };
 
-  const handleAdminDashboard = () => {
-    navigate('/admin');
+  // Helper function to get vehicle thumbnail
+  const getVehicleThumbnail = (vehicle: Vehicle): string => {
+    if (vehicle.vehicle_photos) {
+      try {
+        const parsed = JSON.parse(vehicle.vehicle_photos as string);
+        if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'string') {
+          return parsed[0];
+        }
+      } catch (e) {
+        console.error('Error parsing vehicle_photos', e);
+      }
+    }
+    // Fallback to old image_url or demo image
+    return vehicle.image_url || demoVehicle;
   };
 
   const toggleVehicleSelection = (chassis: string) => {
@@ -517,12 +529,12 @@ const Index = ({ branding }: IndexProps = {}) => {
                                 className="px-6 py-0 align-middle cursor-pointer" 
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setSelectedImageUrl(vehicle.image_url || demoVehicle);
+                                  setSelectedImageUrl(getVehicleThumbnail(vehicle));
                                   setImageDialogOpen(true);
                                 }}
                               >
                                 <div className="relative w-24 h-16 rounded-lg overflow-hidden bg-muted hover:ring-2 hover:ring-primary transition-all">
-                                  <img src={vehicle.image_url || demoVehicle} alt={`${vehicle.brand} ${vehicle.model}`} className="w-full h-full object-cover" />
+                                  <img src={getVehicleThumbnail(vehicle)} alt={`${vehicle.brand} ${vehicle.model}`} className="w-full h-full object-cover" />
                                   {isReserved && (
                                     <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
                                       <span className="text-white text-xs font-bold tracking-wider">RESERVIERT</span>
@@ -691,7 +703,7 @@ const Index = ({ branding }: IndexProps = {}) => {
                 }}>
                         {/* Image */}
                         <div className="relative h-48 bg-muted">
-                          <img src={vehicle.image_url || demoVehicle} alt={`${vehicle.brand} ${vehicle.model}`} className={`w-full h-full object-cover ${isReserved ? "brightness-50" : ""}`} />
+                          <img src={getVehicleThumbnail(vehicle)} alt={`${vehicle.brand} ${vehicle.model}`} className={`w-full h-full object-cover ${isReserved ? "brightness-50" : ""}`} />
                           {/* Reserved overlay */}
                           {isReserved && (
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center">

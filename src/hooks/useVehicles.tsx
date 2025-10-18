@@ -12,6 +12,8 @@ export interface Vehicle {
   kilometers: number;
   price: number;
   image_url: string | null;
+  vehicle_photos: string | null;
+  detail_photos: string | null;
   dekra_url: string | null;
 }
 
