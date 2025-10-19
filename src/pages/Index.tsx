@@ -139,8 +139,15 @@ const Index = ({ branding }: IndexProps = {}) => {
 
   // Helper function to get vehicle thumbnail
   const getVehicleThumbnail = (vehicle: Vehicle): string => {
-    if (vehicle.vehicle_photos && Array.isArray(vehicle.vehicle_photos) && vehicle.vehicle_photos.length > 0) {
-      return vehicle.vehicle_photos[0];
+    if (vehicle.vehicle_photos) {
+      try {
+        const parsed = JSON.parse(vehicle.vehicle_photos as string);
+        if (Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'string') {
+          return parsed[0];
+        }
+      } catch (e) {
+        console.error('Error parsing vehicle_photos', e);
+      }
     }
     // Fallback to demo image
     return demoVehicle;

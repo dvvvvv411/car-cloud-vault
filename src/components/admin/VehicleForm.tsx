@@ -11,12 +11,10 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Vehicle } from "@/hooks/useVehicles";
 import { ImageDropZone } from "./ImageDropZone";
 import { QuickImportDialog } from "./QuickImportDialog";
-import { QuickImportMaintenanceDialog } from "./QuickImportMaintenanceDialog";
-import { arrayMove } from '@dnd-kit/sortable';
 
 interface VehicleFormProps {
   vehicle?: Vehicle;
-  onSubmit: (data: VehicleFormData, vehiclePhotos?: File[], detailPhotos?: File[], reorderedVehicleUrls?: string[], reorderedDetailUrls?: string[]) => void;
+  onSubmit: (data: VehicleFormData, vehiclePhotos?: File[], detailPhotos?: File[]) => void;
   isSubmitting: boolean;
 }
 
@@ -25,19 +23,32 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
   const [vehiclePhotoPreviews, setVehiclePhotoPreviews] = useState<string[]>([]);
   const [detailPhotos, setDetailPhotos] = useState<File[]>([]);
   const [detailPhotoPreviews, setDetailPhotoPreviews] = useState<string[]>([]);
-  const [photosReordered, setPhotosReordered] = useState(false);
 
   // Load existing photos when editing
   useEffect(() => {
     if (vehicle) {
-      // Load vehicle photos (already arrays from Supabase JSONB)
-      if (vehicle.vehicle_photos && Array.isArray(vehicle.vehicle_photos)) {
-        setVehiclePhotoPreviews(vehicle.vehicle_photos);
+      // Load vehicle photos
+      if (vehicle.vehicle_photos) {
+        try {
+          const photos = JSON.parse(vehicle.vehicle_photos);
+          if (Array.isArray(photos)) {
+            setVehiclePhotoPreviews(photos);
+          }
+        } catch (e) {
+          console.error('Error parsing vehicle_photos', e);
+        }
       }
       
-      // Load detail photos (already arrays from Supabase JSONB)
-      if (vehicle.detail_photos && Array.isArray(vehicle.detail_photos)) {
-        setDetailPhotoPreviews(vehicle.detail_photos);
+      // Load detail photos
+      if (vehicle.detail_photos) {
+        try {
+          const photos = JSON.parse(vehicle.detail_photos);
+          if (Array.isArray(photos)) {
+            setDetailPhotoPreviews(photos);
+          }
+        } catch (e) {
+          console.error('Error parsing detail_photos', e);
+        }
       }
     }
   }, [vehicle]);
@@ -150,29 +161,11 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
     setDetailPhotoPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleVehiclePhotoReorder = (startIndex: number, endIndex: number) => {
-    setVehiclePhotos(prev => arrayMove(prev, startIndex, endIndex));
-    setVehiclePhotoPreviews(prev => arrayMove(prev, startIndex, endIndex));
-    setPhotosReordered(true);
-  };
-
-  const handleDetailPhotoReorder = (startIndex: number, endIndex: number) => {
-    setDetailPhotos(prev => arrayMove(prev, startIndex, endIndex));
-    setDetailPhotoPreviews(prev => arrayMove(prev, startIndex, endIndex));
-    setPhotosReordered(true);
-  };
-
   return (
     <Form {...form}>
       <form 
         onSubmit={form.handleSubmit((data) => 
-          onSubmit(
-            data, 
-            vehiclePhotos.length > 0 ? vehiclePhotos : undefined, 
-            detailPhotos.length > 0 ? detailPhotos : undefined,
-            photosReordered ? vehiclePhotoPreviews : undefined,
-            photosReordered ? detailPhotoPreviews : undefined
-          )
+          onSubmit(data, vehiclePhotos.length > 0 ? vehiclePhotos : undefined, detailPhotos.length > 0 ? detailPhotos : undefined)
         )}
         className="space-y-6"
       >
@@ -283,7 +276,6 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
                 images={vehiclePhotoPreviews}
                 onImagesChange={handleVehiclePhotosChange}
                 onRemove={removeVehiclePhoto}
-                onReorder={handleVehiclePhotoReorder}
                 label="Fahrzeugbilder"
               />
         </div>
@@ -295,7 +287,6 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
             images={detailPhotoPreviews}
             onImagesChange={handleDetailPhotosChange}
             onRemove={removeDetailPhoto}
-            onReorder={handleDetailPhotoReorder}
             label="Detailfotos"
           />
         </div>
@@ -496,48 +487,11 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
             </AccordionContent>
           </AccordionItem>
 
-          {/* Bereifung */}
-          <AccordionItem value="bereifung">
-            <AccordionTrigger className="text-base font-semibold">
-              Bereifung
-            </AccordionTrigger>
-            <AccordionContent className="space-y-4 pt-4">
-              <FormField
-                control={form.control}
-                name="bereifung"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Reifendaten (Tabelle)</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Eine Zeile pro Reifen im Format: Position | Bezeichnung | Art | Profiltiefe&#10;&#10;Beispiel:&#10;Vorne links | 205/65 R 16 105 T | W / S | 2 mm&#10;Vorne rechts | 205/65 R 16 105 T | W / S | 2 mm&#10;Hinten links | 205/65 R 16 105 T | W / S | 3 mm&#10;Hinten rechts | 205/65 R 16 105 T | W / S | 3 mm"
-                        className="min-h-[180px] font-mono text-sm"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Jede Zeile wird zu einer Tabellenzeile. Format: Position | Bezeichnung | Art | Profiltiefe
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </AccordionContent>
-          </AccordionItem>
-
           {/* Wartung */}
           <AccordionItem value="wartung">
-            <div className="flex items-center justify-between py-4">
-              <AccordionTrigger className="text-base font-semibold flex-1 hover:no-underline">
-                Wartung
-              </AccordionTrigger>
-              <QuickImportMaintenanceDialog 
-                onImport={(data) => {
-                  form.setValue('wartung_datum', data.wartung_datum);
-                  form.setValue('wartung_kilometerstand', data.wartung_kilometerstand);
-                }} 
-              />
-            </div>
+            <AccordionTrigger className="text-base font-semibold">
+              Wartung
+            </AccordionTrigger>
             <AccordionContent className="space-y-4 pt-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
@@ -668,6 +622,34 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
             </AccordionContent>
           </AccordionItem>
 
+          {/* Bereifung */}
+          <AccordionItem value="bereifung">
+            <AccordionTrigger className="text-base font-semibold">
+              Bereifung
+            </AccordionTrigger>
+            <AccordionContent className="space-y-4 pt-4">
+              <FormField
+                control={form.control}
+                name="bereifung"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Reifendaten (Tabelle)</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Eine Zeile pro Reifen im Format: Position | Bezeichnung | Art | Profiltiefe&#10;&#10;Beispiel:&#10;Vorne links | 205/65 R 16 105 T | W / S | 2 mm&#10;Vorne rechts | 205/65 R 16 105 T | W / S | 2 mm&#10;Hinten links | 205/65 R 16 105 T | W / S | 3 mm&#10;Hinten rechts | 205/65 R 16 105 T | W / S | 3 mm"
+                        className="min-h-[180px] font-mono text-sm"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Jede Zeile wird zu einer Tabellenzeile. Format: Position | Bezeichnung | Art | Profiltiefe
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </AccordionContent>
+          </AccordionItem>
 
         </Accordion>
 
