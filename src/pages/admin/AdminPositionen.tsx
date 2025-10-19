@@ -139,8 +139,8 @@ export default function AdminPositionen() {
         const { error: updateError } = await supabase
           .from("vehicles")
           .update({
-            vehicle_photos: JSON.stringify(vehiclePhotoUrls),
-            detail_photos: JSON.stringify(detailPhotoUrls),
+            vehicle_photos: vehiclePhotoUrls,
+            detail_photos: detailPhotoUrls,
           })
           .eq('id', newVehicle.id);
 
@@ -174,20 +174,12 @@ export default function AdminPositionen() {
       let existingVehiclePhotos: string[] = [];
       let existingDetailPhotos: string[] = [];
       
-      if (selectedVehicle.vehicle_photos) {
-        try {
-          existingVehiclePhotos = JSON.parse(selectedVehicle.vehicle_photos);
-        } catch (e) {
-          console.error('Error parsing vehicle_photos', e);
-        }
+      if (selectedVehicle.vehicle_photos && Array.isArray(selectedVehicle.vehicle_photos)) {
+        existingVehiclePhotos = selectedVehicle.vehicle_photos;
       }
       
-      if (selectedVehicle.detail_photos) {
-        try {
-          existingDetailPhotos = JSON.parse(selectedVehicle.detail_photos);
-        } catch (e) {
-          console.error('Error parsing detail_photos', e);
-        }
+      if (selectedVehicle.detail_photos && Array.isArray(selectedVehicle.detail_photos)) {
+        existingDetailPhotos = selectedVehicle.detail_photos;
       }
 
       // Upload new photos if provided
@@ -225,8 +217,8 @@ export default function AdminPositionen() {
           first_registration: data.first_registration,
           kilometers: data.kilometers,
           price: data.price,
-          vehicle_photos: JSON.stringify(vehiclePhotoUrls),
-          detail_photos: JSON.stringify(detailPhotoUrls),
+          vehicle_photos: vehiclePhotoUrls,
+          detail_photos: detailPhotoUrls,
           aufbau: data.aufbau || null,
           kraftstoffart: data.kraftstoffart || null,
           motorart: data.motorart || null,
@@ -277,32 +269,22 @@ export default function AdminPositionen() {
     setIsSubmitting(true);
     try {
       // Delete vehicle photos from storage
-      if (selectedVehicle.vehicle_photos) {
-        try {
-          const vehiclePhotos = JSON.parse(selectedVehicle.vehicle_photos);
-          for (const photoUrl of vehiclePhotos) {
-            const path = photoUrl.split('/vehicle-images/')[1];
-            if (path) {
-              await supabase.storage.from('vehicle-images').remove([path]);
-            }
+      if (selectedVehicle.vehicle_photos && Array.isArray(selectedVehicle.vehicle_photos)) {
+        for (const photoUrl of selectedVehicle.vehicle_photos) {
+          const path = photoUrl.split('/vehicle-images/')[1];
+          if (path) {
+            await supabase.storage.from('vehicle-images').remove([path]);
           }
-        } catch (e) {
-          console.error('Error deleting vehicle photos', e);
         }
       }
 
       // Delete detail photos from storage
-      if (selectedVehicle.detail_photos) {
-        try {
-          const detailPhotos = JSON.parse(selectedVehicle.detail_photos);
-          for (const photoUrl of detailPhotos) {
-            const path = photoUrl.split('/vehicle-images/')[1];
-            if (path) {
-              await supabase.storage.from('vehicle-images').remove([path]);
-            }
+      if (selectedVehicle.detail_photos && Array.isArray(selectedVehicle.detail_photos)) {
+        for (const photoUrl of selectedVehicle.detail_photos) {
+          const path = photoUrl.split('/vehicle-images/')[1];
+          if (path) {
+            await supabase.storage.from('vehicle-images').remove([path]);
           }
-        } catch (e) {
-          console.error('Error deleting detail photos', e);
         }
       }
 
@@ -398,15 +380,8 @@ export default function AdminPositionen() {
                       <TableCell>
                         {(() => {
                           let thumbnail = null;
-                          if (vehicle.vehicle_photos) {
-                            try {
-                              const parsed = JSON.parse(vehicle.vehicle_photos);
-                              if (Array.isArray(parsed) && parsed.length > 0) {
-                                thumbnail = parsed[0];
-                              }
-                            } catch (e) {
-                              console.error('Error parsing vehicle_photos', e);
-                            }
+                          if (vehicle.vehicle_photos && Array.isArray(vehicle.vehicle_photos) && vehicle.vehicle_photos.length > 0) {
+                            thumbnail = vehicle.vehicle_photos[0];
                           }
                           
                           return thumbnail ? (

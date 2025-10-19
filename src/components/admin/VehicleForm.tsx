@@ -30,27 +30,13 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
   useEffect(() => {
     if (vehicle) {
       // Load vehicle photos
-      if (vehicle.vehicle_photos) {
-        try {
-          const photos = JSON.parse(vehicle.vehicle_photos);
-          if (Array.isArray(photos)) {
-            setVehiclePhotoPreviews(photos);
-          }
-        } catch (e) {
-          console.error('Error parsing vehicle_photos', e);
-        }
+      if (vehicle.vehicle_photos && Array.isArray(vehicle.vehicle_photos)) {
+        setVehiclePhotoPreviews(vehicle.vehicle_photos);
       }
       
       // Load detail photos
-      if (vehicle.detail_photos) {
-        try {
-          const photos = JSON.parse(vehicle.detail_photos);
-          if (Array.isArray(photos)) {
-            setDetailPhotoPreviews(photos);
-          }
-        } catch (e) {
-          console.error('Error parsing detail_photos', e);
-        }
+      if (vehicle.detail_photos && Array.isArray(vehicle.detail_photos)) {
+        setDetailPhotoPreviews(vehicle.detail_photos);
       }
     }
   }, [vehicle]);
