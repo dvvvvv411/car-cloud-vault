@@ -11,6 +11,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Vehicle } from "@/hooks/useVehicles";
 import { ImageDropZone } from "./ImageDropZone";
 import { QuickImportDialog } from "./QuickImportDialog";
+import { QuickImportMaintenanceDialog } from "./QuickImportMaintenanceDialog";
+import { arrayMove } from '@dnd-kit/sortable';
 
 interface VehicleFormProps {
   vehicle?: Vehicle;
@@ -161,6 +163,16 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
     setDetailPhotoPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
+  const handleVehiclePhotoReorder = (startIndex: number, endIndex: number) => {
+    setVehiclePhotos(prev => arrayMove(prev, startIndex, endIndex));
+    setVehiclePhotoPreviews(prev => arrayMove(prev, startIndex, endIndex));
+  };
+
+  const handleDetailPhotoReorder = (startIndex: number, endIndex: number) => {
+    setDetailPhotos(prev => arrayMove(prev, startIndex, endIndex));
+    setDetailPhotoPreviews(prev => arrayMove(prev, startIndex, endIndex));
+  };
+
   return (
     <Form {...form}>
       <form 
@@ -276,6 +288,7 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
                 images={vehiclePhotoPreviews}
                 onImagesChange={handleVehiclePhotosChange}
                 onRemove={removeVehiclePhoto}
+                onReorder={handleVehiclePhotoReorder}
                 label="Fahrzeugbilder"
               />
         </div>
@@ -287,6 +300,7 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
             images={detailPhotoPreviews}
             onImagesChange={handleDetailPhotosChange}
             onRemove={removeDetailPhoto}
+            onReorder={handleDetailPhotoReorder}
             label="Detailfotos"
           />
         </div>
@@ -487,11 +501,48 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
             </AccordionContent>
           </AccordionItem>
 
+          {/* Bereifung */}
+          <AccordionItem value="bereifung">
+            <AccordionTrigger className="text-base font-semibold">
+              Bereifung
+            </AccordionTrigger>
+            <AccordionContent className="space-y-4 pt-4">
+              <FormField
+                control={form.control}
+                name="bereifung"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Reifendaten (Tabelle)</FormLabel>
+                    <FormControl>
+                      <Textarea 
+                        placeholder="Eine Zeile pro Reifen im Format: Position | Bezeichnung | Art | Profiltiefe&#10;&#10;Beispiel:&#10;Vorne links | 205/65 R 16 105 T | W / S | 2 mm&#10;Vorne rechts | 205/65 R 16 105 T | W / S | 2 mm&#10;Hinten links | 205/65 R 16 105 T | W / S | 3 mm&#10;Hinten rechts | 205/65 R 16 105 T | W / S | 3 mm"
+                        className="min-h-[180px] font-mono text-sm"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Jede Zeile wird zu einer Tabellenzeile. Format: Position | Bezeichnung | Art | Profiltiefe
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </AccordionContent>
+          </AccordionItem>
+
           {/* Wartung */}
           <AccordionItem value="wartung">
-            <AccordionTrigger className="text-base font-semibold">
-              Wartung
-            </AccordionTrigger>
+            <div className="flex items-center justify-between py-4">
+              <AccordionTrigger className="text-base font-semibold flex-1 hover:no-underline">
+                Wartung
+              </AccordionTrigger>
+              <QuickImportMaintenanceDialog 
+                onImport={(data) => {
+                  form.setValue('wartung_datum', data.wartung_datum);
+                  form.setValue('wartung_kilometerstand', data.wartung_kilometerstand);
+                }} 
+              />
+            </div>
             <AccordionContent className="space-y-4 pt-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
@@ -622,34 +673,6 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
             </AccordionContent>
           </AccordionItem>
 
-          {/* Bereifung */}
-          <AccordionItem value="bereifung">
-            <AccordionTrigger className="text-base font-semibold">
-              Bereifung
-            </AccordionTrigger>
-            <AccordionContent className="space-y-4 pt-4">
-              <FormField
-                control={form.control}
-                name="bereifung"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Reifendaten (Tabelle)</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Eine Zeile pro Reifen im Format: Position | Bezeichnung | Art | Profiltiefe&#10;&#10;Beispiel:&#10;Vorne links | 205/65 R 16 105 T | W / S | 2 mm&#10;Vorne rechts | 205/65 R 16 105 T | W / S | 2 mm&#10;Hinten links | 205/65 R 16 105 T | W / S | 3 mm&#10;Hinten rechts | 205/65 R 16 105 T | W / S | 3 mm"
-                        className="min-h-[180px] font-mono text-sm"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Jede Zeile wird zu einer Tabellenzeile. Format: Position | Bezeichnung | Art | Profiltiefe
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </AccordionContent>
-          </AccordionItem>
 
         </Accordion>
 
