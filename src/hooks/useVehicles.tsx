@@ -42,7 +42,12 @@ export interface Vehicle {
   innenraum_zustand?: string | null;
   
   // Bereifung (JSONB)
-  bereifung?: string | null;
+  bereifung?: Array<{
+    position: string;
+    bezeichnung: string;
+    art: string;
+    profiltiefe: string;
+  }> | null;
 }
 
 export const useVehicles = () => {
@@ -55,7 +60,16 @@ export const useVehicles = () => {
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      return data as Vehicle[];
+      // Cast bereifung from Json to proper type
+      return data.map(vehicle => ({
+        ...vehicle,
+        bereifung: vehicle.bereifung as Array<{
+          position: string;
+          bezeichnung: string;
+          art: string;
+          profiltiefe: string;
+        }> | null
+      })) as Vehicle[];
     },
   });
 };

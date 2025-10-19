@@ -64,20 +64,47 @@ export default function AdminPositionen() {
     return JSON.stringify(lines);
   };
 
-  // Helper: Parse bereifung pipe-separated format
-  const parseBereifung = (text?: string): string => {
-    if (!text) return '[]';
-    const lines = text.split('\n').filter(line => line.trim().length > 0);
-    const parsed = lines.map(line => {
-      const parts = line.split('|').map(p => p.trim());
-      return {
-        position: parts[0] || '',
-        bezeichnung: parts[1] || '',
-        art: parts[2] || '',
-        profiltiefe: parts[3] || ''
-      };
-    });
-    return JSON.stringify(parsed);
+  // Helper: Convert bereifung structured fields to JSON array for database
+  const convertBereifungToJson = (data: VehicleFormData): string => {
+    const bereifungData = [];
+    
+    if (data.bereifung_vorne_links?.bezeichnung) {
+      bereifungData.push({
+        position: 'Vorne links',
+        bezeichnung: data.bereifung_vorne_links.bezeichnung,
+        art: data.bereifung_vorne_links.art || '',
+        profiltiefe: data.bereifung_vorne_links.profiltiefe || ''
+      });
+    }
+    
+    if (data.bereifung_vorne_rechts?.bezeichnung) {
+      bereifungData.push({
+        position: 'Vorne rechts',
+        bezeichnung: data.bereifung_vorne_rechts.bezeichnung,
+        art: data.bereifung_vorne_rechts.art || '',
+        profiltiefe: data.bereifung_vorne_rechts.profiltiefe || ''
+      });
+    }
+    
+    if (data.bereifung_hinten_links?.bezeichnung) {
+      bereifungData.push({
+        position: 'Hinten links',
+        bezeichnung: data.bereifung_hinten_links.bezeichnung,
+        art: data.bereifung_hinten_links.art || '',
+        profiltiefe: data.bereifung_hinten_links.profiltiefe || ''
+      });
+    }
+    
+    if (data.bereifung_hinten_rechts?.bezeichnung) {
+      bereifungData.push({
+        position: 'Hinten rechts',
+        bezeichnung: data.bereifung_hinten_rechts.bezeichnung,
+        art: data.bereifung_hinten_rechts.art || '',
+        profiltiefe: data.bereifung_hinten_rechts.profiltiefe || ''
+      });
+    }
+    
+    return JSON.stringify(bereifungData);
   };
 
   const handleCreate = async (
@@ -121,7 +148,7 @@ export default function AdminPositionen() {
           sonderausstattung: textareaToJsonArray(data.sonderausstattung),
           optische_schaeden: textareaToJsonArray(data.optische_schaeden),
           innenraum_zustand: textareaToJsonArray(data.innenraum_zustand),
-          bereifung: parseBereifung(data.bereifung),
+          bereifung: convertBereifungToJson(data),
         }])
         .select()
         .single();
@@ -245,7 +272,7 @@ export default function AdminPositionen() {
           sonderausstattung: textareaToJsonArray(data.sonderausstattung),
           optische_schaeden: textareaToJsonArray(data.optische_schaeden),
           innenraum_zustand: textareaToJsonArray(data.innenraum_zustand),
-          bereifung: parseBereifung(data.bereifung),
+          bereifung: convertBereifungToJson(data),
         })
         .eq("id", selectedVehicle.id);
 

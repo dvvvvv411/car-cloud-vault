@@ -12,6 +12,7 @@ import { Vehicle } from "@/hooks/useVehicles";
 import { ImageDropZone } from "./ImageDropZone";
 import { QuickImportDialog } from "./QuickImportDialog";
 import { WartungQuickImportDialog } from "./WartungQuickImportDialog";
+import { BereifungQuickImportDialog } from "./BereifungQuickImportDialog";
 
 interface VehicleFormProps {
   vehicle?: Vehicle;
@@ -86,7 +87,35 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
       sonderausstattung: jsonArrayToText(vehicle.sonderausstattung),
       optische_schaeden: jsonArrayToText(vehicle.optische_schaeden),
       innenraum_zustand: jsonArrayToText(vehicle.innenraum_zustand),
-      bereifung: jsonArrayToText(vehicle.bereifung),
+      // Bereifung structured fields
+      bereifung_vorne_links: (() => {
+        if (vehicle.bereifung && Array.isArray(vehicle.bereifung)) {
+          const vl = vehicle.bereifung.find(b => b.position.toLowerCase().includes('vorne links'));
+          return vl ? { bezeichnung: vl.bezeichnung || '', art: vl.art || '', profiltiefe: vl.profiltiefe || '' } : undefined;
+        }
+        return undefined;
+      })(),
+      bereifung_vorne_rechts: (() => {
+        if (vehicle.bereifung && Array.isArray(vehicle.bereifung)) {
+          const vr = vehicle.bereifung.find(b => b.position.toLowerCase().includes('vorne rechts'));
+          return vr ? { bezeichnung: vr.bezeichnung || '', art: vr.art || '', profiltiefe: vr.profiltiefe || '' } : undefined;
+        }
+        return undefined;
+      })(),
+      bereifung_hinten_links: (() => {
+        if (vehicle.bereifung && Array.isArray(vehicle.bereifung)) {
+          const hl = vehicle.bereifung.find(b => b.position.toLowerCase().includes('hinten links'));
+          return hl ? { bezeichnung: hl.bezeichnung || '', art: hl.art || '', profiltiefe: hl.profiltiefe || '' } : undefined;
+        }
+        return undefined;
+      })(),
+      bereifung_hinten_rechts: (() => {
+        if (vehicle.bereifung && Array.isArray(vehicle.bereifung)) {
+          const hr = vehicle.bereifung.find(b => b.position.toLowerCase().includes('hinten rechts'));
+          return hr ? { bezeichnung: hr.bezeichnung || '', art: hr.art || '', profiltiefe: hr.profiltiefe || '' } : undefined;
+        }
+        return undefined;
+      })(),
     } : {
       brand: '',
       model: '',
@@ -114,7 +143,6 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
       sonderausstattung: '',
       optische_schaeden: '',
       innenraum_zustand: '',
-      bereifung: '',
     },
   });
 
@@ -514,30 +542,203 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
 
           {/* Bereifung */}
           <AccordionItem value="bereifung">
-            <AccordionTrigger className="text-base font-semibold">
-              Bereifung
-            </AccordionTrigger>
-            <AccordionContent className="space-y-4 pt-4">
-              <FormField
-                control={form.control}
-                name="bereifung"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Reifendaten (Tabelle)</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Eine Zeile pro Reifen im Format: Position | Bezeichnung | Art | Profiltiefe&#10;&#10;Beispiel:&#10;Vorne links | 205/65 R 16 105 T | W / S | 2 mm&#10;Vorne rechts | 205/65 R 16 105 T | W / S | 2 mm&#10;Hinten links | 205/65 R 16 105 T | W / S | 3 mm&#10;Hinten rechts | 205/65 R 16 105 T | W / S | 3 mm"
-                        className="min-h-[180px] font-mono text-sm"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Jede Zeile wird zu einer Tabellenzeile. Format: Position | Bezeichnung | Art | Profiltiefe
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            <div className="flex items-center justify-between py-4">
+              <AccordionTrigger className="text-base font-semibold flex-1 hover:no-underline">
+                Bereifung
+              </AccordionTrigger>
+              <BereifungQuickImportDialog 
+                onImport={(data) => {
+                  form.setValue('bereifung_vorne_links', data.vorne_links);
+                  form.setValue('bereifung_vorne_rechts', data.vorne_rechts);
+                  form.setValue('bereifung_hinten_links', data.hinten_links);
+                  form.setValue('bereifung_hinten_rechts', data.hinten_rechts);
+                }} 
               />
+            </div>
+            <AccordionContent className="space-y-6 pt-4">
+              {/* Vorne Links */}
+              <div className="border rounded-lg p-4 space-y-4">
+                <h4 className="font-medium">Vorne Links</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="bereifung_vorne_links.bezeichnung"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Bezeichnung</FormLabel>
+                        <FormControl>
+                          <Input placeholder="235/45 R 17 94 W" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="bereifung_vorne_links.art"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Art</FormLabel>
+                        <FormControl>
+                          <Input placeholder="S" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="bereifung_vorne_links.profiltiefe"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Profiltiefe</FormLabel>
+                        <FormControl>
+                          <Input placeholder="5 mm" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Vorne Rechts */}
+              <div className="border rounded-lg p-4 space-y-4">
+                <h4 className="font-medium">Vorne Rechts</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="bereifung_vorne_rechts.bezeichnung"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Bezeichnung</FormLabel>
+                        <FormControl>
+                          <Input placeholder="235/45 R 17 94 W" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="bereifung_vorne_rechts.art"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Art</FormLabel>
+                        <FormControl>
+                          <Input placeholder="S" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="bereifung_vorne_rechts.profiltiefe"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Profiltiefe</FormLabel>
+                        <FormControl>
+                          <Input placeholder="5 mm" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Hinten Links */}
+              <div className="border rounded-lg p-4 space-y-4">
+                <h4 className="font-medium">Hinten Links</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="bereifung_hinten_links.bezeichnung"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Bezeichnung</FormLabel>
+                        <FormControl>
+                          <Input placeholder="235/45 R 17 94 W" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="bereifung_hinten_links.art"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Art</FormLabel>
+                        <FormControl>
+                          <Input placeholder="S" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="bereifung_hinten_links.profiltiefe"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Profiltiefe</FormLabel>
+                        <FormControl>
+                          <Input placeholder="5 mm" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
+
+              {/* Hinten Rechts */}
+              <div className="border rounded-lg p-4 space-y-4">
+                <h4 className="font-medium">Hinten Rechts</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="bereifung_hinten_rechts.bezeichnung"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Bezeichnung</FormLabel>
+                        <FormControl>
+                          <Input placeholder="235/45 R 17 94 W" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="bereifung_hinten_rechts.art"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Art</FormLabel>
+                        <FormControl>
+                          <Input placeholder="S" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="bereifung_hinten_rechts.profiltiefe"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Profiltiefe</FormLabel>
+                        <FormControl>
+                          <Input placeholder="5 mm" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
             </AccordionContent>
           </AccordionItem>
 

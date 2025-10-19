@@ -37,8 +37,27 @@ export const vehicleSchema = z.object({
   optische_schaeden: z.string().optional(),
   innenraum_zustand: z.string().optional(),
   
-  // Bereifung (text - pipe separated)
-  bereifung: z.string().optional(),
+  // Bereifung (structured fields for each tire position)
+  bereifung_vorne_links: z.object({
+    bezeichnung: z.string().optional(),
+    art: z.string().optional(),
+    profiltiefe: z.string().optional()
+  }).optional(),
+  bereifung_vorne_rechts: z.object({
+    bezeichnung: z.string().optional(),
+    art: z.string().optional(),
+    profiltiefe: z.string().optional()
+  }).optional(),
+  bereifung_hinten_links: z.object({
+    bezeichnung: z.string().optional(),
+    art: z.string().optional(),
+    profiltiefe: z.string().optional()
+  }).optional(),
+  bereifung_hinten_rechts: z.object({
+    bezeichnung: z.string().optional(),
+    art: z.string().optional(),
+    profiltiefe: z.string().optional()
+  }).optional(),
 });
 
 export type VehicleFormData = z.infer<typeof vehicleSchema>;
