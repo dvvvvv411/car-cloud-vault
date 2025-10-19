@@ -607,6 +607,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      convert_first_registration_format: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_all_users: {
         Args: Record<PropertyKey, never>
         Returns: {
