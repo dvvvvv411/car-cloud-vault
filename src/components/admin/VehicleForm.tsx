@@ -186,8 +186,8 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
             data, 
             vehiclePhotos.length > 0 ? vehiclePhotos : undefined, 
             detailPhotos.length > 0 ? detailPhotos : undefined,
-            vehiclePhotoPreviews,
-            detailPhotoPreviews
+            vehiclePhotoPreviews.filter(url => url.startsWith('https://')),
+            detailPhotoPreviews.filter(url => url.startsWith('https://'))
           )
         )}
         className="space-y-6"
