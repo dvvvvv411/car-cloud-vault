@@ -7,7 +7,7 @@ import { PasswordProtection } from "@/components/PasswordProtection";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerClose, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -60,6 +60,8 @@ const Index = ({ branding }: IndexProps = {}) => {
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
   const [beschlussPdfDialogOpen, setBeschlussPdfDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [zustandsberichtDialogOpen, setZustandsberichtDialogOpen] = useState(false);
+  const [selectedReportNr, setSelectedReportNr] = useState<string | null>(null);
   
   // Get leadId from localStorage
   const leadId = localStorage.getItem('leadId');
@@ -155,6 +157,12 @@ const Index = ({ branding }: IndexProps = {}) => {
     return myReservations.some(r => 
       r.vehicle_chassis === chassis || r.vehicle_chassis === reportNr
     );
+  };
+
+  const handleOpenZustandsbericht = (reportNr: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedReportNr(reportNr);
+    setZustandsberichtDialogOpen(true);
   };
   
   const filteredAndSortedVehicles = vehicles.filter(vehicle => vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.chassis.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.report_nr.toLowerCase().includes(searchTerm.toLowerCase())).sort((a, b) => {
@@ -584,7 +592,22 @@ const Index = ({ branding }: IndexProps = {}) => {
                                   {formatPrice(vehicle.price)}
                                  </span>
                               </td>
-                              <td className="px-6 py-4 text-right align-middle">
+                              <td className="px-6 py-4 text-center align-middle">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <button
+                                        onClick={(e) => handleOpenZustandsbericht(vehicle.report_nr, e)}
+                                        className="w-10 h-10 rounded-full flex items-center justify-center mx-auto hover:bg-primary/10 transition-colors"
+                                      >
+                                        <FileText className="h-5 w-5 text-primary" />
+                                      </button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Zustandsbericht anzeigen</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               </td>
                             </tr>;
                     })}
@@ -741,6 +764,20 @@ const Index = ({ branding }: IndexProps = {}) => {
                     color: "hsl(var(--text-primary))"
                   }}>
                             {formatPrice(vehicle.price)}
+                          </div>
+
+                          {/* Zustandsbericht Button */}
+                          <div className="pt-3 mt-3 border-t border-border/50">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenZustandsbericht(vehicle.report_nr, e);
+                              }}
+                              className="w-full flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-primary/10 transition-colors"
+                            >
+                              <FileText className="h-5 w-5 text-primary" />
+                              <span className="text-sm font-medium text-primary">Zustandsbericht anzeigen</span>
+                            </button>
                           </div>
                         </div>
                       </div>;
@@ -999,6 +1036,76 @@ const Index = ({ branding }: IndexProps = {}) => {
             </div>
           </div>
         </div>}
+
+        {/* Zustandsbericht Dialog */}
+        <Dialog open={zustandsberichtDialogOpen} onOpenChange={setZustandsberichtDialogOpen}>
+          <DialogContent className="max-w-7xl max-h-[90vh] p-0">
+            <DialogTitle className="sr-only">
+              Zustandsbericht - Bericht-Nr. {selectedReportNr}
+            </DialogTitle>
+            <div className="flex flex-col h-[85vh]">
+              <div className="flex items-center justify-between p-4 border-b bg-muted/30">
+                <div className="flex items-center gap-2">
+                  <div className="bg-primary p-2 rounded">
+                    <FileText className="h-5 w-5 text-primary-foreground" />
+                  </div>
+                  <h3 className="font-semibold">Zustandsbericht - Bericht-Nr. {selectedReportNr}</h3>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(`/zustandsbericht/${selectedReportNr}`, '_blank')}
+                  className="gap-2"
+                >
+                  In neuem Tab öffnen
+                </Button>
+              </div>
+              <div className="flex-1 overflow-hidden">
+                {selectedReportNr && (
+                  <iframe
+                    src={`/zustandsbericht/${selectedReportNr}`}
+                    className="w-full h-full"
+                    title={`Zustandsbericht ${selectedReportNr}`}
+                  />
+                )}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Beschluss PDF Dialog */}
+        <Dialog open={beschlussPdfDialogOpen} onOpenChange={setBeschlussPdfDialogOpen}>
+          <DialogContent className="max-w-7xl max-h-[90vh] p-0">
+            <DialogTitle className="sr-only">Gerichtsbeschluss</DialogTitle>
+            <div className="flex flex-col h-[85vh]">
+              <div className="flex items-center justify-between p-4 border-b bg-muted/30">
+                <div className="flex items-center gap-2">
+                  <div className="bg-primary p-2 rounded">
+                    <FileText className="h-5 w-5 text-primary-foreground" />
+                  </div>
+                  <h3 className="font-semibold">Gerichtsbeschluss</h3>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(branding?.court_decision_pdf_url || '', '_blank')}
+                  className="gap-2"
+                >
+                  In neuem Tab öffnen
+                </Button>
+              </div>
+              <div className="flex-1 overflow-hidden">
+                {branding?.court_decision_pdf_url && (
+                  <iframe
+                    src={branding.court_decision_pdf_url}
+                    className="w-full h-full"
+                    title="Gerichtsbeschluss"
+                  />
+                )}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
     </div>;
 };
 export default Index;
