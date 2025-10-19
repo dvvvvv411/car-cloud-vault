@@ -55,6 +55,31 @@ export default function AdminPositionen() {
     return urls;
   };
 
+  // Helper: Convert textarea lines to JSON array
+  const textareaToJsonArray = (text?: string): string => {
+    if (!text) return '[]';
+    const lines = text.split('\n')
+      .map(line => line.trim())
+      .filter(line => line.length > 0);
+    return JSON.stringify(lines);
+  };
+
+  // Helper: Parse bereifung pipe-separated format
+  const parseBereifung = (text?: string): string => {
+    if (!text) return '[]';
+    const lines = text.split('\n').filter(line => line.trim().length > 0);
+    const parsed = lines.map(line => {
+      const parts = line.split('|').map(p => p.trim());
+      return {
+        position: parts[0] || '',
+        bezeichnung: parts[1] || '',
+        art: parts[2] || '',
+        profiltiefe: parts[3] || ''
+      };
+    });
+    return JSON.stringify(parsed);
+  };
+
   const handleCreate = async (data: VehicleFormData, vehiclePhotos?: File[], detailPhotos?: File[]) => {
     setIsSubmitting(true);
     try {
@@ -71,6 +96,26 @@ export default function AdminPositionen() {
           price: data.price,
           vehicle_photos: '[]',
           detail_photos: '[]',
+          aufbau: data.aufbau || null,
+          kraftstoffart: data.kraftstoffart || null,
+          motorart: data.motorart || null,
+          leistung: data.leistung || null,
+          getriebeart: data.getriebeart || null,
+          farbe: data.farbe || null,
+          gesamtgewicht: data.gesamtgewicht || null,
+          hubraum: data.hubraum || null,
+          anzahl_tueren: data.anzahl_tueren || null,
+          anzahl_sitzplaetze: data.anzahl_sitzplaetze || null,
+          faelligkeit_hu: data.faelligkeit_hu || null,
+          polster_typ: data.polster_typ || null,
+          bemerkungen: data.bemerkungen || null,
+          wartung_datum: data.wartung_datum || null,
+          wartung_kilometerstand: data.wartung_kilometerstand || null,
+          serienausstattung: textareaToJsonArray(data.serienausstattung),
+          sonderausstattung: textareaToJsonArray(data.sonderausstattung),
+          optische_schaeden: textareaToJsonArray(data.optische_schaeden),
+          innenraum_zustand: textareaToJsonArray(data.innenraum_zustand),
+          bereifung: parseBereifung(data.bereifung),
         }])
         .select()
         .single();
@@ -182,6 +227,26 @@ export default function AdminPositionen() {
           price: data.price,
           vehicle_photos: JSON.stringify(vehiclePhotoUrls),
           detail_photos: JSON.stringify(detailPhotoUrls),
+          aufbau: data.aufbau || null,
+          kraftstoffart: data.kraftstoffart || null,
+          motorart: data.motorart || null,
+          leistung: data.leistung || null,
+          getriebeart: data.getriebeart || null,
+          farbe: data.farbe || null,
+          gesamtgewicht: data.gesamtgewicht || null,
+          hubraum: data.hubraum || null,
+          anzahl_tueren: data.anzahl_tueren || null,
+          anzahl_sitzplaetze: data.anzahl_sitzplaetze || null,
+          faelligkeit_hu: data.faelligkeit_hu || null,
+          polster_typ: data.polster_typ || null,
+          bemerkungen: data.bemerkungen || null,
+          wartung_datum: data.wartung_datum || null,
+          wartung_kilometerstand: data.wartung_kilometerstand || null,
+          serienausstattung: textareaToJsonArray(data.serienausstattung),
+          sonderausstattung: textareaToJsonArray(data.sonderausstattung),
+          optische_schaeden: textareaToJsonArray(data.optische_schaeden),
+          innenraum_zustand: textareaToJsonArray(data.innenraum_zustand),
+          bereifung: parseBereifung(data.bereifung),
         })
         .eq("id", selectedVehicle.id);
 
