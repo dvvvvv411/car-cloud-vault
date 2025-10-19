@@ -55,65 +55,6 @@ export default function AdminPositionen() {
     return urls;
   };
 
-  const parseVehicleDetails = (rawText: string) => {
-    const lines = rawText.split('\n').filter(l => l.trim());
-    const details: Record<string, any> = {};
-    
-    const mapping: Record<string, string> = {
-      'Hersteller': 'brand',
-      'Aufbau': 'aufbau',
-      'FIN': 'chassis',
-      'Kraftstoffart / Energiequelle': 'kraftstoffart',
-      'Motorart / Zylinder': 'motorart',
-      'Leistung': 'leistung',
-      'Getriebeart': 'getriebeart',
-      'Farbe': 'farbe',
-      'Typ / Modell': 'model',
-      'Erstzulassung': 'first_registration',
-      'abgelesener Tachostand': 'kilometers',
-      'Zul. Gesamtgewicht': 'gesamtgewicht',
-      'Hubraum': 'hubraum',
-      'Anzahl Türen': 'anzahl_tueren',
-      'Anzahl Sitzplätze': 'anzahl_sitzplaetze',
-      'Fälligkeit HU': 'faelligkeit_hu',
-      'Polster Typ / Farbe': 'polster_typ',
-    };
-    
-    lines.forEach(line => {
-      const [label, ...valueParts] = line.split('\t');
-      const value = valueParts.join('\t').trim();
-      const fieldName = mapping[label?.trim()];
-      if (fieldName && value) {
-        if (fieldName === 'kilometers') {
-          const numericValue = value.replace(/[^\d]/g, '');
-          details[fieldName] = numericValue ? parseInt(numericValue, 10) : 0;
-        } else {
-          details[fieldName] = value;
-        }
-      }
-    });
-    
-    return details;
-  };
-
-  const parseTireTable = (rawText: string): string => {
-    if (!rawText) return '[]';
-    const lines = rawText.split('\n').filter(l => l.trim());
-    if (lines.length === 0) return '[]';
-    
-    const tireRows = lines.map(line => {
-      const [position, bezeichnung, art, profiltiefe] = line.split('\t');
-      return {
-        position: position?.trim() || '',
-        bezeichnung: bezeichnung?.trim() || '',
-        art: art?.trim() || '',
-        profiltiefe: profiltiefe?.trim() || ''
-      };
-    }).filter(row => row.position);
-    
-    return JSON.stringify(tireRows);
-  };
-
   const handleCreate = async (data: VehicleFormData, vehiclePhotos?: File[], detailPhotos?: File[]) => {
     setIsSubmitting(true);
     try {
@@ -130,26 +71,6 @@ export default function AdminPositionen() {
           price: data.price,
           vehicle_photos: '[]',
           detail_photos: '[]',
-          aufbau: data.aufbau || null,
-          kraftstoffart: data.kraftstoffart || null,
-          motorart: data.motorart || null,
-          leistung: data.leistung || null,
-          getriebeart: data.getriebeart || null,
-          farbe: data.farbe || null,
-          gesamtgewicht: data.gesamtgewicht || null,
-          hubraum: data.hubraum || null,
-          anzahl_tueren: data.anzahl_tueren || null,
-          anzahl_sitzplaetze: data.anzahl_sitzplaetze || null,
-          faelligkeit_hu: data.faelligkeit_hu || null,
-          polster_typ: data.polster_typ || null,
-          bemerkungen: data.bemerkungen || null,
-          wartung_datum: data.wartung_datum || null,
-          wartung_kilometerstand: data.wartung_kilometerstand || null,
-          serienausstattung: textareaToJsonArray(data.serienausstattung),
-          sonderausstattung: textareaToJsonArray(data.sonderausstattung),
-          optische_schaeden: textareaToJsonArray(data.optische_schaeden),
-          innenraum_zustand: textareaToJsonArray(data.innenraum_zustand),
-          bereifung: parseBereifung(data.bereifung),
         }])
         .select()
         .single();
@@ -261,26 +182,6 @@ export default function AdminPositionen() {
           price: data.price,
           vehicle_photos: JSON.stringify(vehiclePhotoUrls),
           detail_photos: JSON.stringify(detailPhotoUrls),
-          aufbau: data.aufbau || null,
-          kraftstoffart: data.kraftstoffart || null,
-          motorart: data.motorart || null,
-          leistung: data.leistung || null,
-          getriebeart: data.getriebeart || null,
-          farbe: data.farbe || null,
-          gesamtgewicht: data.gesamtgewicht || null,
-          hubraum: data.hubraum || null,
-          anzahl_tueren: data.anzahl_tueren || null,
-          anzahl_sitzplaetze: data.anzahl_sitzplaetze || null,
-          faelligkeit_hu: data.faelligkeit_hu || null,
-          polster_typ: data.polster_typ || null,
-          bemerkungen: data.bemerkungen || null,
-          wartung_datum: data.wartung_datum || null,
-          wartung_kilometerstand: data.wartung_kilometerstand || null,
-          serienausstattung: textareaToJsonArray(data.serienausstattung),
-          sonderausstattung: textareaToJsonArray(data.sonderausstattung),
-          optische_schaeden: textareaToJsonArray(data.optische_schaeden),
-          innenraum_zustand: textareaToJsonArray(data.innenraum_zustand),
-          bereifung: parseBereifung(data.bereifung),
         })
         .eq("id", selectedVehicle.id);
 
