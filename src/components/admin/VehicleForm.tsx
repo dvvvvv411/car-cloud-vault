@@ -16,7 +16,7 @@ import { arrayMove } from '@dnd-kit/sortable';
 
 interface VehicleFormProps {
   vehicle?: Vehicle;
-  onSubmit: (data: VehicleFormData, vehiclePhotos?: File[], detailPhotos?: File[]) => void;
+  onSubmit: (data: VehicleFormData, vehiclePhotos?: File[], detailPhotos?: File[], reorderedVehicleUrls?: string[], reorderedDetailUrls?: string[]) => void;
   isSubmitting: boolean;
 }
 
@@ -25,6 +25,7 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
   const [vehiclePhotoPreviews, setVehiclePhotoPreviews] = useState<string[]>([]);
   const [detailPhotos, setDetailPhotos] = useState<File[]>([]);
   const [detailPhotoPreviews, setDetailPhotoPreviews] = useState<string[]>([]);
+  const [photosReordered, setPhotosReordered] = useState(false);
 
   // Load existing photos when editing
   useEffect(() => {
@@ -166,18 +167,26 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
   const handleVehiclePhotoReorder = (startIndex: number, endIndex: number) => {
     setVehiclePhotos(prev => arrayMove(prev, startIndex, endIndex));
     setVehiclePhotoPreviews(prev => arrayMove(prev, startIndex, endIndex));
+    setPhotosReordered(true);
   };
 
   const handleDetailPhotoReorder = (startIndex: number, endIndex: number) => {
     setDetailPhotos(prev => arrayMove(prev, startIndex, endIndex));
     setDetailPhotoPreviews(prev => arrayMove(prev, startIndex, endIndex));
+    setPhotosReordered(true);
   };
 
   return (
     <Form {...form}>
       <form 
         onSubmit={form.handleSubmit((data) => 
-          onSubmit(data, vehiclePhotos.length > 0 ? vehiclePhotos : undefined, detailPhotos.length > 0 ? detailPhotos : undefined)
+          onSubmit(
+            data, 
+            vehiclePhotos.length > 0 ? vehiclePhotos : undefined, 
+            detailPhotos.length > 0 ? detailPhotos : undefined,
+            photosReordered ? vehiclePhotoPreviews : undefined,
+            photosReordered ? detailPhotoPreviews : undefined
+          )
         )}
         className="space-y-6"
       >

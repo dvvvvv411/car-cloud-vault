@@ -165,7 +165,7 @@ export default function AdminPositionen() {
     }
   };
 
-  const handleEdit = async (data: VehicleFormData, vehiclePhotos?: File[], detailPhotos?: File[]) => {
+  const handleEdit = async (data: VehicleFormData, vehiclePhotos?: File[], detailPhotos?: File[], reorderedVehicleUrls?: string[], reorderedDetailUrls?: string[]) => {
     if (!selectedVehicle) return;
     
     setIsSubmitting(true);
@@ -190,9 +190,9 @@ export default function AdminPositionen() {
         }
       }
 
-      // Upload new photos if provided
-      let vehiclePhotoUrls = existingVehiclePhotos;
-      let detailPhotoUrls = existingDetailPhotos;
+      // Use reordered URLs if provided, otherwise use existing
+      let vehiclePhotoUrls = reorderedVehicleUrls || existingVehiclePhotos;
+      let detailPhotoUrls = reorderedDetailUrls || existingDetailPhotos;
 
       if (vehiclePhotos && vehiclePhotos.length > 0) {
         const newUrls = await uploadMultipleImages(
