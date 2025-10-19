@@ -55,29 +55,63 @@ export default function AdminPositionen() {
     return urls;
   };
 
-  // Helper: Convert textarea lines to JSON array
-  const textareaToJsonArray = (text?: string): string => {
-    if (!text) return '[]';
-    const lines = text.split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0);
-    return JSON.stringify(lines);
+  const parseVehicleDetails = (rawText: string) => {
+    const lines = rawText.split('\n').filter(l => l.trim());
+    const details: Record<string, any> = {};
+    
+    const mapping: Record<string, string> = {
+      'Hersteller': 'brand',
+      'Aufbau': 'aufbau',
+      'FIN': 'chassis',
+      'Kraftstoffart / Energiequelle': 'kraftstoffart',
+      'Motorart / Zylinder': 'motorart',
+      'Leistung': 'leistung',
+      'Getriebeart': 'getriebeart',
+      'Farbe': 'farbe',
+      'Typ / Modell': 'model',
+      'Erstzulassung': 'first_registration',
+      'abgelesener Tachostand': 'kilometers',
+      'Zul. Gesamtgewicht': 'gesamtgewicht',
+      'Hubraum': 'hubraum',
+      'Anzahl Türen': 'anzahl_tueren',
+      'Anzahl Sitzplätze': 'anzahl_sitzplaetze',
+      'Fälligkeit HU': 'faelligkeit_hu',
+      'Polster Typ / Farbe': 'polster_typ',
+    };
+    
+    lines.forEach(line => {
+      const [label, ...valueParts] = line.split('\t');
+      const value = valueParts.join('\t').trim();
+      const fieldName = mapping[label?.trim()];
+      if (fieldName && value) {
+        if (fieldName === 'kilometers') {
+          const numericValue = value.replace(/[^\d]/g, '');
+          details[fieldName] = numericValue ? parseInt(numericValue, 10) : 0;
+        } else {
+          details[fieldName] = value;
+        }
+      }
+    });
+    
+    return details;
   };
 
-  // Helper: Parse bereifung pipe-separated format
-  const parseBereifung = (text?: string): string => {
-    if (!text) return '[]';
-    const lines = text.split('\n').filter(line => line.trim().length > 0);
-    const parsed = lines.map(line => {
-      const parts = line.split('|').map(p => p.trim());
+  const parseTireTable = (rawText: string): string => {
+    if (!rawText) return '[]';
+    const lines = rawText.split('\n').filter(l => l.trim());
+    if (lines.length === 0) return '[]';
+    
+    const tireRows = lines.map(line => {
+      const [position, bezeichnung, art, profiltiefe] = line.split('\t');
       return {
-        position: parts[0] || '',
-        bezeichnung: parts[1] || '',
-        art: parts[2] || '',
-        profiltiefe: parts[3] || ''
+        position: position?.trim() || '',
+        bezeichnung: bezeichnung?.trim() || '',
+        art: art?.trim() || '',
+        profiltiefe: profiltiefe?.trim() || ''
       };
-    });
-    return JSON.stringify(parsed);
+    }).filter(row => row.position);
+    
+    return JSON.stringify(tireRows);
   };
 
   const handleCreate = async (data: VehicleFormData, vehiclePhotos?: File[], detailPhotos?: File[]) => {

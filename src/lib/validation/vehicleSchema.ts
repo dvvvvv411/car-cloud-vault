@@ -11,6 +11,7 @@ export const vehicleSchema = z.object({
   price: z.coerce.number().min(0, "Preis muss positiv sein"),
   
   // Fahrzeugbeschreibung Details (optional)
+  fahrzeugbeschreibung_raw: z.string().optional(),
   aufbau: z.string().optional(),
   kraftstoffart: z.string().optional(),
   motorart: z.string().optional(),

@@ -15,6 +15,7 @@ export interface Vehicle {
   detail_photos: string | null;
   
   // Fahrzeugbeschreibung Details
+  fahrzeugbeschreibung_raw?: string | null;
   aufbau?: string | null;
   kraftstoffart?: string | null;
   motorart?: string | null;

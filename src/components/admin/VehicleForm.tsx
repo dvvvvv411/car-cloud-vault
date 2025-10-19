@@ -63,6 +63,45 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
     }
   };
 
+  // Helper function to generate raw text from vehicle data
+  const generateRawText = (vehicle: any): string => {
+    if (!vehicle) return '';
+    return [
+      `Hersteller\t${vehicle.brand || ''}`,
+      `Aufbau\t${vehicle.aufbau || ''}`,
+      `FIN\t${vehicle.chassis || ''}`,
+      `Kraftstoffart / Energiequelle\t${vehicle.kraftstoffart || ''}`,
+      `Motorart / Zylinder\t${vehicle.motorart || ''}`,
+      `Leistung\t${vehicle.leistung || ''}`,
+      `Getriebeart\t${vehicle.getriebeart || ''}`,
+      `Farbe\t${vehicle.farbe || ''}`,
+      `Typ / Modell\t${vehicle.model || ''}`,
+      `Erstzulassung\t${vehicle.first_registration || ''}`,
+      `abgelesener Tachostand\t${vehicle.kilometers || ''}`,
+      `Zul. Gesamtgewicht\t${vehicle.gesamtgewicht || ''}`,
+      `Hubraum\t${vehicle.hubraum || ''}`,
+      `Anzahl Türen\t${vehicle.anzahl_tueren || ''}`,
+      `Anzahl Sitzplätze\t${vehicle.anzahl_sitzplaetze || ''}`,
+      `Fälligkeit HU\t${vehicle.faelligkeit_hu || ''}`,
+      `Polster Typ / Farbe\t${vehicle.polster_typ || ''}`,
+    ].join('\n');
+  };
+
+  // Helper function to generate tire raw text from JSON
+  const generateTireRawText = (bereifungJson: string | null | undefined): string => {
+    if (!bereifungJson) return '';
+    try {
+      const tireRows = JSON.parse(bereifungJson);
+      if (!Array.isArray(tireRows) || tireRows.length === 0) return '';
+      
+      return tireRows.map((row: any) => 
+        `${row.position || ''}\t${row.bezeichnung || ''}\t${row.art || ''}\t${row.profiltiefe || ''}`
+      ).join('\n');
+    } catch (e) {
+      return '';
+    }
+  };
+
   const form = useForm<VehicleFormData>({
     resolver: zodResolver(vehicleSchema),
     defaultValues: vehicle ? {
@@ -73,26 +112,24 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
       first_registration: vehicle.first_registration,
       kilometers: vehicle.kilometers,
       price: vehicle.price,
-      aufbau: vehicle.aufbau || '',
-      kraftstoffart: vehicle.kraftstoffart || '',
-      motorart: vehicle.motorart || '',
-      leistung: vehicle.leistung || '',
-      getriebeart: vehicle.getriebeart || '',
-      farbe: vehicle.farbe || '',
-      gesamtgewicht: vehicle.gesamtgewicht || '',
-      hubraum: vehicle.hubraum || '',
-      anzahl_tueren: vehicle.anzahl_tueren || '',
-      anzahl_sitzplaetze: vehicle.anzahl_sitzplaetze || '',
-      faelligkeit_hu: vehicle.faelligkeit_hu || '',
-      polster_typ: vehicle.polster_typ || '',
-      bemerkungen: vehicle.bemerkungen || '',
+      
+      // Fahrzeugbeschreibung als Rohtext
+      fahrzeugbeschreibung_raw: generateRawText(vehicle),
+      
+      // Wartung
       wartung_datum: vehicle.wartung_datum || '',
       wartung_kilometerstand: vehicle.wartung_kilometerstand || '',
+      
+      // Ausstattung
       serienausstattung: jsonArrayToText(vehicle.serienausstattung),
       sonderausstattung: jsonArrayToText(vehicle.sonderausstattung),
+      
+      // Optischer Zustand
       optische_schaeden: jsonArrayToText(vehicle.optische_schaeden),
       innenraum_zustand: jsonArrayToText(vehicle.innenraum_zustand),
-      bereifung: jsonArrayToText(vehicle.bereifung),
+      
+      // Bereifung als Rohtext
+      bereifung: generateTireRawText(vehicle.bereifung),
     } : {
       brand: '',
       model: '',
@@ -101,19 +138,7 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
       first_registration: '',
       kilometers: 0,
       price: 0,
-      aufbau: '',
-      kraftstoffart: '',
-      motorart: '',
-      leistung: '',
-      getriebeart: '',
-      farbe: '',
-      gesamtgewicht: '',
-      hubraum: '',
-      anzahl_tueren: '',
-      anzahl_sitzplaetze: '',
-      faelligkeit_hu: '',
-      polster_typ: '',
-      bemerkungen: '',
+      fahrzeugbeschreibung_raw: '',
       wartung_datum: '',
       wartung_kilometerstand: '',
       serienausstattung: '',
@@ -299,177 +324,23 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
               Fahrzeugbeschreibung (Details)
             </AccordionTrigger>
             <AccordionContent className="space-y-4 pt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="aufbau"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Aufbau</FormLabel>
-                      <FormControl>
-                        <Input placeholder="z.B. Limousine" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="kraftstoffart"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Kraftstoffart / Energiequelle</FormLabel>
-                      <FormControl>
-                        <Input placeholder="z.B. Diesel" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="motorart"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Motorart / Zylinder</FormLabel>
-                      <FormControl>
-                        <Input placeholder="z.B. 4-Zylinder Reihenmotor" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="leistung"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Leistung</FormLabel>
-                      <FormControl>
-                        <Input placeholder="z.B. 140 kW (190 PS)" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="getriebeart"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Getriebeart</FormLabel>
-                      <FormControl>
-                        <Input placeholder="z.B. Automatik 8-Gang" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="farbe"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Farbe</FormLabel>
-                      <FormControl>
-                        <Input placeholder="z.B. Alpinweiß" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="gesamtgewicht"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Zul. Gesamtgewicht</FormLabel>
-                      <FormControl>
-                        <Input placeholder="z.B. 2080 kg" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="hubraum"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Hubraum</FormLabel>
-                      <FormControl>
-                        <Input placeholder="z.B. 1995 ccm" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="anzahl_tueren"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Anzahl Türen</FormLabel>
-                      <FormControl>
-                        <Input placeholder="z.B. 4" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="anzahl_sitzplaetze"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Anzahl Sitzplätze</FormLabel>
-                      <FormControl>
-                        <Input placeholder="z.B. 5" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="faelligkeit_hu"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Fälligkeit HU</FormLabel>
-                      <FormControl>
-                        <Input placeholder="z.B. 03/2025" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="polster_typ"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Polster Typ / Farbe</FormLabel>
-                      <FormControl>
-                        <Input placeholder="z.B. Leder schwarz" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
               <FormField
                 control={form.control}
-                name="bemerkungen"
+                name="fahrzeugbeschreibung_raw"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Bemerkungen</FormLabel>
+                    <FormLabel>Fahrzeugbeschreibung</FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="Allgemeine Bemerkungen zum Fahrzeug..."
-                        className="min-h-[100px]"
-                        {...field}
+                        {...field} 
+                        rows={18}
+                        className="font-mono text-sm"
+                        placeholder="Format: Feldname[TAB]Wert (eine Zeile pro Feld)&#x0A;&#x0A;Beispiel:&#x0A;Hersteller	Volkswagen&#x0A;Aufbau	Transporter Kombi&#x0A;FIN	WV2ZZZ7HZLX009005&#x0A;Kraftstoffart / Energiequelle	Diesel&#x0A;Motorart / Zylinder	Reihenmotor / 4&#x0A;Leistung	81 kW (110 PS)&#x0A;Getriebeart	Schaltgetriebe&#x0A;Farbe	Candy-Weiß&#x0A;Typ / Modell	T6.1 2.0 TDI Kombi&#x0A;Erstzulassung	06.02.2020&#x0A;abgelesener Tachostand	84613&#x0A;Zul. Gesamtgewicht	3.080 kg&#x0A;Hubraum	1.968 cm³&#x0A;Anzahl Türen	4&#x0A;Anzahl Sitzplätze	9&#x0A;Fälligkeit HU	Fällig&#x0A;Polster Typ / Farbe	Kunstleder / Grau"
                       />
                     </FormControl>
+                    <FormDescription>
+                      Kopieren Sie die Tabelle mit Tab-Trennung ein. Format: Feldname[TAB]Wert (pro Zeile)
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
