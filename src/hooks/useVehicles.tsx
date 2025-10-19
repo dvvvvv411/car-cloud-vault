@@ -57,7 +57,7 @@ export const useVehicles = () => {
       const { data, error } = await supabase
         .from("vehicles")
         .select("*")
-        .order("created_at", { ascending: true });
+        .order("report_nr", { ascending: true });
 
       if (error) throw error;
       // Cast bereifung from Json to proper type
