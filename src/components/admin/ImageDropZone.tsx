@@ -6,6 +6,7 @@ interface ImageDropZoneProps {
   images: string[];
   onImagesChange: (files: File[]) => void;
   onRemove: (index: number) => void;
+  onReorder?: (fromIndex: number, toIndex: number) => void;
   label?: string;
 }
 
@@ -13,9 +14,12 @@ export const ImageDropZone = ({
   images,
   onImagesChange,
   onRemove,
+  onReorder,
   label = "Bilder hochladen"
 }: ImageDropZoneProps) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [draggedOverIndex, setDraggedOverIndex] = useState<number | null>(null);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -43,6 +47,29 @@ export const ImageDropZone = ({
     
     onImagesChange(files);
   }, [onImagesChange]);
+
+  const handleImageDragStart = useCallback((e: React.DragEvent, index: number) => {
+    if (!onReorder) return;
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+  }, [onReorder]);
+
+  const handleImageDragEnter = useCallback((e: React.DragEvent, index: number) => {
+    if (!onReorder || draggedIndex === null) return;
+    e.preventDefault();
+    setDraggedOverIndex(index);
+  }, [onReorder, draggedIndex]);
+
+  const handleImageDragEnd = useCallback(() => {
+    if (!onReorder || draggedIndex === null || draggedOverIndex === null || draggedIndex === draggedOverIndex) {
+      setDraggedIndex(null);
+      setDraggedOverIndex(null);
+      return;
+    }
+    onReorder(draggedIndex, draggedOverIndex);
+    setDraggedIndex(null);
+    setDraggedOverIndex(null);
+  }, [onReorder, draggedIndex, draggedOverIndex]);
 
   return (
     <div className="space-y-4">
@@ -83,7 +110,19 @@ export const ImageDropZone = ({
       {images.length > 0 && (
         <div className="grid grid-cols-5 gap-4">
           {images.map((image, index) => (
-            <div key={index} className="relative group aspect-square">
+            <div 
+              key={index} 
+              className={`relative group aspect-square ${onReorder ? 'cursor-move' : ''} ${
+                draggedIndex === index ? 'opacity-50' : ''
+              } ${
+                draggedOverIndex === index ? 'ring-2 ring-primary' : ''
+              }`}
+              draggable={!!onReorder}
+              onDragStart={(e) => handleImageDragStart(e, index)}
+              onDragEnter={(e) => handleImageDragEnter(e, index)}
+              onDragOver={(e) => e.preventDefault()}
+              onDragEnd={handleImageDragEnd}
+            >
               <img
                 src={image}
                 alt={`Bild ${index + 1}`}
