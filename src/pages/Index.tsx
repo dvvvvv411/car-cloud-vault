@@ -120,6 +120,17 @@ const Index = ({ branding }: IndexProps = {}) => {
                 side: window.innerWidth < 1024 ? 'bottom' : 'right',
                 align: 'center'
               }
+            },
+            {
+              element: window.innerWidth < 1024 ? '.tour-mobile-report' : '.tour-report-row',
+              popover: {
+                title: 'Zustandsbericht',
+                description: window.innerWidth < 1024
+                  ? 'Klicken Sie auf "Zustandsbericht anzeigen", um den detaillierten Zustandsbericht des Fahrzeugs zu öffnen.'
+                  : 'Klicken Sie auf das Dokument-Icon in der "Bericht"-Spalte, um den detaillierten Zustandsbericht des Fahrzeugs zu öffnen.',
+                side: window.innerWidth < 1024 ? 'bottom' : 'left',
+                align: 'center'
+              }
             }
           ]
         });
@@ -592,7 +603,7 @@ const Index = ({ branding }: IndexProps = {}) => {
                                   {formatPrice(vehicle.price)}
                                  </span>
                               </td>
-                              <td className="px-6 py-4 text-center align-middle">
+                              <td className={`px-6 py-4 text-center align-middle ${index === 2 ? 'tour-report-row' : ''}`}>
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
@@ -767,7 +778,7 @@ const Index = ({ branding }: IndexProps = {}) => {
                           </div>
 
                           {/* Zustandsbericht Button */}
-                          <div className="pt-3 mt-3 border-t border-border/50">
+                          <div className={`pt-3 mt-3 border-t border-border/50 ${index === 0 ? 'tour-mobile-report' : ''}`}>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
