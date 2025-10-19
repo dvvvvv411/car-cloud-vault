@@ -31,7 +31,7 @@ export function WartungQuickImportDialog({ onImport }: WartungQuickImportDialogP
     if (match) {
       return {
         wartung_datum: match[1],
-        wartung_kilometerstand: match[2].replace(/\./g, '') + ' km'
+        wartung_kilometerstand: match[2] + ' km'
       };
     }
     
@@ -39,7 +39,7 @@ export function WartungQuickImportDialog({ onImport }: WartungQuickImportDialogP
     if (match) {
       return {
         wartung_datum: match[2],
-        wartung_kilometerstand: match[1].replace(/\./g, '') + ' km'
+        wartung_kilometerstand: match[1] + ' km'
       };
     }
     
