@@ -277,7 +277,7 @@ export default function Zustandsbericht() {
                 ))}
               </tbody>
             </table>
-            <p className="text-xs text-muted-foreground mt-2">Legende: W=Winter / S=Schadhaft</p>
+            <p className="text-xs text-muted-foreground mt-2">Legende: W=Winter / S=Sommer</p>
           </section>
         )}
 

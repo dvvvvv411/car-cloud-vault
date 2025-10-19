@@ -52,7 +52,7 @@ export interface Vehicle {
 
 export const useVehicles = () => {
   return useQuery({
-    queryKey: ["vehicles"],
+    queryKey: ["vehicles", "sorted-by-report-nr"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("vehicles")
@@ -71,5 +71,7 @@ export const useVehicles = () => {
         }> | null
       })) as Vehicle[];
     },
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 };
