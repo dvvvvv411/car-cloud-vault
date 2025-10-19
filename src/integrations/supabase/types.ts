@@ -528,6 +528,7 @@ export type Database = {
           vehicle_photos: Json | null
           wartung_datum: string | null
           wartung_kilometerstand: string | null
+          zustandsbericht_pdf_url: string | null
         }
         Insert: {
           anzahl_sitzplaetze?: string | null
@@ -562,6 +563,7 @@ export type Database = {
           vehicle_photos?: Json | null
           wartung_datum?: string | null
           wartung_kilometerstand?: string | null
+          zustandsbericht_pdf_url?: string | null
         }
         Update: {
           anzahl_sitzplaetze?: string | null
@@ -596,6 +598,7 @@ export type Database = {
           vehicle_photos?: Json | null
           wartung_datum?: string | null
           wartung_kilometerstand?: string | null
+          zustandsbericht_pdf_url?: string | null
         }
         Relationships: []
       }

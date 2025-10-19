@@ -48,6 +48,9 @@ export interface Vehicle {
     art: string;
     profiltiefe: string;
   }> | null;
+  
+  // Zustandsbericht PDF (optional)
+  zustandsbericht_pdf_url?: string | null;
 }
 
 export const useVehicles = () => {

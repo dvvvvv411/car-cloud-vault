@@ -58,6 +58,9 @@ export const vehicleSchema = z.object({
     art: z.string().optional(),
     profiltiefe: z.string().optional()
   }).optional(),
+  
+  // Zustandsbericht PDF (optional)
+  zustandsbericht_pdf_url: z.string().optional(),
 });
 
 export type VehicleFormData = z.infer<typeof vehicleSchema>;

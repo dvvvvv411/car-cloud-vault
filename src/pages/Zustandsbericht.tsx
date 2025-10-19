@@ -165,6 +165,37 @@ export default function Zustandsbericht() {
           </section>
         )}
 
+        {/* Zustandsbericht PDF - Embedded display */}
+        {vehicle.zustandsbericht_pdf_url && (
+          <section className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">Zustandsbericht (PDF)</h2>
+            <div className="border border-border rounded-lg overflow-hidden bg-muted/30">
+              <iframe
+                src={vehicle.zustandsbericht_pdf_url}
+                className="w-full h-[800px]"
+                title="Zustandsbericht PDF"
+                style={{ border: 'none' }}
+              />
+              <div className="p-3 bg-muted border-t border-border flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  PDF wird möglicherweise nicht in allen Browsern angezeigt
+                </p>
+                <a
+                  href={vehicle.zustandsbericht_pdf_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-xs font-medium"
+                >
+                  In neuem Tab öffnen
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Vehicle Description */}
         <section className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Fahrzeugbeschreibung</h2>

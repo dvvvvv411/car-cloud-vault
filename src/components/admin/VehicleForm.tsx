@@ -21,7 +21,9 @@ interface VehicleFormProps {
     vehiclePhotos?: File[], 
     detailPhotos?: File[],
     finalVehiclePhotoUrls?: string[],
-    finalDetailPhotoUrls?: string[]
+    finalDetailPhotoUrls?: string[],
+    zustandsberichtPdf?: File | null,
+    existingPdfUrl?: string | null
   ) => void;
   isSubmitting: boolean;
 }
@@ -31,6 +33,8 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
   const [vehiclePhotoPreviews, setVehiclePhotoPreviews] = useState<string[]>([]);
   const [detailPhotos, setDetailPhotos] = useState<File[]>([]);
   const [detailPhotoPreviews, setDetailPhotoPreviews] = useState<string[]>([]);
+  const [zustandsberichtPdf, setZustandsberichtPdf] = useState<File | null>(null);
+  const [existingPdfUrl, setExistingPdfUrl] = useState<string | null>(null);
 
   // Load existing photos when editing
   useEffect(() => {
@@ -43,6 +47,11 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
       // Load detail photos
       if (vehicle.detail_photos && Array.isArray(vehicle.detail_photos)) {
         setDetailPhotoPreviews(vehicle.detail_photos);
+      }
+      
+      // Load existing PDF
+      if (vehicle.zustandsbericht_pdf_url) {
+        setExistingPdfUrl(vehicle.zustandsbericht_pdf_url);
       }
     }
   }, [vehicle]);
@@ -116,6 +125,7 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
         }
         return undefined;
       })(),
+      zustandsbericht_pdf_url: vehicle.zustandsbericht_pdf_url || '',
     } : {
       brand: '',
       model: '',
@@ -143,6 +153,7 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
       sonderausstattung: '',
       optische_schaeden: '',
       innenraum_zustand: '',
+      zustandsbericht_pdf_url: '',
     },
   });
 
@@ -215,7 +226,9 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
             vehiclePhotos.length > 0 ? vehiclePhotos : undefined, 
             detailPhotos.length > 0 ? detailPhotos : undefined,
             vehiclePhotoPreviews.filter(url => url.startsWith('https://')),
-            detailPhotoPreviews.filter(url => url.startsWith('https://'))
+            detailPhotoPreviews.filter(url => url.startsWith('https://')),
+            zustandsberichtPdf,
+            existingPdfUrl
           )
         )}
         className="space-y-6"
@@ -885,6 +898,63 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
             </AccordionContent>
           </AccordionItem>
 
+          {/* Zustandsbericht PDF Upload */}
+          <AccordionItem value="zustandsbericht-pdf">
+            <AccordionTrigger className="text-base font-semibold">
+              Zustandsbericht PDF (Optional)
+            </AccordionTrigger>
+            <AccordionContent className="space-y-4 pt-4">
+              <div className="space-y-2">
+                <Label htmlFor="zustandsbericht-pdf">Zustandsbericht als PDF</Label>
+                
+                {existingPdfUrl && !zustandsberichtPdf && (
+                  <div className="p-4 border border-border rounded-lg bg-muted/50">
+                    <p className="text-sm mb-2">Aktuelle PDF:</p>
+                    <a 
+                      href={existingPdfUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-sm text-primary hover:underline"
+                    >
+                      PDF anzeigen
+                    </a>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="ml-4"
+                      onClick={() => setExistingPdfUrl(null)}
+                    >
+                      PDF entfernen
+                    </Button>
+                  </div>
+                )}
+                
+                <Input
+                  id="zustandsbericht-pdf"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setZustandsberichtPdf(file);
+                      setExistingPdfUrl(null);
+                    }
+                  }}
+                />
+                
+                {zustandsberichtPdf && (
+                  <p className="text-sm text-muted-foreground">
+                    Ausgewählt: {zustandsberichtPdf.name}
+                  </p>
+                )}
+                
+                <FormDescription>
+                  Optional: Laden Sie einen Zustandsbericht als PDF hoch. Wird unter den Fahrzeugbildern angezeigt.
+                </FormDescription>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
 
         </Accordion>
 

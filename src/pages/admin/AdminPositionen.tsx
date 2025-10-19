@@ -55,6 +55,27 @@ export default function AdminPositionen() {
     return urls;
   };
 
+  const uploadPdfToStorage = async (file: File, chassis: string): Promise<string> => {
+    const timestamp = Date.now();
+    const fileName = `${chassis}_zustandsbericht_${timestamp}.pdf`;
+    const filePath = `reports/${fileName}`;
+
+    const { data, error } = await supabase.storage
+      .from('vehicle-reports')
+      .upload(filePath, file, {
+        contentType: 'application/pdf',
+        upsert: true
+      });
+
+    if (error) throw error;
+
+    const { data: urlData } = supabase.storage
+      .from('vehicle-reports')
+      .getPublicUrl(filePath);
+
+    return urlData.publicUrl;
+  };
+
   // Helper: Convert textarea lines to JSON array
   const textareaToJsonArray = (text?: string): string => {
     if (!text) return '[]';
@@ -112,7 +133,9 @@ export default function AdminPositionen() {
     vehiclePhotos?: File[], 
     detailPhotos?: File[],
     finalVehiclePhotoUrls?: string[],
-    finalDetailPhotoUrls?: string[]
+    finalDetailPhotoUrls?: string[],
+    zustandsberichtPdf?: File | null,
+    existingPdfUrl?: string | null
   ) => {
     setIsSubmitting(true);
     try {
@@ -158,6 +181,7 @@ export default function AdminPositionen() {
       // Upload files if provided
       let vehiclePhotoUrls: string[] = [];
       let detailPhotoUrls: string[] = [];
+      let zustandsberichtPdfUrl = null;
 
       if (vehiclePhotos && vehiclePhotos.length > 0 && newVehicle) {
         vehiclePhotoUrls = await uploadMultipleImages(vehiclePhotos, newVehicle.id, 'vehicle', 0);
@@ -167,13 +191,27 @@ export default function AdminPositionen() {
         detailPhotoUrls = await uploadMultipleImages(detailPhotos, newVehicle.id, 'detail', 0);
       }
 
+      if (zustandsberichtPdf && newVehicle) {
+        try {
+          zustandsberichtPdfUrl = await uploadPdfToStorage(zustandsberichtPdf, data.chassis);
+        } catch (error) {
+          console.error('Error uploading Zustandsbericht PDF:', error);
+          toast({
+            title: "Fehler",
+            description: "Zustandsbericht-PDF konnte nicht hochgeladen werden",
+            variant: "destructive",
+          });
+        }
+      }
+
       // Update vehicle with file URLs
-      if ((vehiclePhotoUrls.length > 0 || detailPhotoUrls.length > 0) && newVehicle) {
+      if ((vehiclePhotoUrls.length > 0 || detailPhotoUrls.length > 0 || zustandsberichtPdfUrl) && newVehicle) {
         const { error: updateError } = await supabase
           .from("vehicles")
           .update({
             vehicle_photos: vehiclePhotoUrls,
             detail_photos: detailPhotoUrls,
+            zustandsbericht_pdf_url: zustandsberichtPdfUrl,
           })
           .eq('id', newVehicle.id);
 
@@ -203,7 +241,9 @@ export default function AdminPositionen() {
     vehiclePhotos?: File[], 
     detailPhotos?: File[],
     finalVehiclePhotoUrls?: string[],
-    finalDetailPhotoUrls?: string[]
+    finalDetailPhotoUrls?: string[],
+    zustandsberichtPdf?: File | null,
+    existingPdfUrl?: string | null
   ) => {
     if (!selectedVehicle) return;
     
@@ -240,6 +280,29 @@ export default function AdminPositionen() {
         detailPhotoUrls = [...detailPhotoUrls, ...newUrls];
       }
 
+      // PDF Upload/Delete Logic
+      let finalPdfUrl = existingPdfUrl;
+
+      if (zustandsberichtPdf) {
+        // Delete old PDF if exists
+        if (selectedVehicle.zustandsbericht_pdf_url) {
+          const oldPdfPath = selectedVehicle.zustandsbericht_pdf_url.split('/vehicle-reports/')[1];
+          if (oldPdfPath) {
+            await supabase.storage.from('vehicle-reports').remove([oldPdfPath]);
+          }
+        }
+        
+        // Upload new PDF
+        finalPdfUrl = await uploadPdfToStorage(zustandsberichtPdf, data.chassis);
+      } else if (!existingPdfUrl && selectedVehicle.zustandsbericht_pdf_url) {
+        // User removed the PDF
+        const oldPdfPath = selectedVehicle.zustandsbericht_pdf_url.split('/vehicle-reports/')[1];
+        if (oldPdfPath) {
+          await supabase.storage.from('vehicle-reports').remove([oldPdfPath]);
+        }
+        finalPdfUrl = null;
+      }
+
       // Update vehicle
       const { error } = await supabase
         .from("vehicles")
@@ -253,6 +316,7 @@ export default function AdminPositionen() {
           price: data.price,
           vehicle_photos: vehiclePhotoUrls,
           detail_photos: detailPhotoUrls,
+          zustandsbericht_pdf_url: finalPdfUrl,
           aufbau: data.aufbau || null,
           kraftstoffart: data.kraftstoffart || null,
           motorart: data.motorart || null,
