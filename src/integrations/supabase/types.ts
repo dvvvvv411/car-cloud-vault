@@ -496,46 +496,106 @@ export type Database = {
       }
       vehicles: {
         Row: {
+          anzahl_sitzplaetze: string | null
+          anzahl_tueren: string | null
+          aufbau: string | null
+          bemerkungen: string | null
+          bereifung: Json | null
           brand: string
           chassis: string
           created_at: string | null
           detail_photos: Json | null
+          faelligkeit_hu: string | null
+          farbe: string | null
           first_registration: string
+          gesamtgewicht: string | null
+          getriebeart: string | null
+          hubraum: string | null
           id: string
+          innenraum_zustand: Json | null
           kilometers: number
+          kraftstoffart: string | null
+          leistung: string | null
           model: string
+          motorart: string | null
+          optische_schaeden: Json | null
+          polster_typ: string | null
           price: number
           report_nr: string
+          serienausstattung: Json | null
+          sonderausstattung: Json | null
           updated_at: string | null
           vehicle_photos: Json | null
+          wartung_datum: string | null
+          wartung_kilometerstand: string | null
         }
         Insert: {
+          anzahl_sitzplaetze?: string | null
+          anzahl_tueren?: string | null
+          aufbau?: string | null
+          bemerkungen?: string | null
+          bereifung?: Json | null
           brand: string
           chassis: string
           created_at?: string | null
           detail_photos?: Json | null
+          faelligkeit_hu?: string | null
+          farbe?: string | null
           first_registration: string
+          gesamtgewicht?: string | null
+          getriebeart?: string | null
+          hubraum?: string | null
           id?: string
+          innenraum_zustand?: Json | null
           kilometers: number
+          kraftstoffart?: string | null
+          leistung?: string | null
           model: string
+          motorart?: string | null
+          optische_schaeden?: Json | null
+          polster_typ?: string | null
           price: number
           report_nr: string
+          serienausstattung?: Json | null
+          sonderausstattung?: Json | null
           updated_at?: string | null
           vehicle_photos?: Json | null
+          wartung_datum?: string | null
+          wartung_kilometerstand?: string | null
         }
         Update: {
+          anzahl_sitzplaetze?: string | null
+          anzahl_tueren?: string | null
+          aufbau?: string | null
+          bemerkungen?: string | null
+          bereifung?: Json | null
           brand?: string
           chassis?: string
           created_at?: string | null
           detail_photos?: Json | null
+          faelligkeit_hu?: string | null
+          farbe?: string | null
           first_registration?: string
+          gesamtgewicht?: string | null
+          getriebeart?: string | null
+          hubraum?: string | null
           id?: string
+          innenraum_zustand?: Json | null
           kilometers?: number
+          kraftstoffart?: string | null
+          leistung?: string | null
           model?: string
+          motorart?: string | null
+          optische_schaeden?: Json | null
+          polster_typ?: string | null
           price?: number
           report_nr?: string
+          serienausstattung?: Json | null
+          sonderausstattung?: Json | null
           updated_at?: string | null
           vehicle_photos?: Json | null
+          wartung_datum?: string | null
+          wartung_kilometerstand?: string | null
         }
         Relationships: []
       }

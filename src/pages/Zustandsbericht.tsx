@@ -6,16 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Printer, Check } from "lucide-react";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import kbsLogo from "@/assets/kbs_blue.png";
-import {
-  serienausstattung,
-  sonderausstattung,
-  tireData,
-  opticalDamages,
-  interiorCondition,
-  standardBemerkungen,
-  vehicleStaticData,
-  wartungData
-} from "@/data/zustandsberichtMockData";
 
 const formatKilometers = (km: number) => {
   return km.toLocaleString('de-DE') + ' km';
@@ -68,30 +58,46 @@ export default function Zustandsbericht() {
     );
   }
 
-  // Parse vehicle photos and detail photos from database
-  const vehiclePhotos = vehicle.vehicle_photos 
-    ? (() => {
-        try {
-          const parsed = JSON.parse(vehicle.vehicle_photos as string);
-          return Array.isArray(parsed) ? parsed.filter((p): p is string => typeof p === 'string') : [];
-        } catch (e) {
-          console.error('Error parsing vehicle_photos', e);
-          return [];
-        }
-      })()
-    : [];
+  // Helper: Parse JSON array from DB
+  const parseJsonArray = (jsonString: string | null | undefined): string[] => {
+    if (!jsonString) return [];
+    try {
+      const parsed = JSON.parse(jsonString);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.error('Error parsing JSON array', e);
+      return [];
+    }
+  };
 
-  const damagePhotos = vehicle.detail_photos 
-    ? (() => {
-        try {
-          const parsed = JSON.parse(vehicle.detail_photos as string);
-          return Array.isArray(parsed) ? parsed.filter((p): p is string => typeof p === 'string') : [];
-        } catch (e) {
-          console.error('Error parsing detail_photos', e);
-          return [];
-        }
-      })()
-    : [];
+  // Helper: Parse bereifung data
+  interface TireRow {
+    position: string;
+    bezeichnung: string;
+    art: string;
+    profiltiefe: string;
+  }
+  const parseBereifung = (jsonString: string | null | undefined): TireRow[] => {
+    if (!jsonString) return [];
+    try {
+      const parsed = JSON.parse(jsonString);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.error('Error parsing bereifung', e);
+      return [];
+    }
+  };
+
+  // Parse vehicle photos and detail photos from database
+  const vehiclePhotos = parseJsonArray(vehicle.vehicle_photos);
+  const damagePhotos = parseJsonArray(vehicle.detail_photos);
+  
+  // Parse Zustandsbericht data
+  const serienausstattung = parseJsonArray(vehicle.serienausstattung);
+  const sonderausstattung = parseJsonArray(vehicle.sonderausstattung);
+  const opticalDamages = parseJsonArray(vehicle.optische_schaeden);
+  const interiorCondition = parseJsonArray(vehicle.innenraum_zustand);
+  const tireData = parseBereifung(vehicle.bereifung);
 
   return (
     <>
@@ -161,7 +167,7 @@ export default function Zustandsbericht() {
             </div>
             <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Aufbau</span>
-              <span>{vehicleStaticData.aufbau}</span>
+              <span>{vehicle.aufbau || '-'}</span>
             </div>
             <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">FIN</span>
@@ -169,23 +175,23 @@ export default function Zustandsbericht() {
             </div>
             <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Kraftstoffart / Energiequelle</span>
-              <span>{vehicleStaticData.kraftstoffart}</span>
+              <span>{vehicle.kraftstoffart || '-'}</span>
             </div>
             <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Motorart / Zylinder</span>
-              <span>{vehicleStaticData.motorart}</span>
+              <span>{vehicle.motorart || '-'}</span>
             </div>
             <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Leistung</span>
-              <span>{vehicleStaticData.leistung}</span>
+              <span>{vehicle.leistung || '-'}</span>
             </div>
             <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Getriebeart</span>
-              <span>{vehicleStaticData.getriebeart}</span>
+              <span>{vehicle.getriebeart || '-'}</span>
             </div>
             <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Farbe</span>
-              <span>{vehicleStaticData.farbe}</span>
+              <span>{vehicle.farbe || '-'}</span>
             </div>
             <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Typ / Modell</span>
@@ -201,121 +207,144 @@ export default function Zustandsbericht() {
             </div>
             <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Zul. Gesamtgewicht</span>
-              <span>{vehicleStaticData.gesamtgewicht}</span>
+              <span>{vehicle.gesamtgewicht || '-'}</span>
             </div>
             <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Hubraum</span>
-              <span>{vehicleStaticData.hubraum}</span>
+              <span>{vehicle.hubraum || '-'}</span>
             </div>
             <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Anzahl Türen</span>
-              <span>{vehicleStaticData.anzahlTueren}</span>
+              <span>{vehicle.anzahl_tueren || '-'}</span>
             </div>
             <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Anzahl Sitzplätze</span>
-              <span>{vehicleStaticData.anzahlSitzplaetze}</span>
+              <span>{vehicle.anzahl_sitzplaetze || '-'}</span>
             </div>
             <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Fälligkeit HU</span>
-              <span>{vehicleStaticData.faelligkeitHU}</span>
+              <span>{vehicle.faelligkeit_hu || '-'}</span>
             </div>
             <div className="grid grid-cols-[200px_1fr] gap-x-4">
               <span className="font-semibold">Polster Typ / Farbe</span>
-              <span>{vehicleStaticData.polsterTyp}</span>
+              <span>{vehicle.polster_typ || '-'}</span>
             </div>
           </div>
 
-          <div className="mt-4">
-            <h3 className="font-semibold text-sm mb-2">Bemerkungen</h3>
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              {standardBemerkungen}
-            </p>
-          </div>
+          {vehicle.bemerkungen && (
+            <div className="mt-4">
+              <h3 className="font-semibold text-sm mb-2">Bemerkungen</h3>
+              <p className="text-xs leading-relaxed text-muted-foreground">
+                {vehicle.bemerkungen}
+              </p>
+            </div>
+          )}
         </section>
 
         {/* Tire Table */}
-        <section className="mb-8 avoid-break">
-          <h2 className="text-xl font-semibold mb-4">Bereifung</h2>
-          <table className="w-full text-sm border-collapse border border-border">
-            <thead>
-              <tr>
-                <th className="border border-border p-2 text-left">Position</th>
-                <th className="border border-border p-2 text-left">Reifenbezeichnung</th>
-                <th className="border border-border p-2 text-left">Reifenart</th>
-                <th className="border border-border p-2 text-left">Profiltiefe</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tireData.map((tire, index) => (
-                <tr key={index}>
-                  <td className="border border-border p-2">{tire.position}</td>
-                  <td className="border border-border p-2">{tire.bezeichnung}</td>
-                  <td className="border border-border p-2">{tire.art}</td>
-                  <td className="border border-border p-2">{tire.profiltiefe}</td>
+        {tireData.length > 0 && (
+          <section className="mb-8 avoid-break">
+            <h2 className="text-xl font-semibold mb-4">Bereifung</h2>
+            <table className="w-full text-sm border-collapse border border-border">
+              <thead>
+                <tr>
+                  <th className="border border-border p-2 text-left">Position</th>
+                  <th className="border border-border p-2 text-left">Reifenbezeichnung</th>
+                  <th className="border border-border p-2 text-left">Reifenart</th>
+                  <th className="border border-border p-2 text-left">Profiltiefe</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <p className="text-xs text-muted-foreground mt-2">Legende: W=Winter / S=Schadhaft</p>
-        </section>
+              </thead>
+              <tbody>
+                {tireData.map((tire, index) => (
+                  <tr key={index}>
+                    <td className="border border-border p-2">{tire.position}</td>
+                    <td className="border border-border p-2">{tire.bezeichnung}</td>
+                    <td className="border border-border p-2">{tire.art}</td>
+                    <td className="border border-border p-2">{tire.profiltiefe}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="text-xs text-muted-foreground mt-2">Legende: W=Winter / S=Schadhaft</p>
+          </section>
+        )}
 
         {/* Maintenance */}
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-2">Wartung</h2>
-          <p className="text-sm">am {wartungData.datum} bei {wartungData.kilometerstand}</p>
-        </section>
+        {(vehicle.wartung_datum || vehicle.wartung_kilometerstand) && (
+          <section className="mb-8">
+            <h2 className="text-xl font-semibold mb-2">Wartung</h2>
+            <p className="text-sm">
+              am {vehicle.wartung_datum || '-'} bei {vehicle.wartung_kilometerstand || '-'}
+            </p>
+          </section>
+        )}
 
         {/* Equipment Lists */}
-        <section className="mb-8 avoid-break">
-          <h2 className="text-xl font-semibold mb-4">Ausstattung</h2>
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-semibold text-sm mb-3 border-b border-border pb-1">Serienausstattung</h3>
-              <ul className="space-y-1 text-xs">
-                {serienausstattung.map((item, index) => (
-                  <li key={index} className="flex items-start">
-                    <Check className="h-3 w-3 mr-2 mt-0.5 text-primary flex-shrink-0" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
+        {(serienausstattung.length > 0 || sonderausstattung.length > 0) && (
+          <section className="mb-8 avoid-break">
+            <h2 className="text-xl font-semibold mb-4">Ausstattung</h2>
+            <div className="grid grid-cols-2 gap-6">
+              {serienausstattung.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-sm mb-3 border-b border-border pb-1">Serienausstattung</h3>
+                  <ul className="space-y-1 text-xs">
+                    {serienausstattung.map((item, index) => (
+                      <li key={index} className="flex items-start">
+                        <Check className="h-3 w-3 mr-2 mt-0.5 text-primary flex-shrink-0" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {sonderausstattung.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-sm mb-3 border-b border-border pb-1">Sonderausstattung</h3>
+                  <ul className="space-y-1 text-xs">
+                    {sonderausstattung.map((item, index) => (
+                      <li key={index} className="flex items-start">
+                        <Check className="h-3 w-3 mr-2 mt-0.5 text-primary flex-shrink-0" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
-            <div>
-              <h3 className="font-semibold text-sm mb-3 border-b border-border pb-1">Sonderausstattung</h3>
-              <ul className="space-y-1 text-xs">
-                {sonderausstattung.map((item, index) => (
-                  <li key={index} className="flex items-start">
-                    <Check className="h-3 w-3 mr-2 mt-0.5 text-primary flex-shrink-0" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* Optical Condition & Interior */}
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-4">Optischer Zustand</h2>
-          <ul className="space-y-1 text-sm mb-4">
-            {opticalDamages.map((damage, index) => (
-              <li key={index} className="flex items-start">
-                <span className="mr-2">•</span>
-                <span>{damage}</span>
-              </li>
-            ))}
-          </ul>
+        {(opticalDamages.length > 0 || interiorCondition.length > 0) && (
+          <section className="mb-8">
+            <h2 className="text-xl font-semibold mb-4">Optischer Zustand</h2>
+            
+            {opticalDamages.length > 0 && (
+              <ul className="space-y-1 text-sm mb-4">
+                {opticalDamages.map((damage, index) => (
+                  <li key={index} className="flex items-start">
+                    <span className="mr-2">•</span>
+                    <span>{damage}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
 
-          <h3 className="font-semibold text-sm mb-2">Innenraum</h3>
-          <ul className="space-y-1 text-sm">
-            {interiorCondition.map((item, index) => (
-              <li key={index} className="flex items-start">
-                <span className="mr-2">•</span>
-                <span>{item}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
+            {interiorCondition.length > 0 && (
+              <>
+                <h3 className="font-semibold text-sm mb-2">Innenraum</h3>
+                <ul className="space-y-1 text-sm">
+                  {interiorCondition.map((item, index) => (
+                    <li key={index} className="flex items-start">
+                      <span className="mr-2">•</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </section>
+        )}
 
 
         {/* Damage Photos Gallery - Conditional rendering */}
