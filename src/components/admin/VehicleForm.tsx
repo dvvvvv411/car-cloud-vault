@@ -10,6 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDes
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Vehicle } from "@/hooks/useVehicles";
 import { ImageDropZone } from "./ImageDropZone";
+import { QuickImportDialog } from "./QuickImportDialog";
 
 interface VehicleFormProps {
   vehicle?: Vehicle;
@@ -295,9 +296,18 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
           
           {/* Fahrzeugbeschreibung Details */}
           <AccordionItem value="details">
-            <AccordionTrigger className="text-base font-semibold">
-              Fahrzeugbeschreibung (Details)
-            </AccordionTrigger>
+            <div className="flex items-center justify-between py-4">
+              <AccordionTrigger className="text-base font-semibold flex-1 hover:no-underline">
+                Fahrzeugbeschreibung (Details)
+              </AccordionTrigger>
+              <QuickImportDialog 
+                onImport={(data) => {
+                  Object.entries(data).forEach(([key, value]) => {
+                    form.setValue(key as any, value);
+                  });
+                }} 
+              />
+            </div>
             <AccordionContent className="space-y-4 pt-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField

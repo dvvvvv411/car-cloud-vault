@@ -59,11 +59,17 @@ export default function Zustandsbericht() {
   }
 
   // Helper: Parse JSON array from DB
-  const parseJsonArray = (jsonString: string | null | undefined): string[] => {
-    if (!jsonString) return [];
+  const parseJsonArray = (jsonData: any): string[] => {
+    if (!jsonData) return [];
     try {
-      const parsed = JSON.parse(jsonString);
-      return Array.isArray(parsed) ? parsed : [];
+      // If it's already an array, return it
+      if (Array.isArray(jsonData)) return jsonData;
+      // If it's a string, parse it
+      if (typeof jsonData === 'string') {
+        const parsed = JSON.parse(jsonData);
+        return Array.isArray(parsed) ? parsed : [];
+      }
+      return [];
     } catch (e) {
       console.error('Error parsing JSON array', e);
       return [];
@@ -77,11 +83,17 @@ export default function Zustandsbericht() {
     art: string;
     profiltiefe: string;
   }
-  const parseBereifung = (jsonString: string | null | undefined): TireRow[] => {
-    if (!jsonString) return [];
+  const parseBereifung = (jsonData: any): TireRow[] => {
+    if (!jsonData) return [];
     try {
-      const parsed = JSON.parse(jsonString);
-      return Array.isArray(parsed) ? parsed : [];
+      // If it's already an array, return it
+      if (Array.isArray(jsonData)) return jsonData;
+      // If it's a string, parse it
+      if (typeof jsonData === 'string') {
+        const parsed = JSON.parse(jsonData);
+        return Array.isArray(parsed) ? parsed : [];
+      }
+      return [];
     } catch (e) {
       console.error('Error parsing bereifung', e);
       return [];
