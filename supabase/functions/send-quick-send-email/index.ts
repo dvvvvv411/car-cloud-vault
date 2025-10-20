@@ -2,7 +2,7 @@ import React from 'https://esm.sh/react@18.3.1'
 import { Resend } from 'https://esm.sh/resend@4.0.0'
 import { render } from 'https://esm.sh/@react-email/render@0.0.17'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.58.0'
-import { ColdCallInterestEmail } from '../send-cold-call-interest-email/_templates/cold-call-interest.tsx'
+import { ColdCallInterestEmail } from './_templates/cold-call-interest.tsx'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
