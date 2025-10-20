@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Upload, Download, Eye, Calendar, Building2, Users, UserCheck, FileText, Package, Search } from "lucide-react";
+import { Loader2, Upload, Download, Eye, Calendar, Building2, Users, UserCheck, FileText, Package, Search, Send, Phone } from "lucide-react";
 import { CommandDialog, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
 import { useLeadCampaigns, useCampaignLeads, useUploadLeadCampaign, LeadCampaign, Lead } from "@/hooks/useLeads";
 import { useBrandings } from "@/hooks/useBranding";
@@ -201,15 +201,30 @@ const AdminLeads = () => {
           </div>
         ) : campaigns && campaigns.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {campaigns.map(campaign => (
-              <Card key={campaign.id} className="modern-hover border-border/40 group">
-                <CardHeader className="border-b border-border/40 pb-4">
-                  <CardTitle className="flex items-center gap-2 text-base font-semibold group-hover:text-primary transition-colors">
-                    <div className="p-1.5 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-all">
-                      <Calendar className="h-4 w-4" />
-                    </div>
-                    {campaign.campaign_name}
-                  </CardTitle>
+            {campaigns.map(campaign => {
+              const isQuickSend = campaign.campaign_name.startsWith('Schnell-Versand');
+              const isKaltaquise = campaign.campaign_name === 'Kaltaquise';
+              
+              return (
+                <Card key={campaign.id} className={`modern-hover border-border/40 group ${isQuickSend ? 'border-blue-500/40' : ''}`}>
+                  <CardHeader className="border-b border-border/40 pb-4">
+                    <CardTitle className="flex items-center gap-2 text-base font-semibold group-hover:text-primary transition-colors">
+                      <div className="p-1.5 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-all">
+                        {isQuickSend ? (
+                          <Send className="h-4 w-4" />
+                        ) : isKaltaquise ? (
+                          <Phone className="h-4 w-4" />
+                        ) : (
+                          <Calendar className="h-4 w-4" />
+                        )}
+                      </div>
+                      {campaign.campaign_name}
+                      {isQuickSend && (
+                        <Badge variant="secondary" className="ml-auto bg-blue-500/10 text-blue-500 hover:bg-blue-500/20">
+                          Schnell-Versand
+                        </Badge>
+                      )}
+                    </CardTitle>
                   <CardDescription className="flex items-center gap-1.5 text-xs mt-1">
                     <Building2 className="h-3 w-3" />
                     {campaign.brandings?.company_name}
@@ -249,7 +264,8 @@ const AdminLeads = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <Card className="modern-card">

@@ -12,5 +12,8 @@ verify_jwt = false
 [functions.send-cold-call-interest-email]
 verify_jwt = false
 
+[functions.send-quick-send-email]
+verify_jwt = false
+
 [functions.delete-all-vehicle-images]
 verify_jwt = false

@@ -140,6 +140,40 @@ const generateUniquePassword = (existingPasswords: Set<string>): string => {
   throw new Error('Konnte kein einzigartiges Passwort generieren');
 };
 
+// Helper: Find or create Quick-Send campaign for a branding
+async function findOrCreateQuickSendCampaign(brandingId: string, brandingName: string) {
+  const campaignName = `Schnell-Versand ${brandingName}`;
+  
+  // Try to find existing Quick-Send campaign
+  const { data: existingCampaign } = await supabase
+    .from('lead_campaigns')
+    .select('*')
+    .eq('branding_id', brandingId)
+    .eq('campaign_name', campaignName)
+    .maybeSingle();
+  
+  if (existingCampaign) {
+    return existingCampaign;
+  }
+  
+  // Create new Quick-Send campaign
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  const { data: newCampaign, error } = await supabase
+    .from('lead_campaigns')
+    .insert({
+      branding_id: brandingId,
+      campaign_name: campaignName,
+      total_leads: 0,
+      created_by: user?.id,
+    })
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return newCampaign;
+}
+
 // Generate campaign name with auto-increment
 const generateCampaignName = async (brandingId: string, date: Date): Promise<string> => {
   const baseDate = date.toLocaleDateString('de-DE', {
@@ -262,6 +296,142 @@ export const useUploadLeadCampaign = () => {
         title: "Fehler beim Import",
         description: error.message,
         variant: "destructive",
+      });
+    },
+  });
+};
+
+// Quick-Send Lead (single lead with email)
+export const useQuickSendLead = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ 
+      email,
+      brandingId,
+      callerId,
+    }: { 
+      email: string;
+      brandingId: string;
+      callerId: string;
+    }) => {
+      // 1. Get branding name for campaign name
+      const { data: branding, error: brandingError } = await supabase
+        .from('brandings')
+        .select('company_name')
+        .eq('id', brandingId)
+        .single();
+      
+      if (brandingError || !branding) {
+        throw new Error('Branding nicht gefunden');
+      }
+      
+      // 2. Find or create Quick-Send campaign
+      const quickSendCampaign = await findOrCreateQuickSendCampaign(
+        brandingId, 
+        branding.company_name
+      );
+      
+      // 3. Check for duplicate email in this campaign
+      const { data: existingLead } = await supabase
+        .from('leads')
+        .select('id')
+        .eq('campaign_id', quickSendCampaign.id)
+        .eq('email', email.toLowerCase())
+        .maybeSingle();
+      
+      if (existingLead) {
+        throw new Error('Diese E-Mail wurde bereits in dieser Kampagne hinzugefügt');
+      }
+      
+      // 4. Get existing passwords to avoid duplicates
+      const { data: existingLeads } = await supabase
+        .from('leads')
+        .select('password');
+      
+      const existingPasswords = new Set(existingLeads?.map(l => l.password) || []);
+      
+      // 5. Generate unique password
+      const password = generateUniquePassword(existingPasswords);
+      
+      // 6. Create new lead
+      const { data: newLead, error: leadError } = await supabase
+        .from('leads')
+        .insert({
+          campaign_id: quickSendCampaign.id,
+          email: email.toLowerCase(),
+          password: password,
+          branding_id: brandingId,
+        })
+        .select()
+        .single();
+      
+      if (leadError) throw leadError;
+      
+      // 7. Update campaign total_leads count
+      const { data: campaignLeads } = await supabase
+        .from('leads')
+        .select('id')
+        .eq('campaign_id', quickSendCampaign.id);
+      
+      if (campaignLeads) {
+        await supabase
+          .from('lead_campaigns')
+          .update({ total_leads: campaignLeads.length })
+          .eq('id', quickSendCampaign.id);
+      }
+      
+      // 8. Send email notification via Edge Function
+      let emailStatus: 'sent' | 'failed' = 'failed';
+      try {
+        const { data: emailResponse, error: invokeError } = await supabase.functions.invoke(
+          'send-quick-send-email',
+          {
+            body: {
+              leadId: newLead.id,
+              email: email.toLowerCase(),
+              password,
+              brandingId,
+              callerId,
+            },
+          }
+        );
+        
+        if (invokeError || !emailResponse?.success) {
+          console.error('Email invoke error:', invokeError);
+          throw new Error('E-Mail konnte nicht versendet werden');
+        }
+        
+        emailStatus = 'sent';
+      } catch (emailError) {
+        console.error('Email sending failed:', emailError);
+        // Don't throw - lead creation was successful
+      }
+      
+      return { newLead, password, emailStatus };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['lead-campaigns'] });
+      queryClient.invalidateQueries({ queryKey: ['campaign-leads'] });
+      
+      if (data.emailStatus === 'sent') {
+        toast({
+          title: 'Lead erfolgreich erstellt',
+          description: `E-Mail wurde versendet. Passwort: ${data.password}`,
+        });
+      } else {
+        toast({
+          title: 'Lead erstellt, aber E-Mail-Versand fehlgeschlagen',
+          description: `Passwort: ${data.password} (bitte manuell weitergeben)`,
+          variant: 'destructive',
+        });
+      }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Fehler beim Erstellen',
+        description: error.message,
+        variant: 'destructive',
       });
     },
   });
