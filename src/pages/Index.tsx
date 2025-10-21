@@ -242,7 +242,7 @@ const Index = ({ branding }: IndexProps = {}) => {
           <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6 mb-4 md:mb-6">
             {/* Logo und Badge */}
             <div className="flex items-start gap-3">
-              <img src={branding?.kanzlei_logo_url || kbsLogo} alt="Kanzlei Logo" className="h-16 md:h-20 lg:h-24 w-auto" />
+              <img src={branding?.kanzlei_logo_url || kbsLogo} alt="Kanzlei Logo" className="h-12 md:h-14 lg:h-16 w-auto" />
               {/* Badge - nur auf Mobile/Tablet sichtbar */}
               <Badge variant="secondary" className="lg:hidden text-xs sm:text-sm md:text-base px-3 md:px-4 py-1 md:py-1.5 font-semibold mt-1">
                 {branding?.case_number || 'Az: 502 IN 14/25'}
