@@ -89,7 +89,7 @@ export const PasswordProtection = ({ onSuccess, branding, slug }: PasswordProtec
             <img 
               src={branding?.kanzlei_logo_url || kbsLogo} 
               alt="Kanzlei Logo" 
-              className="h-24 object-contain mb-2"
+              className="h-16 object-contain mb-2"
             />
           </div>
           <CardTitle className="text-3xl font-bold">Geschützter Bereich</CardTitle>
