@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.delete-all-vehicle-images]
 verify_jwt = false
+
+[functions.create-bestellung-api]
+verify_jwt = false

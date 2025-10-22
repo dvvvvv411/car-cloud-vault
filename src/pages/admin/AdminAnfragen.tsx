@@ -9,6 +9,7 @@ import { InquiryStatusDropdown } from "@/components/admin/InquiryStatusDropdown"
 import { InquiryNotesDialog } from "@/components/admin/InquiryNotesDialog";
 import { InquiryDetailsDialog } from "@/components/admin/InquiryDetailsDialog";
 import { DekraNumbersDialog } from "@/components/admin/DekraNumbersDialog";
+import { TransferButton } from "@/components/admin/TransferButton";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { useState, useMemo } from "react";
@@ -226,6 +227,7 @@ export default function AdminAnfragen() {
                           </div>
                         </th>
                         <th className="text-center">Call</th>
+                        <th className="text-center">Aktion</th>
                         <th className="text-center rounded-tr-lg">Details</th>
                       </tr>
                     </thead>
@@ -293,6 +295,11 @@ export default function AdminAnfragen() {
                               }
                               aria-label="Als Anruf markieren"
                             />
+                          </td>
+                          <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
+                            {inquiry.status === "Möchte RG/KV" && (
+                              <TransferButton inquiryId={inquiry.id} />
+                            )}
                           </td>
                           <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
                             <InquiryDetailsDialog inquiry={inquiry} />
@@ -382,6 +389,9 @@ export default function AdminAnfragen() {
                       <div className="flex gap-2">
                         <InquiryNotesDialog inquiryId={inquiry.id} />
                         <InquiryDetailsDialog inquiry={inquiry} />
+                        {inquiry.status === "Möchte RG/KV" && (
+                          <TransferButton inquiryId={inquiry.id} />
+                        )}
                       </div>
                     </div>
                   </div>
