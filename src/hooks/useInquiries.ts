@@ -31,6 +31,9 @@ export interface Inquiry {
   status_updated_at?: string;
   call_priority: boolean;
   created_at: string;
+  discount_percentage: number | null;
+  discount_granted_at: string | null;
+  discount_granted_by: string | null;
   brandings?: {
     company_name: string;
     case_number: string;

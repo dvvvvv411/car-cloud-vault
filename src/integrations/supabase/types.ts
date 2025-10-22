@@ -231,6 +231,9 @@ export type Database = {
           company_name: string | null
           created_at: string
           customer_type: string
+          discount_granted_at: string | null
+          discount_granted_by: string | null
+          discount_percentage: number | null
           email: string
           first_name: string
           id: string
@@ -252,6 +255,9 @@ export type Database = {
           company_name?: string | null
           created_at?: string
           customer_type: string
+          discount_granted_at?: string | null
+          discount_granted_by?: string | null
+          discount_percentage?: number | null
           email: string
           first_name: string
           id?: string
@@ -273,6 +279,9 @@ export type Database = {
           company_name?: string | null
           created_at?: string
           customer_type?: string
+          discount_granted_at?: string | null
+          discount_granted_by?: string | null
+          discount_percentage?: number | null
           email?: string
           first_name?: string
           id?: string
@@ -607,12 +616,9 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      convert_first_registration_format: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      convert_first_registration_format: { Args: never; Returns: undefined }
       get_all_users: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           created_at: string
           email: string
@@ -621,10 +627,7 @@ export type Database = {
           role: Database["public"]["Enums"]["app_role"]
         }[]
       }
-      get_user_email: {
-        Args: { user_id: string }
-        Returns: string
-      }
+      get_user_email: { Args: { user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -16,6 +16,7 @@ import { CustomerInfoDialog } from "./CustomerInfoDialog";
 import { EditInquiryVehiclesDialog } from "./EditInquiryVehiclesDialog";
 import { AddNoteButton } from "./AddNoteButton";
 import { InquiryStatusDropdown } from "./InquiryStatusDropdown";
+import { DiscountButton } from "./DiscountButton";
 
 interface InquiryDetailsDialogProps {
   inquiry: Inquiry;
@@ -197,20 +198,35 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
           {/* Meta Information */}
           <div>
             <h3 className="font-semibold mb-3">Weitere Informationen</h3>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <span className="text-muted-foreground">Erstellt am:</span>
-                <p className="font-medium">{formatDate(inquiry.created_at)}</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Status:</span>
-                <div className="mt-1">
-                  <InquiryStatusDropdown 
-                    inquiryId={inquiry.id}
-                    currentStatus={inquiry.status}
-                    statusUpdatedAt={inquiry.status_updated_at}
-                  />
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Erstellt am:</span>
+                  <p className="font-medium">{formatDate(inquiry.created_at)}</p>
                 </div>
+                <div>
+                  <span className="text-muted-foreground">Status:</span>
+                  <div className="mt-1">
+                    <InquiryStatusDropdown 
+                      inquiryId={inquiry.id}
+                      currentStatus={inquiry.status}
+                      statusUpdatedAt={inquiry.status_updated_at}
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              {/* Rabatt Section */}
+              <div className="flex items-center gap-3">
+                <DiscountButton 
+                  inquiryId={inquiry.id}
+                  currentDiscount={inquiry.discount_percentage}
+                />
+                {inquiry.discount_granted_at && (
+                  <p className="text-xs text-muted-foreground">
+                    Gewährt am: {formatDate(inquiry.discount_granted_at)}
+                  </p>
+                )}
               </div>
             </div>
           </div>
