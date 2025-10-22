@@ -35,7 +35,7 @@ export const InquiryNotesDialog = ({ inquiryId }: InquiryNotesDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <div className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center gap-1 max-w-[240px]">
           {notes && notes.length > 0 ? (
             <>
               {notes.map((note, index) => (
