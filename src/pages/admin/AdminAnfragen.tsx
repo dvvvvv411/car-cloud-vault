@@ -5,6 +5,7 @@ import { Mail, Phone, MapPin, Building2, User, Calendar, Package, Euro, MessageS
 import { Button } from "@/components/ui/button";
 import { useInquiries, useUpdateInquiryCallPriority, InquiryStatus } from "@/hooks/useInquiries";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { InquiryStatusDropdown } from "@/components/admin/InquiryStatusDropdown";
 import { InquiryNotesDialog } from "@/components/admin/InquiryNotesDialog";
 import { InquiryDetailsDialog } from "@/components/admin/InquiryDetailsDialog";
@@ -16,6 +17,8 @@ import { useState, useMemo } from "react";
 
 export default function AdminAnfragen() {
   const { data: inquiries = [], isLoading } = useInquiries();
+  const { user } = useAuth();
+  const isTransferAdmin = user?.email === "admin@admin.de";
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [searchQuery, setSearchQuery] = useState("");
@@ -227,7 +230,7 @@ export default function AdminAnfragen() {
                           </div>
                         </th>
                         <th className="text-center">Call</th>
-                        <th className="text-center">Aktion</th>
+                        {isTransferAdmin && <th className="text-center">Aktion</th>}
                         <th className="text-center rounded-tr-lg">Details</th>
                       </tr>
                     </thead>
@@ -296,11 +299,13 @@ export default function AdminAnfragen() {
                               aria-label="Als Anruf markieren"
                             />
                           </td>
-                          <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
-                            {inquiry.status === "Möchte RG/KV" && (
-                              <TransferButton inquiryId={inquiry.id} />
-                            )}
-                          </td>
+                          {isTransferAdmin && (
+                            <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
+                              {inquiry.status === "Möchte RG/KV" && (
+                                <TransferButton inquiryId={inquiry.id} />
+                              )}
+                            </td>
+                          )}
                           <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
                             <InquiryDetailsDialog inquiry={inquiry} />
                           </td>
@@ -389,7 +394,7 @@ export default function AdminAnfragen() {
                       <div className="flex gap-2">
                         <InquiryNotesDialog inquiryId={inquiry.id} />
                         <InquiryDetailsDialog inquiry={inquiry} />
-                        {inquiry.status === "Möchte RG/KV" && (
+                        {isTransferAdmin && inquiry.status === "Möchte RG/KV" && (
                           <TransferButton inquiryId={inquiry.id} />
                         )}
                       </div>
