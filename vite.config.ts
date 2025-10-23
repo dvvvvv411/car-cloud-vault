@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     allowedHosts: [
-      "insolvenz.kbs-kanzlei.de",
+      "insolvenz.solle-schniebel.de",
       ".lovable.app",
       "localhost"
     ]
