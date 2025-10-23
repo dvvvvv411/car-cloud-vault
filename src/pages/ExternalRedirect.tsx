@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 const ExternalRedirect = () => {
   useEffect(() => {
-    window.location.replace('https://kbs-kanzlei.de');
+    window.location.replace('https://solle-schniebel.de');
   }, []);
 
   return null;
