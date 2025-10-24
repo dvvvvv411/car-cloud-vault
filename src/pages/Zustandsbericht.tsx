@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Printer, Check } from "lucide-react";
 import { ImageLightbox } from "@/components/ImageLightbox";
-import kbsLogo from "@/assets/kbs_blue.png";
+
 
 const formatKilometers = (km: number) => {
   return km.toLocaleString('de-DE') + ' km';
@@ -131,10 +131,10 @@ export default function Zustandsbericht() {
         {/* Header */}
         <header className="flex justify-between items-start mb-8 pb-6 border-b-2 border-border">
           <div className="text-sm leading-tight">
-            <p className="font-semibold">KBS Rechtsanwälte Küpper</p>
-            <p className="font-semibold">Bredehöft Schwencker PartG</p>
-            <p>Speldorfer Str. 2</p>
-            <p>40239 Düsseldorf</p>
+            <p className="font-semibold">Solle & Schniebel</p>
+            <p className="font-semibold">Rechtsanwälte in Partnerschaft PartG</p>
+            <p>Gustav-Adolf-Str. 146 a</p>
+            <p>13086 Berlin</p>
           </div>
           
           <div className="flex-1 flex flex-col items-center justify-start px-8">
@@ -143,7 +143,7 @@ export default function Zustandsbericht() {
           </div>
           
           <div className="h-[4.5rem] w-auto">
-            <img src={kbsLogo} alt="KBS Logo" className="h-full w-auto object-contain" />
+            <img src="https://dbltyxypjvbavejkkcer.supabase.co/storage/v1/object/public/branding-assets/logos/1761058520387_fab02s.png" alt="Solle & Schniebel Logo" className="h-full w-auto object-contain" />
           </div>
         </header>
 
