@@ -48,6 +48,13 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
     return format(new Date(dateString), "dd.MM.yyyy HH:mm", { locale: de });
   };
 
+  const calculateFinalPrice = (nettoPrice: number, discountPercentage: number | null) => {
+    const priceAfterDiscount = discountPercentage 
+      ? nettoPrice * (1 - discountPercentage / 100)
+      : nettoPrice;
+    return priceAfterDiscount * 1.19;
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -213,6 +220,32 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
                       statusUpdatedAt={inquiry.status_updated_at}
                     />
                   </div>
+                </div>
+              </div>
+              
+              {/* Gesamtpreis Section */}
+              <div>
+                <span className="text-muted-foreground">Gesamtpreis:</span>
+                <div className="mt-2 space-y-1">
+                  <p className="text-2xl font-bold text-primary">
+                    {formatPrice(calculateFinalPrice(inquiry.total_price, inquiry.discount_percentage))}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    inkl. 19% MwSt.
+                    {inquiry.discount_percentage && (
+                      <span className="ml-2 text-green-600 font-medium">
+                        ({inquiry.discount_percentage}% Rabatt gewährt)
+                      </span>
+                    )}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Netto: {formatPrice(inquiry.total_price)}
+                    {inquiry.discount_percentage && (
+                      <span className="ml-2">
+                        · Nach Rabatt: {formatPrice(inquiry.total_price * (1 - inquiry.discount_percentage / 100))}
+                      </span>
+                    )}
+                  </p>
                 </div>
               </div>
               
