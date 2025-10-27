@@ -279,10 +279,13 @@ export const useUploadLeadCampaign = () => {
           branding_id: brandingId,
         }));
 
-        // Insert leads - ignore conflicts (DB will reject duplicates)
+        // Use upsert with ignoreDuplicates to skip conflicts without throwing error
         await supabase
           .from("leads")
-          .insert(leads);
+          .upsert(leads, {
+            onConflict: 'email,branding_id',
+            ignoreDuplicates: true
+          });
 
         // Count actual inserted leads
         const { count } = await supabase
@@ -306,6 +309,25 @@ export const useUploadLeadCampaign = () => {
           campaignName,
         };
       } catch (error) {
+        // Delete empty campaign if it was created
+        if (campaignId) {
+          const { count } = await supabase
+            .from("leads")
+            .select("*", { count: "exact", head: true })
+            .eq("campaign_id", campaignId);
+          
+          if (count === 0) {
+            await supabase
+              .from("lead_campaigns")
+              .delete()
+              .eq("id", campaignId);
+          }
+        }
+        
+        // Better error message
+        if (error instanceof Error) {
+          throw new Error(`Lead-Import fehlgeschlagen: ${error.message}`);
+        }
         throw error;
       }
     },
