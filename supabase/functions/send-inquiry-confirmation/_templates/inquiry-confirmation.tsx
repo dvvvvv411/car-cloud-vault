@@ -45,7 +45,6 @@ export const InquiryConfirmationEmail = ({
           {logoBase64 && (
             <Img
               src={logoBase64}
-              width="180"
               alt={branding.lawyer_firm_name}
               style={logo}
             />
@@ -146,6 +145,9 @@ const container = {
 const logo = {
   margin: '0 auto 30px',
   display: 'block',
+  maxWidth: '200px',
+  width: '100%',
+  height: 'auto',
 }
 
 const h1 = {
