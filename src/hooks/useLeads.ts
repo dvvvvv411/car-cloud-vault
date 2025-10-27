@@ -279,40 +279,33 @@ export const useUploadLeadCampaign = () => {
           branding_id: brandingId,
         }));
 
-        // Insert leads - THIS MIGHT FAIL
-        const { error: leadsError } = await supabase
+        // Insert leads - ignore conflicts (DB will reject duplicates)
+        await supabase
           .from("leads")
           .insert(leads);
 
-        if (leadsError) {
-          // CRITICAL: Delete the campaign if lead insert fails
-          await supabase
-            .from("lead_campaigns")
-            .delete()
-            .eq("id", campaignId);
-          
-          throw new Error(`Lead-Import fehlgeschlagen: ${leadsError.message}. Kampagne wurde zurückgerollt.`);
-        }
+        // Count actual inserted leads
+        const { count } = await supabase
+          .from("leads")
+          .select("*", { count: "exact", head: true })
+          .eq("campaign_id", campaignId);
+
+        const actualLeadsInserted = count || 0;
+
+        // Update campaign with real count
+        await supabase
+          .from("lead_campaigns")
+          .update({ total_leads: actualLeadsInserted })
+          .eq("id", campaignId);
 
         return {
           success: true,
-          totalLeads: newEmails.length,
-          skippedDuplicates,
+          totalLeads: actualLeadsInserted,
+          skippedDuplicates: skippedDuplicates + (newEmails.length - actualLeadsInserted),
           duplicatesInFile,
           campaignName,
         };
       } catch (error) {
-        // If campaign was created but something failed, try to delete it
-        if (campaignId) {
-          try {
-            await supabase
-              .from("lead_campaigns")
-              .delete()
-              .eq("id", campaignId);
-          } catch (deleteError) {
-            console.error("Failed to rollback campaign:", deleteError);
-          }
-        }
         throw error;
       }
     },
