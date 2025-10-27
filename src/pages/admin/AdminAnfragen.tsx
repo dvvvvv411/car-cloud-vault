@@ -121,6 +121,13 @@ export default function AdminAnfragen() {
     return format(new Date(dateString), "dd.MM.yy HH:mm", { locale: de });
   };
 
+  const calculateFinalPrice = (nettoPrice: number, discountPercentage: number | null) => {
+    const priceAfterDiscount = discountPercentage 
+      ? nettoPrice * (1 - discountPercentage / 100)
+      : nettoPrice;
+    return priceAfterDiscount * 1.19;
+  };
+
   const copyToClipboard = async (text: string, type: 'email' | 'phone' | 'name' | 'company') => {
     try {
       await navigator.clipboard.writeText(text);
@@ -290,8 +297,13 @@ export default function AdminAnfragen() {
                               }
                             />
                           </td>
-                          <td className="text-right font-bold text-primary whitespace-nowrap">
-                            {formatPrice(inquiry.total_price)}
+                          <td className="text-right whitespace-nowrap">
+                            <div className="font-bold text-primary">
+                              {formatPrice(inquiry.total_price)}
+                            </div>
+                            <div className="text-xs text-muted-foreground mt-0.5">
+                              {formatPrice(calculateFinalPrice(inquiry.total_price, inquiry.discount_percentage))} inkl. MwSt.
+                            </div>
                           </td>
                           <td className="p-2" onClick={(e) => e.stopPropagation()}>
                             <InquiryNotesDialog inquiryId={inquiry.id} />
@@ -387,10 +399,17 @@ export default function AdminAnfragen() {
                         </div>
                       }
                     />
-                    <div className="flex items-center gap-2 font-semibold text-primary">
-                      <Euro className="h-4 w-4" />
-                      {formatPrice(inquiry.total_price)}
+                  <div className="flex items-center gap-2">
+                    <Euro className="h-4 w-4 text-primary" />
+                    <div>
+                      <div className="font-semibold text-primary">
+                        {formatPrice(inquiry.total_price)}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {formatPrice(calculateFinalPrice(inquiry.total_price, inquiry.discount_percentage))} inkl. MwSt.
+                      </div>
                     </div>
+                  </div>
                     <div 
                       className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors"
                       onClick={() => copyToClipboard(inquiry.email, 'email')}
