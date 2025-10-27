@@ -121,12 +121,17 @@ export default function AdminAnfragen() {
     return format(new Date(dateString), "dd.MM.yy HH:mm", { locale: de });
   };
 
-  const copyToClipboard = async (text: string, type: 'email' | 'phone') => {
+  const copyToClipboard = async (text: string, type: 'email' | 'phone' | 'name' | 'company') => {
     try {
       await navigator.clipboard.writeText(text);
       toast({
         title: "Kopiert!",
-        description: `${type === 'email' ? 'E-Mail' : 'Telefonnummer'} wurde in die Zwischenablage kopiert.`,
+        description: `${
+          type === 'email' ? 'E-Mail' : 
+          type === 'phone' ? 'Telefonnummer' : 
+          type === 'name' ? 'Name' : 
+          'Firmenname'
+        } wurde in die Zwischenablage kopiert.`,
       });
     } catch (err) {
       toast({
@@ -248,9 +253,17 @@ export default function AdminAnfragen() {
                             {formatDate(inquiry.created_at)}
                           </td>
                           <td>
-                            <div className="font-semibold text-foreground">{inquiry.first_name} {inquiry.last_name}</div>
+                            <div 
+                              className="font-semibold text-foreground cursor-pointer hover:text-primary transition-colors"
+                              onClick={() => copyToClipboard(`${inquiry.first_name} ${inquiry.last_name}`, 'name')}
+                            >
+                              {inquiry.first_name} {inquiry.last_name}
+                            </div>
                             {inquiry.company_name && (
-                              <div className="text-xs text-muted-foreground truncate max-w-[150px] mt-0.5">
+                              <div 
+                                className="text-xs text-muted-foreground truncate max-w-[150px] mt-0.5 cursor-pointer hover:text-primary transition-colors"
+                                onClick={() => copyToClipboard(inquiry.company_name!, 'company')}
+                              >
                                 {inquiry.company_name}
                               </div>
                             )}
@@ -332,11 +345,19 @@ export default function AdminAnfragen() {
                 <CardContent className="p-4">
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <p className="font-semibold">
+                      <p 
+                        className="font-semibold cursor-pointer hover:text-primary transition-colors"
+                        onClick={() => copyToClipboard(`${inquiry.first_name} ${inquiry.last_name}`, 'name')}
+                      >
                         {inquiry.first_name} {inquiry.last_name}
                       </p>
                       {inquiry.company_name && (
-                        <p className="text-base text-muted-foreground">{inquiry.company_name}</p>
+                        <p 
+                          className="text-base text-muted-foreground cursor-pointer hover:text-primary transition-colors"
+                          onClick={() => copyToClipboard(inquiry.company_name!, 'company')}
+                        >
+                          {inquiry.company_name}
+                        </p>
                       )}
                     </div>
                   </div>
