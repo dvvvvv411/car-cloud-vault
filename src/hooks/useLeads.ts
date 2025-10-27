@@ -204,99 +204,125 @@ export const useUploadLeadCampaign = () => {
 
   return useMutation({
     mutationFn: async ({ file, brandingId }: { file: File; brandingId: string }) => {
-      // Read file
-      const text = await file.text();
-      const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+      let campaignId: string | null = null;
+      
+      try {
+        // Read file
+        const text = await file.text();
+        const lines = text.split('\n').map(line => line.trim()).filter(line => line.length > 0);
 
-      // Validate emails
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const validEmails = lines.filter(email => emailRegex.test(email.toLowerCase()));
+        // Validate emails
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const validEmails = lines.filter(email => emailRegex.test(email.toLowerCase()));
 
-      if (validEmails.length === 0) {
-        throw new Error('Keine gültigen Emails in der Datei gefunden');
-      }
+        if (validEmails.length === 0) {
+          throw new Error('Keine gültigen Emails in der Datei gefunden');
+        }
 
-      // Fetch all existing passwords to avoid duplicates
-      const { data: existingLeads, error: fetchError } = await supabase
-        .from("leads")
-        .select("password, email, branding_id");
+        // Fetch all existing passwords and emails (case-insensitive)
+        const { data: existingLeads, error: fetchError } = await supabase
+          .from("leads")
+          .select("password, email, branding_id");
 
-      if (fetchError) throw fetchError;
+        if (fetchError) throw fetchError;
 
-      const existingPasswords = new Set(existingLeads?.map(l => l.password) || []);
-      const existingEmailsForBranding = new Set(
-        existingLeads
-          ?.filter(l => l.branding_id === brandingId)
-          .map(l => l.email.toLowerCase()) || []
-      );
+        const existingPasswords = new Set(existingLeads?.map(l => l.password) || []);
+        
+        // Create case-insensitive email set for this branding
+        const existingEmailsForBranding = new Set(
+          existingLeads
+            ?.filter(l => l.branding_id === brandingId)
+            .map(l => l.email.toLowerCase()) || []
+        );
 
-      // Filter out duplicate emails for this branding
-      const newEmails = validEmails.filter(
-        email => !existingEmailsForBranding.has(email.toLowerCase())
-      );
+        // Remove duplicates: both against DB and within file
+        const uniqueValidEmails = Array.from(new Set(validEmails.map(e => e.toLowerCase())));
+        const duplicatesInFile = validEmails.length - uniqueValidEmails.length;
+        
+        // Filter out emails that already exist in DB
+        const newEmails = uniqueValidEmails.filter(
+          email => !existingEmailsForBranding.has(email)
+        );
+        
+        const skippedDuplicates = uniqueValidEmails.length - newEmails.length;
 
-      // Remove duplicates within the uploaded file itself
-      const uniqueNewEmails = Array.from(new Set(newEmails.map(e => e.toLowerCase())));
-      const duplicatesInFile = newEmails.length - uniqueNewEmails.length;
+        if (newEmails.length === 0) {
+          throw new Error('Alle Emails existieren bereits für dieses Branding');
+        }
 
-      const skippedEmails = validEmails.length - uniqueNewEmails.length;
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
 
-      if (uniqueNewEmails.length === 0) {
-        throw new Error('Alle Emails existieren bereits für dieses Branding');
-      }
+        // Generate campaign name
+        const campaignName = await generateCampaignName(brandingId, new Date());
 
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
+        // Create campaign FIRST (to get ID)
+        const { data: campaign, error: campaignError } = await supabase
+          .from("lead_campaigns")
+          .insert({
+            branding_id: brandingId,
+            campaign_name: campaignName,
+            total_leads: newEmails.length,
+            created_by: user?.id || null,
+          })
+          .select()
+          .single();
 
-      // Generate campaign name
-      const campaignName = await generateCampaignName(brandingId, new Date());
+        if (campaignError) throw campaignError;
+        campaignId = campaign.id;
 
-      // Create campaign
-      const { data: campaign, error: campaignError } = await supabase
-        .from("lead_campaigns")
-        .insert({
+        // Generate leads with unique passwords
+        const leads = newEmails.map(email => ({
+          campaign_id: campaign.id,
+          email: email,
+          password: generateUniquePassword(existingPasswords),
           branding_id: brandingId,
-          campaign_name: campaignName,
-          total_leads: uniqueNewEmails.length,
-          created_by: user?.id || null,
-        })
-        .select()
-        .single();
+        }));
 
-      if (campaignError) throw campaignError;
+        // Insert leads - THIS MIGHT FAIL
+        const { error: leadsError } = await supabase
+          .from("leads")
+          .insert(leads);
 
-      // Generate leads with unique passwords
-      const leads = uniqueNewEmails.map(email => ({
-        campaign_id: campaign.id,
-        email: email.toLowerCase(),
-        password: generateUniquePassword(existingPasswords),
-        branding_id: brandingId,
-      }));
+        if (leadsError) {
+          // CRITICAL: Delete the campaign if lead insert fails
+          await supabase
+            .from("lead_campaigns")
+            .delete()
+            .eq("id", campaignId);
+          
+          throw new Error(`Lead-Import fehlgeschlagen: ${leadsError.message}. Kampagne wurde zurückgerollt.`);
+        }
 
-      // Insert leads
-      const { error: leadsError } = await supabase
-        .from("leads")
-        .insert(leads);
-
-      if (leadsError) throw leadsError;
-
-      return {
-        success: true,
-        totalLeads: uniqueNewEmails.length,
-        skippedEmails,
-        duplicatesInFile,
-        campaignName,
-      };
+        return {
+          success: true,
+          totalLeads: newEmails.length,
+          skippedDuplicates,
+          duplicatesInFile,
+          campaignName,
+        };
+      } catch (error) {
+        // If campaign was created but something failed, try to delete it
+        if (campaignId) {
+          try {
+            await supabase
+              .from("lead_campaigns")
+              .delete()
+              .eq("id", campaignId);
+          } catch (deleteError) {
+            console.error("Failed to rollback campaign:", deleteError);
+          }
+        }
+        throw error;
+      }
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["lead-campaigns"] });
       toast({
         title: "Leads erfolgreich importiert",
         description: `${data.totalLeads} Leads wurden importiert${
-          data.skippedEmails > 0 
-            ? ` (${data.skippedEmails} bereits vorhanden${data.duplicatesInFile > 0 ? `, ${data.duplicatesInFile} Duplikate in Datei` : ''})` 
-            : data.duplicatesInFile > 0 
-            ? ` (${data.duplicatesInFile} Duplikate in Datei entfernt)` 
+          data.skippedDuplicates > 0 || data.duplicatesInFile > 0
+            ? ` (${data.skippedDuplicates > 0 ? `${data.skippedDuplicates} bereits in DB` : ''}${data.skippedDuplicates > 0 && data.duplicatesInFile > 0 ? ', ' : ''}${data.duplicatesInFile > 0 ? `${data.duplicatesInFile} Duplikate in Datei` : ''})` 
             : ''
         }`,
       });
