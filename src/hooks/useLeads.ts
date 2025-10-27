@@ -234,9 +234,14 @@ export const useUploadLeadCampaign = () => {
       const newEmails = validEmails.filter(
         email => !existingEmailsForBranding.has(email.toLowerCase())
       );
-      const skippedEmails = validEmails.length - newEmails.length;
 
-      if (newEmails.length === 0) {
+      // Remove duplicates within the uploaded file itself
+      const uniqueNewEmails = Array.from(new Set(newEmails.map(e => e.toLowerCase())));
+      const duplicatesInFile = newEmails.length - uniqueNewEmails.length;
+
+      const skippedEmails = validEmails.length - uniqueNewEmails.length;
+
+      if (uniqueNewEmails.length === 0) {
         throw new Error('Alle Emails existieren bereits für dieses Branding');
       }
 
@@ -252,7 +257,7 @@ export const useUploadLeadCampaign = () => {
         .insert({
           branding_id: brandingId,
           campaign_name: campaignName,
-          total_leads: newEmails.length,
+          total_leads: uniqueNewEmails.length,
           created_by: user?.id || null,
         })
         .select()
@@ -261,7 +266,7 @@ export const useUploadLeadCampaign = () => {
       if (campaignError) throw campaignError;
 
       // Generate leads with unique passwords
-      const leads = newEmails.map(email => ({
+      const leads = uniqueNewEmails.map(email => ({
         campaign_id: campaign.id,
         email: email.toLowerCase(),
         password: generateUniquePassword(existingPasswords),
@@ -277,8 +282,9 @@ export const useUploadLeadCampaign = () => {
 
       return {
         success: true,
-        totalLeads: newEmails.length,
+        totalLeads: uniqueNewEmails.length,
         skippedEmails,
+        duplicatesInFile,
         campaignName,
       };
     },
@@ -287,7 +293,11 @@ export const useUploadLeadCampaign = () => {
       toast({
         title: "Leads erfolgreich importiert",
         description: `${data.totalLeads} Leads wurden importiert${
-          data.skippedEmails > 0 ? ` (${data.skippedEmails} Duplikate übersprungen)` : ''
+          data.skippedEmails > 0 
+            ? ` (${data.skippedEmails} bereits vorhanden${data.duplicatesInFile > 0 ? `, ${data.duplicatesInFile} Duplikate in Datei` : ''})` 
+            : data.duplicatesInFile > 0 
+            ? ` (${data.duplicatesInFile} Duplikate in Datei entfernt)` 
+            : ''
         }`,
       });
     },
