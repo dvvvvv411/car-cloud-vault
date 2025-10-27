@@ -41,7 +41,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<ExternalRedirect />} />
-            <Route path="/insolvenz" element={<Index />} />
+            <Route path="/insolvenz" element={<Navigate to="/insolvenz/autohaus_staaken_gmbh" replace />} />
             <Route path="/insolvenz/:slug" element={<BrandedIndex />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/zustandsbericht/:reportNr" element={<Zustandsbericht />} />
