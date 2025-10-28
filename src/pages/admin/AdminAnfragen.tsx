@@ -302,7 +302,7 @@ export default function AdminAnfragen() {
                               {formatPrice(inquiry.total_price)}
                             </div>
                             <div className="text-xs text-muted-foreground mt-0.5">
-                              {formatPrice(calculateFinalPrice(inquiry.total_price, inquiry.discount_percentage))} inkl. MwSt.
+                              {formatPrice(calculateFinalPrice(inquiry.total_price, inquiry.discount_percentage))}
                             </div>
                           </td>
                           <td className="p-2" onClick={(e) => e.stopPropagation()}>
@@ -406,7 +406,7 @@ export default function AdminAnfragen() {
                         {formatPrice(inquiry.total_price)}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {formatPrice(calculateFinalPrice(inquiry.total_price, inquiry.discount_percentage))} inkl. MwSt.
+                        {formatPrice(calculateFinalPrice(inquiry.total_price, inquiry.discount_percentage))}
                       </div>
                     </div>
                   </div>
