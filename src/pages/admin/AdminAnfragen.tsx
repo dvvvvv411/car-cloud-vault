@@ -315,7 +315,7 @@ export default function AdminAnfragen() {
                           <td>
                             <div 
                               className="font-semibold text-foreground cursor-pointer hover:text-primary transition-colors"
-                              onClick={() => copyToClipboard(`${inquiry.first_name} ${inquiry.last_name}`, 'name')}
+                              onClick={() => copyToClipboard(inquiry.last_name, 'name')}
                             >
                               {inquiry.first_name} {inquiry.last_name}
                             </div>
@@ -412,7 +412,7 @@ export default function AdminAnfragen() {
                     <div>
                       <p 
                         className="font-semibold cursor-pointer hover:text-primary transition-colors"
-                        onClick={() => copyToClipboard(`${inquiry.first_name} ${inquiry.last_name}`, 'name')}
+                        onClick={() => copyToClipboard(inquiry.last_name, 'name')}
                       >
                         {inquiry.first_name} {inquiry.last_name}
                       </p>
