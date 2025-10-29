@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Mail, Phone, MapPin, Building2, User, Calendar, Package, Euro, MessageSquare, Loader2, ArrowUpDown, ArrowUp, ArrowDown, Search, Eye, EyeOff } from "lucide-react";
+import { Mail, Phone, MapPin, Building2, User, Calendar, Package, Euro, MessageSquare, Loader2, ArrowUpDown, ArrowUp, ArrowDown, Search, Eye, EyeOff, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useInquiries, useUpdateInquiryCallPriority, InquiryStatus } from "@/hooks/useInquiries";
 import { useToast } from "@/hooks/use-toast";
@@ -11,6 +11,7 @@ import { InquiryNotesDialog } from "@/components/admin/InquiryNotesDialog";
 import { InquiryDetailsDialog } from "@/components/admin/InquiryDetailsDialog";
 import { DekraNumbersDialog } from "@/components/admin/DekraNumbersDialog";
 import { TransferButton } from "@/components/admin/TransferButton";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { useState, useMemo } from "react";
@@ -23,6 +24,7 @@ export default function AdminAnfragen() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [searchQuery, setSearchQuery] = useState("");
   const [showKeinInteresse, setShowKeinInteresse] = useState(false);
+  const [selectedStatuses, setSelectedStatuses] = useState<InquiryStatus[]>([]);
   const updateCallPriority = useUpdateInquiryCallPriority();
   const { toast } = useToast();
 
@@ -50,10 +52,17 @@ export default function AdminAnfragen() {
   };
 
   const sortedInquiries = useMemo(() => {
-    // First: Filter out "Kein Interesse" inquiries (if toggle is off)
-    let filtered = showKeinInteresse 
-      ? inquiries.filter((inquiry) => inquiry.status === "Kein Interesse")
-      : inquiries.filter((inquiry) => inquiry.status !== "Kein Interesse");
+    // First: Filter by selected statuses (if any selected)
+    let filtered = inquiries;
+    
+    if (selectedStatuses.length > 0) {
+      filtered = filtered.filter((inquiry) => selectedStatuses.includes(inquiry.status));
+    } else {
+      // Default behavior: Filter out "Kein Interesse" (if toggle is off)
+      filtered = showKeinInteresse 
+        ? inquiries.filter((inquiry) => inquiry.status === "Kein Interesse")
+        : inquiries.filter((inquiry) => inquiry.status !== "Kein Interesse");
+    }
     
     // Second: Filter by search query
     filtered = filtered.filter((inquiry) => {
@@ -92,7 +101,7 @@ export default function AdminAnfragen() {
     });
     
     return sorted;
-  }, [inquiries, sortBy, sortOrder, searchQuery, showKeinInteresse]);
+  }, [inquiries, sortBy, sortOrder, searchQuery, showKeinInteresse, selectedStatuses]);
 
   const handleCallPriorityChange = (inquiryId: string, checked: boolean) => {
     updateCallPriority.mutate(
@@ -176,10 +185,54 @@ export default function AdminAnfragen() {
               className="w-full h-10 pl-10 pr-4 rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             />
           </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="whitespace-nowrap w-full sm:w-auto">
+                <Filter className="h-4 w-4 mr-2" />
+                Status Filter
+                {selectedStatuses.length > 0 && (
+                  <Badge variant="secondary" className="ml-2">
+                    {selectedStatuses.length}
+                  </Badge>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56 bg-background z-50">
+              <DropdownMenuLabel>Status auswählen</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {(Object.keys(STATUS_PRIORITY) as InquiryStatus[]).map((status) => (
+                <DropdownMenuCheckboxItem
+                  key={status}
+                  checked={selectedStatuses.includes(status)}
+                  onCheckedChange={(checked) => {
+                    setSelectedStatuses(prev =>
+                      checked
+                        ? [...prev, status]
+                        : prev.filter(s => s !== status)
+                    );
+                  }}
+                >
+                  {status}
+                </DropdownMenuCheckboxItem>
+              ))}
+              {selectedStatuses.length > 0 && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => setSelectedStatuses([])}
+                    className="text-destructive"
+                  >
+                    Filter zurücksetzen
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button
             variant={showKeinInteresse ? "default" : "outline"}
             size="sm"
             onClick={() => setShowKeinInteresse(!showKeinInteresse)}
+            disabled={selectedStatuses.length > 0}
             className="whitespace-nowrap w-full sm:w-auto"
           >
             {showKeinInteresse ? (
