@@ -9,7 +9,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import BrandedIndex from "./pages/BrandedIndex";
 import Auth from "./pages/Auth";
-import ExternalRedirect from "./pages/ExternalRedirect";
+import DomainBasedRedirect from "@/components/DomainBasedRedirect";
 import Zustandsbericht from "./pages/Zustandsbericht";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -40,8 +40,8 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<ExternalRedirect />} />
-            <Route path="/insolvenz" element={<Navigate to="/insolvenz/autohaus_staaken_gmbh" replace />} />
+            <Route path="/" element={<DomainBasedRedirect targetPath="root" />} />
+            <Route path="/insolvenz" element={<DomainBasedRedirect targetPath="insolvenz" />} />
             <Route path="/insolvenz/:slug" element={<BrandedIndex />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/zustandsbericht/:reportNr" element={<Zustandsbericht />} />
