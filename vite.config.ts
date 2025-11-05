@@ -9,7 +9,15 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     allowedHosts: [
+      // Insolvenz Subdomains
       "insolvenz.solle-schniebel.de",
+      "insolvenz.anwaelte-neiseke-hagedorn.de",
+      
+      // Hauptdomains
+      "solle-schniebel.de",
+      "anwaelte-neiseke-hagedorn.de",
+      
+      // Development
       ".lovable.app",
       "localhost"
     ]
