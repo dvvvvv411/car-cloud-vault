@@ -12,10 +12,12 @@ export default defineConfig(({ mode }) => ({
       // Insolvenz Subdomains
       "insolvenz.solle-schniebel.de",
       "insolvenz.anwaelte-neiseke-hagedorn.de",
+      "insolvenz.merits-partner.de",
       
       // Hauptdomains
       "solle-schniebel.de",
       "anwaelte-neiseke-hagedorn.de",
+      "merits-partner.de",
       
       // Development
       ".lovable.app",
