@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Upload, X } from 'lucide-react';
+import { Upload, X, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface ImageDropZoneProps {
@@ -7,6 +7,7 @@ interface ImageDropZoneProps {
   onImagesChange: (files: File[]) => void;
   onRemove: (index: number) => void;
   onReorder?: (fromIndex: number, toIndex: number) => void;
+  onSetAsFeatured?: (index: number) => void;
   label?: string;
 }
 
@@ -15,6 +16,7 @@ export const ImageDropZone = ({
   onImagesChange,
   onRemove,
   onReorder,
+  onSetAsFeatured,
   label = "Bilder hochladen"
 }: ImageDropZoneProps) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -140,6 +142,31 @@ export const ImageDropZone = ({
               <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
                 {index + 1}
               </div>
+              {onSetAsFeatured && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className={`absolute bottom-2 left-10 h-6 w-6 transition-all ${
+                    index === 0 
+                      ? 'text-yellow-500 cursor-default' 
+                      : 'text-gray-400 hover:text-yellow-500 hover:scale-110'
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (index !== 0) {
+                      onSetAsFeatured(index);
+                    }
+                  }}
+                  disabled={index === 0}
+                  title={index === 0 ? "Hauptbild" : "Als Hauptbild festlegen"}
+                >
+                  <Star 
+                    className="h-4 w-4" 
+                    fill={index === 0 ? "currentColor" : "none"}
+                  />
+                </Button>
+              )}
             </div>
           ))}
         </div>

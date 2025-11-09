@@ -217,6 +217,24 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
     setDetailPhotoPreviews(prev => reorderArray(prev));
   };
 
+  const handleSetVehiclePhotoAsFeatured = (index: number) => {
+    if (index === 0) return; // Bereits an erster Stelle
+    
+    // Verschiebe das Bild an die erste Position
+    const newPreviews = [...vehiclePhotoPreviews];
+    const [selectedPreview] = newPreviews.splice(index, 1);
+    newPreviews.unshift(selectedPreview);
+    setVehiclePhotoPreviews(newPreviews);
+    
+    // Wenn es auch eine File-Referenz gibt (neue Uploads), auch die verschieben
+    if (vehiclePhotos.length > 0 && index < vehiclePhotos.length) {
+      const newPhotos = [...vehiclePhotos];
+      const [selectedPhoto] = newPhotos.splice(index, 1);
+      newPhotos.unshift(selectedPhoto);
+      setVehiclePhotos(newPhotos);
+    }
+  };
+
   return (
     <Form {...form}>
       <form 
@@ -336,13 +354,14 @@ export function VehicleForm({ vehicle, onSubmit, isSubmitting }: VehicleFormProp
         {/* Vehicle Photos Upload */}
         <div className="space-y-2">
           <Label>Fahrzeugbilder</Label>
-              <ImageDropZone
-                images={vehiclePhotoPreviews}
-                onImagesChange={handleVehiclePhotosChange}
-                onRemove={removeVehiclePhoto}
-                onReorder={handleVehiclePhotoReorder}
-                label="Fahrzeugbilder"
-              />
+                <ImageDropZone
+                  images={vehiclePhotoPreviews}
+                  onImagesChange={handleVehiclePhotosChange}
+                  onRemove={removeVehiclePhoto}
+                  onReorder={handleVehiclePhotoReorder}
+                  onSetAsFeatured={handleSetVehiclePhotoAsFeatured}
+                  label="Fahrzeugbilder"
+                />
         </div>
 
         {/* Detail Photos Upload */}
