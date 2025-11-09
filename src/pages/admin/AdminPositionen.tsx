@@ -24,7 +24,7 @@ export default function AdminPositionen() {
   const [isBulkImageUploadDialogOpen, setIsBulkImageUploadDialogOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [sortBy, setSortBy] = useState<'default' | 'inquiries'>('default');
+  const [sortBy, setSortBy] = useState<'default' | 'inquiries-desc' | 'inquiries-asc'>('default');
   const { inquiryCounts, isLoading: isLoadingCounts } = useVehicleInquiryCounts();
 
   const sortedVehicles = useMemo(() => {
@@ -35,8 +35,12 @@ export default function AdminPositionen() {
       inquiryCount: inquiryCounts[vehicle.chassis] || 0
     }));
     
-    if (sortBy === 'inquiries') {
+    if (sortBy === 'inquiries-desc') {
       return vehiclesWithCounts.sort((a, b) => b.inquiryCount - a.inquiryCount);
+    }
+    
+    if (sortBy === 'inquiries-asc') {
+      return vehiclesWithCounts.sort((a, b) => a.inquiryCount - b.inquiryCount);
     }
     
     return vehiclesWithCounts;
@@ -486,8 +490,17 @@ export default function AdminPositionen() {
                     <TableHead>Bericht-Nr.</TableHead>
                     <TableHead>Erstzulassung</TableHead>
                     <TableHead>Kilometerstand</TableHead>
-                    <TableHead className="cursor-pointer hover:text-primary transition-colors" onClick={() => setSortBy(sortBy === 'inquiries' ? 'default' : 'inquiries')}>
-                      Anfragen {sortBy === 'inquiries' && '↓'}
+                    <TableHead 
+                      className="cursor-pointer hover:text-primary transition-colors" 
+                      onClick={() => {
+                        if (sortBy === 'default') setSortBy('inquiries-desc');
+                        else if (sortBy === 'inquiries-desc') setSortBy('inquiries-asc');
+                        else setSortBy('default');
+                      }}
+                    >
+                      Anfragen 
+                      {sortBy === 'inquiries-desc' && ' ↓'}
+                      {sortBy === 'inquiries-asc' && ' ↑'}
                     </TableHead>
                     <TableHead>Preis</TableHead>
                     <TableHead className="text-right rounded-tr-lg">Aktionen</TableHead>
