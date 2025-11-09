@@ -12,7 +12,7 @@ const formatKilometers = (km: number) => {
 };
 
 export default function Zustandsbericht() {
-  const { reportNr, brandingSlug } = useParams();
+  const { reportNr } = useParams();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImages, setLightboxImages] = useState<string[]>([]);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -35,25 +35,6 @@ export default function Zustandsbericht() {
       if (error) throw error;
       return data;
     }
-  });
-
-  // Load branding data based on slug from URL
-  const { data: branding } = useQuery({
-    queryKey: ['branding', brandingSlug],
-    queryFn: async () => {
-      if (!brandingSlug) return null;
-      
-      const { data, error } = await supabase
-        .from('brandings')
-        .select('*')
-        .eq('slug', brandingSlug)
-        .eq('is_active', true)
-        .single();
-      
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!brandingSlug,
   });
 
   if (isLoading) {
@@ -150,16 +131,10 @@ export default function Zustandsbericht() {
         {/* Header */}
         <header className="flex justify-between items-start mb-8 pb-6 border-b-2 border-border">
           <div className="text-sm leading-tight">
-            <p className="font-semibold">
-              {branding?.lawyer_firm_name || 'Solle & Schniebel'}
-            </p>
-            {branding?.lawyer_firm_subtitle ? (
-              <p className="font-semibold">{branding.lawyer_firm_subtitle}</p>
-            ) : (
-              <p className="font-semibold">Rechtsanwälte in Partnerschaft PartG</p>
-            )}
-            <p>{branding?.lawyer_address_street || 'Gustav-Adolf-Str. 146 a'}</p>
-            <p>{branding?.lawyer_address_city || '13086 Berlin'}</p>
+            <p className="font-semibold">Solle & Schniebel</p>
+            <p className="font-semibold">Rechtsanwälte in Partnerschaft PartG</p>
+            <p>Gustav-Adolf-Str. 146 a</p>
+            <p>13086 Berlin</p>
           </div>
           
           <div className="flex-1 flex flex-col items-center justify-start px-8">
@@ -168,19 +143,7 @@ export default function Zustandsbericht() {
           </div>
           
           <div className="h-[4.5rem] w-auto">
-            {branding?.kanzlei_logo_url ? (
-              <img 
-                src={branding.kanzlei_logo_url} 
-                alt={`${branding.lawyer_firm_name} Logo`} 
-                className="h-full w-auto object-contain" 
-              />
-            ) : (
-              <img 
-                src="https://dbltyxypjvbavejkkcer.supabase.co/storage/v1/object/public/branding-assets/logos/1761058520387_fab02s.png" 
-                alt="Solle & Schniebel Logo" 
-                className="h-full w-auto object-contain" 
-              />
-            )}
+            <img src="https://dbltyxypjvbavejkkcer.supabase.co/storage/v1/object/public/branding-assets/logos/1761058520387_fab02s.png" alt="Solle & Schniebel Logo" className="h-full w-auto object-contain" />
           </div>
         </header>
 

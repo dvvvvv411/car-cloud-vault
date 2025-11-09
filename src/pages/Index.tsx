@@ -175,14 +175,6 @@ const Index = ({ branding }: IndexProps = {}) => {
     setSelectedReportNr(reportNr);
     setZustandsberichtDialogOpen(true);
   };
-
-  // Build Zustandsbericht URL with branding slug if available
-  const getZustandsberichtUrl = (reportNr: string) => {
-    if (branding?.slug) {
-      return `/zustandsbericht/${reportNr}/${branding.slug}`;
-    }
-    return `/zustandsbericht/${reportNr}`;
-  };
   
   const filteredAndSortedVehicles = vehicles.filter(vehicle => vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.chassis.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.report_nr.toLowerCase().includes(searchTerm.toLowerCase())).sort((a, b) => {
     if (!sortConfig.key) return 0;
@@ -1073,7 +1065,7 @@ const Index = ({ branding }: IndexProps = {}) => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => window.open(selectedReportNr ? getZustandsberichtUrl(selectedReportNr) : '#', '_blank')}
+                  onClick={() => window.open(`/zustandsbericht/${selectedReportNr}`, '_blank')}
                   className="gap-2"
                 >
                   In neuem Tab öffnen
@@ -1082,7 +1074,7 @@ const Index = ({ branding }: IndexProps = {}) => {
               <div className="flex-1 overflow-hidden">
                 {selectedReportNr && (
                   <iframe
-                    src={getZustandsberichtUrl(selectedReportNr)}
+                    src={`/zustandsbericht/${selectedReportNr}`}
                     className="w-full h-full"
                     title={`Zustandsbericht ${selectedReportNr}`}
                   />
