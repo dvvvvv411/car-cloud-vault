@@ -1,11 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Mail, Phone, MapPin, Building2, User, Calendar, Package, Euro, MessageSquare, Loader2, ArrowUpDown, ArrowUp, ArrowDown, Search, Eye, EyeOff, Filter } from "lucide-react";
+import { Mail, Phone, MapPin, Building2, User, Calendar, Package, Euro, MessageSquare, Loader2, ArrowUpDown, ArrowUp, ArrowDown, Search, Eye, EyeOff, Filter, Building } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useInquiries, useUpdateInquiryCallPriority, InquiryStatus } from "@/hooks/useInquiries";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { getBrandingColor } from "@/lib/utils";
 import { InquiryStatusDropdown } from "@/components/admin/InquiryStatusDropdown";
 import { InquiryNotesDialog } from "@/components/admin/InquiryNotesDialog";
 import { InquiryDetailsDialog } from "@/components/admin/InquiryDetailsDialog";
@@ -272,6 +273,7 @@ export default function AdminAnfragen() {
                       <tr className="hover:bg-transparent">
                         <th className="rounded-tl-lg">Datum</th>
                         <th>Name</th>
+                        <th>Branding</th>
                         <th>E-Mail</th>
                         <th>Telefon</th>
                         <th className="text-center">Fzg.</th>
@@ -326,6 +328,18 @@ export default function AdminAnfragen() {
                               >
                                 {inquiry.company_name}
                               </div>
+                            )}
+                          </td>
+                          <td>
+                            {inquiry.brandings?.lawyer_firm_name ? (
+                              <Badge 
+                                variant="outline" 
+                                className={`${getBrandingColor(inquiry.brandings.lawyer_firm_name)} text-xs px-2 py-1 font-medium whitespace-nowrap`}
+                              >
+                                {inquiry.brandings.lawyer_firm_name}
+                              </Badge>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">-</span>
                             )}
                           </td>
                           <td 
@@ -421,13 +435,24 @@ export default function AdminAnfragen() {
                           className="text-base text-muted-foreground cursor-pointer hover:text-primary transition-colors"
                           onClick={() => copyToClipboard(inquiry.company_name!, 'company')}
                         >
-                          {inquiry.company_name}
-                        </p>
-                      )}
-                    </div>
+                        {inquiry.company_name}
+                      </p>
+                    )}
+                    {inquiry.brandings?.lawyer_firm_name && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <Building className="h-4 w-4 text-muted-foreground" />
+                        <Badge 
+                          variant="outline" 
+                          className={`${getBrandingColor(inquiry.brandings.lawyer_firm_name)} text-xs px-2 py-1 font-medium`}
+                        >
+                          {inquiry.brandings.lawyer_firm_name}
+                        </Badge>
+                      </div>
+                    )}
                   </div>
-                  
-                  <div className="flex items-center gap-2 mb-3">
+                </div>
+                
+                <div className="flex items-center gap-2 mb-3">
                     <Checkbox
                       checked={inquiry.call_priority}
                       onCheckedChange={(checked) => 

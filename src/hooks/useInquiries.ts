@@ -37,6 +37,7 @@ export interface Inquiry {
   brandings?: {
     company_name: string;
     case_number: string;
+    lawyer_firm_name: string;
   } | null;
 }
 
@@ -50,7 +51,8 @@ export const useInquiries = () => {
           *,
           brandings (
             company_name,
-            case_number
+            case_number,
+            lawyer_firm_name
           )
         `)
         .order("created_at", { ascending: false });
