@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useVehicles, Vehicle } from "@/hooks/useVehicles";
+import { useVehicleInquiryCounts } from "@/hooks/useVehicleInquiryCounts";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +24,23 @@ export default function AdminPositionen() {
   const [isBulkImageUploadDialogOpen, setIsBulkImageUploadDialogOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sortBy, setSortBy] = useState<'default' | 'inquiries'>('default');
+  const { inquiryCounts, isLoading: isLoadingCounts } = useVehicleInquiryCounts();
+
+  const sortedVehicles = useMemo(() => {
+    if (!vehicles) return [];
+    
+    const vehiclesWithCounts = vehicles.map(vehicle => ({
+      ...vehicle,
+      inquiryCount: inquiryCounts[vehicle.chassis] || 0
+    }));
+    
+    if (sortBy === 'inquiries') {
+      return vehiclesWithCounts.sort((a, b) => b.inquiryCount - a.inquiryCount);
+    }
+    
+    return vehiclesWithCounts;
+  }, [vehicles, inquiryCounts, sortBy]);
 
   const uploadMultipleImages = async (
     files: File[], 
@@ -468,12 +486,15 @@ export default function AdminPositionen() {
                     <TableHead>Bericht-Nr.</TableHead>
                     <TableHead>Erstzulassung</TableHead>
                     <TableHead>Kilometerstand</TableHead>
+                    <TableHead className="cursor-pointer hover:text-primary transition-colors" onClick={() => setSortBy(sortBy === 'inquiries' ? 'default' : 'inquiries')}>
+                      Anfragen {sortBy === 'inquiries' && '↓'}
+                    </TableHead>
                     <TableHead>Preis</TableHead>
                     <TableHead className="text-right rounded-tr-lg">Aktionen</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {vehicles.map((vehicle) => (
+                  {sortedVehicles.map((vehicle) => (
                     <TableRow key={vehicle.id}>
                       <TableCell>
                         {(() => {
@@ -501,6 +522,16 @@ export default function AdminPositionen() {
                       <TableCell className="font-medium">{vehicle.report_nr}</TableCell>
                       <TableCell className="text-muted-foreground">{vehicle.first_registration}</TableCell>
                       <TableCell className="text-muted-foreground">{formatKilometers(vehicle.kilometers)}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-foreground">{vehicle.inquiryCount}</span>
+                          {vehicle.inquiryCount > 0 && (
+                            <span className="text-xs text-muted-foreground">
+                              {vehicle.inquiryCount === 1 ? 'Anfrage' : 'Anfragen'}
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell className="font-bold text-primary">{formatPrice(vehicle.price)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-1">
