@@ -12,6 +12,7 @@ import { InquiryNotesDialog } from "@/components/admin/InquiryNotesDialog";
 import { InquiryDetailsDialog } from "@/components/admin/InquiryDetailsDialog";
 import { DekraNumbersDialog } from "@/components/admin/DekraNumbersDialog";
 import { TransferButton } from "@/components/admin/TransferButton";
+import { GenerateDocumentsDialog } from "@/components/admin/GenerateDocumentsDialog";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -298,6 +299,7 @@ export default function AdminAnfragen() {
                         </th>
                         <th className="text-center">Call</th>
                         {isTransferAdmin && <th className="text-center">Aktion</th>}
+                        <th className="text-center">Dokumente</th>
                         <th className="text-center rounded-tr-lg">Details</th>
                       </tr>
                     </thead>
@@ -398,6 +400,9 @@ export default function AdminAnfragen() {
                               )}
                             </td>
                           )}
+                          <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
+                            <GenerateDocumentsDialog inquiry={inquiry} />
+                          </td>
                           <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
                             <InquiryDetailsDialog inquiry={inquiry} />
                           </td>
@@ -511,6 +516,7 @@ export default function AdminAnfragen() {
                       />
                       <div className="flex gap-2">
                         <InquiryNotesDialog inquiryId={inquiry.id} />
+                        <GenerateDocumentsDialog inquiry={inquiry} />
                         <InquiryDetailsDialog inquiry={inquiry} />
                         {isTransferAdmin && inquiry.status === "Möchte RG/KV" && (
                           <TransferButton inquiryId={inquiry.id} />
