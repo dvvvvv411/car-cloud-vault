@@ -179,6 +179,8 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
         resend_api_key: data.resend_api_key || null,
         resend_sender_email: data.resend_sender_email || null,
         resend_sender_name: data.resend_sender_name || null,
+        admin_email: data.admin_email || null,
+        admin_email_signature: data.admin_email_signature || null,
       };
 
       if (branding) {
