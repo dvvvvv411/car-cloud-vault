@@ -16,6 +16,7 @@ export const brandingSchema = z.object({
   resend_sender_email: z.string().email('Ungültige E-Mail-Adresse').optional().or(z.literal('')),
   resend_sender_name: z.string().optional(),
   admin_email: z.string().email('Ungültige E-Mail-Adresse').optional().or(z.literal('')),
+  admin_email_signature: z.string().optional(),
 });
 
 export type BrandingFormData = z.infer<typeof brandingSchema>;

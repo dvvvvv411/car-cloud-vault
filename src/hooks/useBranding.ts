@@ -22,6 +22,7 @@ export interface Branding {
   resend_sender_email: string | null;
   resend_sender_name: string | null;
   admin_email: string | null;
+  admin_email_signature: string | null;
   created_at: string;
   updated_at: string;
 }

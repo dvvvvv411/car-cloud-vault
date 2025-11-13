@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { Loader2, Upload, X } from 'lucide-react';
+import { Loader2, Upload, X, FileSignature } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { brandingSchema, type BrandingFormData, generateSlug } from '@/lib/validation/brandingSchema';
 import type { Branding } from '@/hooks/useBranding';
+import { AdminEmailSignatureDialog } from './AdminEmailSignatureDialog';
 
 interface BrandingFormProps {
   branding?: Branding;
@@ -23,6 +24,9 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
   const [kanzleiLogo, setKanzleiLogo] = useState<File | null>(null);
   const [lawyerPhoto, setLawyerPhoto] = useState<File | null>(null);
   const [courtPdf, setCourtPdf] = useState<File | null>(null);
+  const [adminEmailSignature, setAdminEmailSignature] = useState<string>(
+    branding?.admin_email_signature || ''
+  );
   
   const {
     register,
@@ -48,6 +52,7 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
       resend_sender_email: branding.resend_sender_email || '',
       resend_sender_name: branding.resend_sender_name || '',
       admin_email: branding.admin_email || '',
+      admin_email_signature: branding.admin_email_signature || '',
     } : {
       is_active: true,
     },
@@ -476,6 +481,23 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
           {errors.admin_email && (
             <p className="text-sm text-destructive mt-1">{errors.admin_email.message}</p>
           )}
+          
+          {/* Admin Email Signature Button & Status */}
+          <div className="space-y-2">
+            <AdminEmailSignatureDialog
+              signature={adminEmailSignature}
+              onSave={(signature) => {
+                setAdminEmailSignature(signature);
+                setValue('admin_email_signature', signature);
+              }}
+            />
+            {adminEmailSignature && (
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <FileSignature className="h-4 w-4 text-green-600" />
+                E-Mail-Signatur gesetzt ({adminEmailSignature.length} Zeichen)
+              </p>
+            )}
+          </div>
         </div>
       </div>
 
