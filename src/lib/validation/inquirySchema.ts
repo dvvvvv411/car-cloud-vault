@@ -4,7 +4,7 @@ export const salutationSchema = z.enum(["Herr", "Frau"]);
 
 export const inquirySchema = z
   .object({
-    salutation: salutationSchema,
+    salutation: salutationSchema.optional(),
     customerType: z.enum(["private", "business"]),
     companyName: z.string().optional(),
     firstName: z.string().min(1),

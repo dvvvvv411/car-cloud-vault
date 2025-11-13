@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
-import { LayoutDashboard, Car, MessageSquare, Users, LogOut, Menu, Palette, UserPlus, KeyRound, Phone, Mail } from "lucide-react";
+import { LayoutDashboard, Car, MessageSquare, Users, LogOut, Menu, Palette, UserPlus, KeyRound, Phone } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -16,7 +16,6 @@ const navItems = [
   { title: 'Positionen', url: '/admin/positionen', icon: Car },
   { title: 'Branding', url: '/admin/branding', icon: Palette },
   { title: 'Anfragen', url: '/admin/anfragen', icon: MessageSquare },
-  { title: 'Emails', url: '/admin/emails', icon: Mail },
   { title: 'Leads', url: '/admin/leads', icon: UserPlus },
   { title: 'Kaltaquise', url: '/admin/kaltaquise', icon: Phone },
   { title: 'Benutzer', url: '/admin/benutzer', icon: Users },
