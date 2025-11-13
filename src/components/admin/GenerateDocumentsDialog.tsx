@@ -21,12 +21,25 @@ interface Props {
   inquiry: Inquiry;
 }
 
+// Helper function to convert base64 to Blob URL
+const createBlobUrl = (base64: string): string => {
+  const byteCharacters = atob(base64);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: 'application/pdf' });
+  return URL.createObjectURL(blob);
+};
+
 export function GenerateDocumentsDialog({ inquiry }: Props) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selectedBankAccount, setSelectedBankAccount] = useState<string | null>(null);
   const [fileFormat, setFileFormat] = useState<"pdf" | "docx">("pdf");
   const [generatedDocs, setGeneratedDocs] = useState<any>(null);
+  const [blobUrls, setBlobUrls] = useState<string[]>([]);
 
   const { data: bankAccounts, isLoading: loadingBankAccounts } = useBankAccounts();
   const generateMutation = useGenerateDocuments();
@@ -68,6 +81,15 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
       });
 
       setGeneratedDocs(result);
+      
+      // Create Blob URLs for preview
+      const urls = [
+        createBlobUrl(result.documents.rechnung.base64),
+        createBlobUrl(result.documents.kaufvertrag.base64),
+        createBlobUrl(result.documents.treuhandvertrag.base64),
+      ];
+      setBlobUrls(urls);
+      
       setStep(3);
       toast.success("Dokumente erfolgreich generiert!");
     } catch (error) {
@@ -77,6 +99,10 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
   };
 
   const handleReset = () => {
+    // Clean up Blob URLs
+    blobUrls.forEach(url => URL.revokeObjectURL(url));
+    setBlobUrls([]);
+    
     setStep(1);
     setSelectedBankAccount(null);
     setGeneratedDocs(null);
@@ -202,7 +228,7 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
                 <div className="border rounded-lg p-4">
                   <h3 className="font-semibold mb-2">Rechnung</h3>
                   <iframe
-                    src={`data:application/pdf;base64,${generatedDocs.documents.rechnung.base64}`}
+                    src={blobUrls[0]}
                     className="w-full h-[400px] border rounded"
                   />
                   <Button
@@ -219,7 +245,7 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
                 <div className="border rounded-lg p-4">
                   <h3 className="font-semibold mb-2">Kaufvertrag</h3>
                   <iframe
-                    src={`data:application/pdf;base64,${generatedDocs.documents.kaufvertrag.base64}`}
+                    src={blobUrls[1]}
                     className="w-full h-[400px] border rounded"
                   />
                   <Button
@@ -236,7 +262,7 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
                 <div className="border rounded-lg p-4">
                   <h3 className="font-semibold mb-2">Treuhandvertrag</h3>
                   <iframe
-                    src={`data:application/pdf;base64,${generatedDocs.documents.treuhandvertrag.base64}`}
+                    src={blobUrls[2]}
                     className="w-full h-[400px] border rounded"
                   />
                   <Button
