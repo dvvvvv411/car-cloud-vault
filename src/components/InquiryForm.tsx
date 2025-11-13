@@ -46,6 +46,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
     mode: "onSubmit",
     reValidateMode: "onSubmit",
     defaultValues: {
+      salutation: "Herr" as const,
       customerType: "private",
       companyName: "",
       firstName: "",
@@ -96,6 +97,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
       // Call edge function to submit inquiry
       const { data: response, error } = await supabase.functions.invoke('submit-inquiry', {
         body: {
+          salutation: data.salutation,
           brandingId: brandingId || null,
           customerType: data.customerType,
           companyName: data.companyName || null,
@@ -282,6 +284,39 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                           <RadioGroupItem value="business" id="business" />
                           <Label htmlFor="business" className="cursor-pointer">
                             Geschäftlich
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                    </FormControl>
+                  </FormItem>
+              )}
+              />
+
+              <Separator className="my-6" style={{ backgroundColor: "hsl(var(--divider))" }} />
+
+              {/* Salutation Field */}
+              <FormField
+                control={form.control}
+                name="salutation"
+                render={({ field }) => (
+                  <FormItem className="mb-6">
+                    <FormLabel className="text-sm md:text-base">Anrede *</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        className="flex gap-6"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="Herr" id="herr" />
+                          <Label htmlFor="herr" className="cursor-pointer">
+                            Herr
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="Frau" id="frau" />
+                          <Label htmlFor="frau" className="cursor-pointer">
+                            Frau
                           </Label>
                         </div>
                       </RadioGroup>

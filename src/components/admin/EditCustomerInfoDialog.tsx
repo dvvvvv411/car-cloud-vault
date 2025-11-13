@@ -28,6 +28,7 @@ export const EditCustomerInfoDialog = ({ inquiry }: EditCustomerInfoDialogProps)
   } = useForm<InquiryFormData>({
     resolver: zodResolver(inquirySchema),
     defaultValues: {
+      salutation: (inquiry.salutation || "Herr") as "Herr" | "Frau",
       customerType: inquiry.customer_type as "private" | "business",
       companyName: inquiry.company_name || "",
       firstName: inquiry.first_name,
@@ -45,6 +46,7 @@ export const EditCustomerInfoDialog = ({ inquiry }: EditCustomerInfoDialogProps)
   const onSubmit = async (data: InquiryFormData) => {
     await updateCustomerInfo.mutateAsync({
       inquiryId: inquiry.id,
+      salutation: data.salutation,
       customerType: data.customerType,
       companyName: data.companyName,
       firstName: data.firstName,
@@ -91,6 +93,31 @@ export const EditCustomerInfoDialog = ({ inquiry }: EditCustomerInfoDialogProps)
                 <RadioGroupItem value="business" id="business" />
                 <Label htmlFor="business" className="cursor-pointer">
                   Geschäftskunde
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Anrede *</Label>
+            <RadioGroup
+              value={watch("salutation")}
+              onValueChange={(value) => {
+                setValue("salutation", value as "Herr" | "Frau", { 
+                  shouldValidate: true 
+                });
+              }}
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="Herr" id="edit-herr" />
+                <Label htmlFor="edit-herr" className="cursor-pointer">
+                  Herr
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="Frau" id="edit-frau" />
+                <Label htmlFor="edit-frau" className="cursor-pointer">
+                  Frau
                 </Label>
               </div>
             </RadioGroup>

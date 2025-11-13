@@ -5,6 +5,7 @@ export type InquiryStatus = "Neu" | "Möchte RG/KV" | "RG/KV gesendet" | "Bezahl
 
 export interface Inquiry {
   id: string;
+  salutation: 'Herr' | 'Frau' | null;
   branding_id: string | null;
   customer_type: string;
   company_name: string | null;

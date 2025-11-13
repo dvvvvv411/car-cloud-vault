@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 interface UpdateCustomerInfoParams {
   inquiryId: string;
+  salutation: 'Herr' | 'Frau';
   customerType: "private" | "business";
   companyName?: string;
   firstName: string;
@@ -21,6 +22,7 @@ export const useUpdateInquiryCustomerInfo = () => {
   return useMutation({
     mutationFn: async ({
       inquiryId,
+      salutation,
       customerType,
       companyName,
       firstName,
@@ -34,6 +36,7 @@ export const useUpdateInquiryCustomerInfo = () => {
       const { error } = await supabase
         .from("inquiries")
         .update({
+          salutation: salutation,
           customer_type: customerType,
           company_name: companyName,
           first_name: firstName,
