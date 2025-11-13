@@ -23,6 +23,7 @@ export const EditCustomerInfoDialog = ({ inquiry }: EditCustomerInfoDialogProps)
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<InquiryFormData>({
     resolver: zodResolver(inquirySchema),
@@ -73,19 +74,21 @@ export const EditCustomerInfoDialog = ({ inquiry }: EditCustomerInfoDialogProps)
           <div className="space-y-2">
             <Label>Kundentyp</Label>
             <RadioGroup
-              defaultValue={inquiry.customer_type}
+              value={customerType}
               onValueChange={(value) => {
-                register("customerType").onChange({ target: { value } });
+                setValue("customerType", value as "private" | "business", { 
+                  shouldValidate: true 
+                });
               }}
             >
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="private" id="private" {...register("customerType")} />
+                <RadioGroupItem value="private" id="private" />
                 <Label htmlFor="private" className="cursor-pointer">
                   Privatkunde
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="business" id="business" {...register("customerType")} />
+                <RadioGroupItem value="business" id="business" />
                 <Label htmlFor="business" className="cursor-pointer">
                   Geschäftskunde
                 </Label>
