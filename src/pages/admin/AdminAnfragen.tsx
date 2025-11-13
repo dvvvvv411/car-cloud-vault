@@ -128,6 +128,8 @@ export default function AdminAnfragen() {
     try {
       setIsAssigningSalutations(true);
       
+      console.log('🚀 Starte KI-Anrede-Zuweisung...');
+      
       toast({
         title: "KI-Zuweisung gestartet",
         description: "Die Anreden werden jetzt automatisch zugewiesen...",
@@ -139,6 +141,26 @@ export default function AdminAnfragen() {
 
       if (error) throw error;
 
+      // Detaillierte Console Logs
+      console.log(`✅ Erfolgreich ${data.updated} von ${data.total} Anreden zugewiesen`);
+      
+      if (data.assignments && data.assignments.length > 0) {
+        console.log('\n📋 Details der Zuweisungen:');
+        console.table(data.assignments);
+        
+        // Einzelne Zuweisungen ausgeben
+        data.assignments.forEach((assignment: any) => {
+          console.log(`  ✅ ${assignment.name} → ${assignment.salutation}`);
+        });
+      }
+      
+      if (data.errors > 0) {
+        console.warn(`⚠️ ${data.errors} Fehler aufgetreten:`);
+        console.table(data.errorDetails);
+      }
+      
+      console.log('\n✨ KI-Zuweisung abgeschlossen');
+
       toast({
         title: "Erfolgreich abgeschlossen",
         description: `${data.updated} von ${data.total} Anreden wurden zugewiesen.`,
@@ -148,7 +170,7 @@ export default function AdminAnfragen() {
       queryClient.invalidateQueries({ queryKey: ['inquiries'] });
 
     } catch (error) {
-      console.error('Error assigning salutations:', error);
+      console.error('❌ Error assigning salutations:', error);
       toast({
         title: "Fehler",
         description: "Die automatische Zuweisung ist fehlgeschlagen.",

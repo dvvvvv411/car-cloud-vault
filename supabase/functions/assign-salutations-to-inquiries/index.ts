@@ -38,6 +38,7 @@ serve(async (req) => {
 
     let updatedCount = 0;
     let errors = [];
+    const assignments = [];
 
     // Batch-Verarbeitung für bessere Performance
     for (const inquiry of inquiries) {
@@ -98,6 +99,12 @@ serve(async (req) => {
           errors.push({ id: inquiry.id, name: inquiry.first_name, error: updateError.message });
         } else {
           updatedCount++;
+          const assignment = {
+            id: inquiry.id,
+            name: inquiry.first_name,
+            salutation: salutation
+          };
+          assignments.push(assignment);
           console.log(`✅ Updated ${inquiry.first_name} → ${salutation}`);
         }
 
@@ -116,7 +123,8 @@ serve(async (req) => {
         total: inquiries.length,
         updated: updatedCount,
         errors: errors.length,
-        errorDetails: errors
+        errorDetails: errors,
+        assignments: assignments
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
