@@ -447,11 +447,18 @@ export default function AdminAnfragen() {
                           </td>
                           <td className="text-right whitespace-nowrap">
                             <div className="font-bold text-primary">
-                              {formatPrice(inquiry.total_price)}
+                              {formatPrice(inquiry.total_price * (1 - (inquiry.discount_percentage || 0) / 100))}
                             </div>
                             <div className="text-xs text-muted-foreground mt-0.5">
                               {formatPrice(calculateFinalPrice(inquiry.total_price, inquiry.discount_percentage))}
                             </div>
+                            {inquiry.discount_percentage && (
+                              <div className="mt-1 flex justify-end">
+                                <Badge variant="secondary" className="text-xs">
+                                  -{inquiry.discount_percentage}% Rabatt
+                                </Badge>
+                              </div>
+                            )}
                           </td>
                           <td className="p-2" onClick={(e) => e.stopPropagation()}>
                             <InquiryNotesDialog inquiryId={inquiry.id} />
@@ -565,11 +572,16 @@ export default function AdminAnfragen() {
                     <Euro className="h-4 w-4 text-primary" />
                     <div>
                       <div className="font-semibold text-primary">
-                        {formatPrice(inquiry.total_price)}
+                        {formatPrice(inquiry.total_price * (1 - (inquiry.discount_percentage || 0) / 100))}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         {formatPrice(calculateFinalPrice(inquiry.total_price, inquiry.discount_percentage))}
                       </div>
+                      {inquiry.discount_percentage && (
+                        <Badge variant="secondary" className="text-xs mt-1">
+                          -{inquiry.discount_percentage}% Rabatt
+                        </Badge>
+                      )}
                     </div>
                   </div>
                     <div 
