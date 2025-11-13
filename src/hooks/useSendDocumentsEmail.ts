@@ -29,7 +29,7 @@ export const useSendDocumentsEmail = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inquiries"] });
-      toast.success("Email erfolgreich versendet und Status aktualisiert!");
+      toast.success("Email erfolgreich versendet!");
     },
     onError: (error: any) => {
       console.error("Email sending error:", error);

@@ -20,6 +20,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Props {
   inquiry: Inquiry;
@@ -62,6 +63,22 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
       setEmailPreview({ subject, body });
     }
   }, [step, selectedTemplate, inquiry]);
+
+  // Preis-Berechnung für Bruttobetrag mit Rabatt
+  const calculateFinalPrice = (nettoPrice: number, discountPercentage: number | null) => {
+    const priceAfterDiscount = discountPercentage 
+      ? nettoPrice * (1 - discountPercentage / 100)
+      : nettoPrice;
+    return priceAfterDiscount * 1.19;
+  };
+
+  // Formatiere Betrag für receive-payment API (z.B. "1.234,56 €")
+  const formatPaymentAmount = (amount: number) => {
+    return new Intl.NumberFormat("de-DE", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount) + " €";
+  };
 
   const handleGenerate = async () => {
     const selectedAccount = bankAccounts?.find((acc) => acc.id === selectedBankAccount);
@@ -163,9 +180,14 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
       return;
     }
 
-    const companyName = inquiry.company_name || `${inquiry.first_name}_${inquiry.last_name}`;
-    const sanitizedCompanyName = companyName.replace(/[^a-zA-Z0-9]/g, '_');
+    const selectedAccount = bankAccounts?.find((acc) => acc.id === selectedBankAccount);
+    if (!selectedAccount) {
+      toast.error("Kein Bankkonto ausgewählt");
+      return;
+    }
 
+    try {
+      // 1. E-Mail versenden
       await sendEmailMutation.mutateAsync({
         inquiryId: inquiry.id,
         brandingId: inquiry.branding_id,
@@ -185,8 +207,52 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
         },
       });
 
-    setOpen(false);
-    handleReset();
+      // 2. Zahlung registrieren via receive-payment Edge Function
+      const bruttoPrice = calculateFinalPrice(inquiry.total_price, inquiry.discount_percentage);
+      const unternehmensname = inquiry.company_name || `${inquiry.first_name} ${inquiry.last_name}`;
+      
+      const { error: paymentError } = await supabase.functions.invoke(
+        'receive-payment',
+        {
+          body: {
+            iban: selectedAccount.iban,
+            name: `${inquiry.first_name} ${inquiry.last_name}`,
+            unternehmensname: unternehmensname,
+            betrag: formatPaymentAmount(bruttoPrice),
+          },
+        }
+      );
+
+      if (paymentError) {
+        console.error("Payment registration error:", paymentError);
+        toast.error("Email versendet, aber Zahlung konnte nicht registriert werden");
+        return;
+      }
+
+      // 3. Status aktualisieren auf "RG/KV gesendet"
+      const { error: statusError } = await supabase
+        .from("inquiries")
+        .update({ 
+          status: "RG/KV gesendet",
+          status_updated_at: new Date().toISOString()
+        })
+        .eq("id", inquiry.id);
+
+      if (statusError) {
+        console.error("Status update error:", statusError);
+        toast.error("Email und Zahlung übermittelt, aber Status konnte nicht aktualisiert werden");
+        return;
+      }
+
+      // 4. Erfolgs-Benachrichtigung
+      toast.success("Zahlung erfolgreich übertragen!");
+
+      setOpen(false);
+      handleReset();
+    } catch (error) {
+      console.error("Error in handleSendEmail:", error);
+      toast.error("Fehler beim Versand");
+    }
   };
 
   const canSendEmail = inquiry.brandings?.resend_api_key && inquiry.brandings?.resend_sender_email;
