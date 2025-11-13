@@ -298,9 +298,8 @@ export default function AdminAnfragen() {
                           </div>
                         </th>
                         <th className="text-center">Call</th>
-                        {isTransferAdmin && <th className="text-center">Aktion</th>}
-                        <th className="text-center">Dokumente</th>
-                        <th className="text-center rounded-tr-lg">Details</th>
+                        <th className="text-center">Details</th>
+                        <th className="text-center rounded-tr-lg">Aktion</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -393,18 +392,16 @@ export default function AdminAnfragen() {
                               aria-label="Als Anruf markieren"
                             />
                           </td>
-                          {isTransferAdmin && (
-                            <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
-                              {inquiry.status === "Möchte RG/KV" && (
-                                <TransferButton inquiryId={inquiry.id} />
-                              )}
-                            </td>
-                          )}
-                          <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
-                            <GenerateDocumentsDialog inquiry={inquiry} />
-                          </td>
                           <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
                             <InquiryDetailsDialog inquiry={inquiry} />
+                          </td>
+                          <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center justify-center gap-2">
+                              <GenerateDocumentsDialog inquiry={inquiry} />
+                              {isTransferAdmin && inquiry.status === "Möchte RG/KV" && (
+                                <TransferButton inquiryId={inquiry.id} />
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))}
