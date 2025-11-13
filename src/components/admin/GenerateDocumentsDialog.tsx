@@ -7,7 +7,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { FileText, Loader2 } from "lucide-react";
+import { FileText, Loader2, Download } from "lucide-react";
 import { Inquiry } from "@/hooks/useInquiries";
 import { useBankAccounts } from "@/hooks/useBankAccounts";
 import { useGenerateDocuments } from "@/hooks/useGenerateDocuments";
@@ -80,6 +80,46 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
     setStep(1);
     setSelectedBankAccount(null);
     setGeneratedDocs(null);
+  };
+
+  const handleDownloadAll = () => {
+    if (!generatedDocs) return;
+
+    const companyName = inquiry.company_name || `${inquiry.first_name}_${inquiry.last_name}`;
+    const sanitizedCompanyName = companyName.replace(/[^a-zA-Z0-9]/g, '_');
+    
+    const documents = [
+      { name: `Rechnung_${sanitizedCompanyName}.${fileFormat}`, base64: generatedDocs.documents.rechnung.base64 },
+      { name: `Kaufvertrag_${sanitizedCompanyName}.${fileFormat}`, base64: generatedDocs.documents.kaufvertrag.base64 },
+      { name: `Treuhandvertrag_${sanitizedCompanyName}.${fileFormat}`, base64: generatedDocs.documents.treuhandvertrag.base64 },
+    ];
+
+    documents.forEach((doc, index) => {
+      setTimeout(() => {
+        // Base64 zu Blob konvertieren
+        const byteCharacters = atob(doc.base64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        
+        const mimeType = fileFormat === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        const blob = new Blob([byteArray], { type: mimeType });
+        
+        // Download triggern
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = doc.name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, index * 500); // 500ms Verzögerung zwischen Downloads
+    });
+
+    toast.success(`${documents.length} Dokumente werden heruntergeladen...`);
   };
 
   return (
@@ -251,13 +291,24 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
               </div>
             </ScrollArea>
 
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={handleReset}>
-                Neue Dokumente generieren
+            <div className="flex justify-between items-center">
+              <Button 
+                variant="default" 
+                onClick={handleDownloadAll}
+                className="gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Alle Dokumente runterladen
               </Button>
-              <Button onClick={() => setOpen(false)}>
-                Fertig
-              </Button>
+              
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleReset}>
+                  Neue Dokumente generieren
+                </Button>
+                <Button onClick={() => setOpen(false)}>
+                  Fertig
+                </Button>
+              </div>
             </div>
           </div>
         )}
