@@ -47,6 +47,7 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
       resend_api_key: branding.resend_api_key || '',
       resend_sender_email: branding.resend_sender_email || '',
       resend_sender_name: branding.resend_sender_name || '',
+      admin_email: branding.admin_email || '',
     } : {
       is_active: true,
     },
@@ -461,6 +462,19 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
           />
           {errors.resend_sender_name && (
             <p className="text-sm text-destructive mt-1">{errors.resend_sender_name.message}</p>
+          )}
+        </div>
+
+        <div>
+          <Label htmlFor="admin_email">Verwaltungs E-Mail</Label>
+          <Input
+            id="admin_email"
+            type="email"
+            {...register('admin_email')}
+            placeholder="verwaltung@kanzlei.de"
+          />
+          {errors.admin_email && (
+            <p className="text-sm text-destructive mt-1">{errors.admin_email.message}</p>
           )}
         </div>
       </div>

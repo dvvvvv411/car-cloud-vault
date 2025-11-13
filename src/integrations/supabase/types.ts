@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       brandings: {
         Row: {
+          admin_email: string | null
           case_number: string
           company_name: string
           court_decision_pdf_url: string | null
@@ -39,6 +40,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          admin_email?: string | null
           case_number: string
           company_name: string
           court_decision_pdf_url?: string | null
@@ -62,6 +64,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          admin_email?: string | null
           case_number?: string
           company_name?: string
           court_decision_pdf_url?: string | null
