@@ -21,12 +21,13 @@ serve(async (req) => {
     // Alle Anfragen ohne Anrede holen
     const { data: inquiries, error: fetchError } = await supabase
       .from('inquiries')
-      .select('id, first_name, salutation')
-      .is('salutation', null);
+      .select('id, first_name, salutation, status')
+      .is('salutation', null)
+      .neq('status', 'Kein Interesse');
 
     if (fetchError) throw fetchError;
 
-    console.log(`Found ${inquiries?.length || 0} inquiries without salutation`);
+    console.log(`Found ${inquiries?.length || 0} inquiries without salutation (excluding "Kein Interesse" status)`);
 
     if (!inquiries || inquiries.length === 0) {
       return new Response(

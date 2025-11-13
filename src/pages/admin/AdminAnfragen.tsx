@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Mail, Phone, MapPin, Building2, User, Calendar, Package, Euro, MessageSquare, Loader2, ArrowUpDown, ArrowUp, ArrowDown, Search, Eye, EyeOff, Filter, Building } from "lucide-react";
+import { Mail, Phone, MapPin, Building2, User, Calendar, Package, Euro, MessageSquare, Loader2, ArrowUpDown, ArrowUp, ArrowDown, Search, Eye, EyeOff, Filter, Building, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useInquiries, useUpdateInquiryCallPriority, InquiryStatus } from "@/hooks/useInquiries";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +17,8 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuChe
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { useState, useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function AdminAnfragen() {
   const { data: inquiries = [], isLoading } = useInquiries();
@@ -27,8 +29,10 @@ export default function AdminAnfragen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showKeinInteresse, setShowKeinInteresse] = useState(false);
   const [selectedStatuses, setSelectedStatuses] = useState<InquiryStatus[]>([]);
+  const [isAssigningSalutations, setIsAssigningSalutations] = useState(false);
   const updateCallPriority = useUpdateInquiryCallPriority();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const STATUS_PRIORITY: Record<InquiryStatus, number> = {
     "Neu": 1,
@@ -118,6 +122,41 @@ export default function AdminAnfragen() {
         },
       }
     );
+  };
+
+  const handleAssignSalutations = async () => {
+    try {
+      setIsAssigningSalutations(true);
+      
+      toast({
+        title: "KI-Zuweisung gestartet",
+        description: "Die Anreden werden jetzt automatisch zugewiesen...",
+      });
+
+      const { data, error } = await supabase.functions.invoke('assign-salutations-to-inquiries', {
+        body: {}
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Erfolgreich abgeschlossen",
+        description: `${data.updated} von ${data.total} Anreden wurden zugewiesen.`,
+      });
+
+      // Refresh inquiries
+      queryClient.invalidateQueries({ queryKey: ['inquiries'] });
+
+    } catch (error) {
+      console.error('Error assigning salutations:', error);
+      toast({
+        title: "Fehler",
+        description: "Die automatische Zuweisung ist fehlgeschlagen.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAssigningSalutations(false);
+    }
   };
 
   const formatPrice = (price: number) => {
@@ -230,6 +269,25 @@ export default function AdminAnfragen() {
               )}
             </DropdownMenuContent>
           </DropdownMenu>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleAssignSalutations}
+            disabled={isAssigningSalutations || selectedStatuses.length > 0}
+            className="whitespace-nowrap w-full sm:w-auto"
+          >
+            {isAssigningSalutations ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                KI weist zu...
+              </>
+            ) : (
+              <>
+                <UserCheck className="h-4 w-4 mr-2" />
+                Anreden automatisch zuweisen
+              </>
+            )}
+          </Button>
           <Button
             variant={showKeinInteresse ? "default" : "outline"}
             size="sm"

@@ -17,7 +17,6 @@ import AdminPositionen from "./pages/admin/AdminPositionen";
 import AdminAnfragen from "./pages/admin/AdminAnfragen";
 import AdminBenutzer from "./pages/admin/AdminBenutzer";
 import AdminBranding from "./pages/admin/AdminBranding";
-import AdminEmails from "./pages/admin/AdminEmails";
 import AdminLeads from "./pages/admin/AdminLeads";
 import AdminKaltaquise from "./pages/admin/AdminKaltaquise";
 import AdminKaltaquiseCallerDetails from "./pages/admin/AdminKaltaquiseCallerDetails";
@@ -63,7 +62,6 @@ const App = () => (
               <Route path="kaltaquise/:callerId/:campaignId" element={<AdminKaltaquiseLeads />} />
               <Route path="benutzer" element={<AdminBenutzer />} />
               <Route path="branding" element={<AdminBranding />} />
-              <Route path="emails" element={<AdminEmails />} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
