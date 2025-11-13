@@ -8,12 +8,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { FileText, Loader2, Download, Mail } from "lucide-react";
+import { FileText, Loader2, Download, Mail, Search } from "lucide-react";
 import { Inquiry } from "@/hooks/useInquiries";
 import { useBankAccounts } from "@/hooks/useBankAccounts";
 import { useGenerateDocuments } from "@/hooks/useGenerateDocuments";
 import { useSendDocumentsEmail } from "@/hooks/useSendDocumentsEmail";
 import { useEmailTemplates, useSelectEmailTemplate } from "@/hooks/useEmailTemplates";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +35,7 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
   const [fileFormat, setFileFormat] = useState<"pdf" | "docx">("pdf");
   const [generatedDocs, setGeneratedDocs] = useState<any>(null);
   const [emailPreview, setEmailPreview] = useState<{ subject: string; body: string } | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { data: bankAccounts, isLoading: loadingBankAccounts } = useBankAccounts();
   const { data: emailTemplates } = useEmailTemplates();
@@ -81,6 +83,16 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
       maximumFractionDigits: 2,
     }).format(amount) + " €";
   };
+
+  // Filter Bankkonten basierend auf Suchbegriff
+  const filteredBankAccounts = bankAccounts?.filter((account) => {
+    if (!searchTerm) return true;
+    const search = searchTerm.toLowerCase();
+    return (
+      account.kontoinhaber.toLowerCase().includes(search) ||
+      account.iban.toLowerCase().includes(search)
+    );
+  });
 
   const handleGenerate = async () => {
     const selectedAccount = bankAccounts?.find((acc) => acc.id === selectedBankAccount);
@@ -131,6 +143,7 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
     setSelectedBankAccount(null);
     setGeneratedDocs(null);
     setEmailPreview(null);
+    setSearchTerm("");
   };
 
   const handleDownloadAll = () => {
@@ -311,9 +324,26 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
                     <Loader2 className="h-6 w-6 animate-spin" />
                   </div>
                 ) : (
-                  <ScrollArea className="h-[400px] pr-4">
-                    <div className="space-y-3">
-                      {bankAccounts?.map((account) => (
+                  <>
+                    <div className="mb-4">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                          placeholder="Nach Kontoinhaber oder IBAN suchen..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="pl-9"
+                        />
+                      </div>
+                    </div>
+                    {filteredBankAccounts?.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        Keine Bankkonten gefunden
+                      </div>
+                    ) : (
+                      <ScrollArea className="h-[400px] pr-4">
+                        <div className="space-y-3">
+                          {filteredBankAccounts?.map((account) => (
                         <div
                           key={account.id}
                           onClick={() => setSelectedBankAccount(account.id)}
@@ -337,9 +367,11 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
                             <p>BIC: {account.bic}</p>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    )}
+                  </>
                 )}
               </div>
 
