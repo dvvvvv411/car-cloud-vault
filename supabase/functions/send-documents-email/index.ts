@@ -40,7 +40,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Branding Daten laden
     const { data: branding, error: brandingError } = await supabase
       .from("brandings")
-      .select("resend_api_key, resend_sender_email, resend_sender_name, admin_email_signature, lawyer_name, case_number")
+      .select("resend_api_key, resend_sender_email, resend_sender_name, admin_email, admin_email_signature, lawyer_name, case_number")
       .eq("id", brandingId)
       .single();
 
@@ -48,8 +48,12 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("Branding nicht gefunden");
     }
 
-    if (!branding.resend_api_key || !branding.resend_sender_email) {
-      throw new Error("Resend API nicht konfiguriert für dieses Branding");
+    if (!branding.resend_api_key) {
+      throw new Error("Resend API Key nicht konfiguriert für dieses Branding");
+    }
+
+    if (!branding.admin_email) {
+      throw new Error("Verwaltungs-Email (admin_email) ist nicht konfiguriert für dieses Branding");
     }
 
     // Inquiry Daten laden
@@ -109,8 +113,8 @@ const handler = async (req: Request): Promise<Response> => {
     // Email mit Attachments senden
     const emailResponse = await resend.emails.send({
       from: branding.resend_sender_name 
-        ? `${branding.resend_sender_name} <${branding.resend_sender_email}>`
-        : branding.resend_sender_email,
+        ? `${branding.resend_sender_name} <${branding.admin_email}>`
+        : branding.admin_email,
       to: [inquiry.email],
       subject: emailSubject,
       html: emailHtml,
