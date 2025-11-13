@@ -12,20 +12,16 @@ export interface EmailTemplate {
   updated_at: string;
 }
 
-export const useEmailTemplates = (brandingId?: string) => {
+export const useEmailTemplates = () => {
   return useQuery({
-    queryKey: ['email-templates', brandingId],
+    queryKey: ['email-templates'],
     queryFn: async () => {
-      const query = supabase
+      const { data, error } = await supabase
         .from('email_templates' as any)
         .select('*')
+        .is('branding_id', null)
         .order('template_type', { ascending: true });
       
-      if (brandingId) {
-        query.eq('branding_id', brandingId);
-      }
-      
-      const { data, error } = await query;
       if (error) throw error;
       return data as unknown as EmailTemplate[];
     }
