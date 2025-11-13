@@ -397,9 +397,11 @@ export default function AdminAnfragen() {
                           </td>
                           <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center justify-center gap-2">
-                              <GenerateDocumentsDialog inquiry={inquiry} />
                               {isTransferAdmin && inquiry.status === "Möchte RG/KV" && (
-                                <TransferButton inquiryId={inquiry.id} />
+                                <>
+                                  <GenerateDocumentsDialog inquiry={inquiry} />
+                                  <TransferButton inquiryId={inquiry.id} />
+                                </>
                               )}
                             </div>
                           </td>
@@ -511,14 +513,16 @@ export default function AdminAnfragen() {
                         currentStatus={inquiry.status}
                         statusUpdatedAt={inquiry.status_updated_at}
                       />
-                      <div className="flex gap-2">
-                        <InquiryNotesDialog inquiryId={inquiry.id} />
+                  <div className="flex gap-2">
+                    <InquiryNotesDialog inquiryId={inquiry.id} />
+                    <InquiryDetailsDialog inquiry={inquiry} />
+                    {isTransferAdmin && inquiry.status === "Möchte RG/KV" && (
+                      <>
                         <GenerateDocumentsDialog inquiry={inquiry} />
-                        <InquiryDetailsDialog inquiry={inquiry} />
-                        {isTransferAdmin && inquiry.status === "Möchte RG/KV" && (
-                          <TransferButton inquiryId={inquiry.id} />
-                        )}
-                      </div>
+                        <TransferButton inquiryId={inquiry.id} />
+                      </>
+                    )}
+                  </div>
                     </div>
                   </div>
                 </CardContent>
