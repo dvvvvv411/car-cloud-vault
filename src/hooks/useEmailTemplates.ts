@@ -56,3 +56,13 @@ export const useUpdateEmailTemplate = () => {
     }
   });
 };
+
+export const useSelectEmailTemplate = (templates: EmailTemplate[] | undefined, vehicleCount: number, salutation: 'Herr' | 'Frau' | null) => {
+  if (!templates || !salutation) return null;
+  
+  const countType = vehicleCount === 1 ? 'single' : 'multiple';
+  const genderType = salutation === 'Herr' ? 'male' : 'female';
+  const templateType = `${countType}_${genderType}` as EmailTemplate['template_type'];
+  
+  return templates.find(t => t.template_type === templateType);
+};

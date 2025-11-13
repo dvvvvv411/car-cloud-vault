@@ -39,6 +39,11 @@ export interface Inquiry {
     company_name: string;
     case_number: string;
     lawyer_firm_name: string;
+    lawyer_name: string;
+    resend_api_key: string | null;
+    resend_sender_email: string | null;
+    resend_sender_name: string | null;
+    admin_email_signature: string | null;
   } | null;
 }
 
@@ -53,7 +58,12 @@ export const useInquiries = () => {
           brandings (
             company_name,
             case_number,
-            lawyer_firm_name
+            lawyer_firm_name,
+            lawyer_name,
+            resend_api_key,
+            resend_sender_email,
+            resend_sender_name,
+            admin_email_signature
           )
         `)
         .order("created_at", { ascending: false });
