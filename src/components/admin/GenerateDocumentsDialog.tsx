@@ -376,6 +376,14 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
                   <h3 className="text-lg font-semibold mb-4">Email Vorschau</h3>
                   <Card>
                     <CardHeader>
+                      {inquiry.brandings?.resend_sender_email && (
+                        <CardTitle className="text-sm text-muted-foreground mb-1">
+                          Von: {inquiry.brandings.resend_sender_name || inquiry.brandings.resend_sender_email}
+                          {inquiry.brandings.resend_sender_name && (
+                            <span className="text-xs ml-1">({inquiry.brandings.resend_sender_email})</span>
+                          )}
+                        </CardTitle>
+                      )}
                       <CardTitle className="text-sm text-muted-foreground">An: {inquiry.email}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -390,14 +398,15 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
                             {emailPreview.body.split('\n\n' + inquiry.brandings?.admin_email_signature)[0]}
                           </div>
                           
-                          {inquiry.brandings?.admin_email_signature && (
-                            <>
-                              <Separator className="my-4" />
-                              <div className="whitespace-pre-wrap text-sm text-muted-foreground">
-                                {inquiry.brandings.admin_email_signature}
-                              </div>
-                            </>
-                          )}
+                  {inquiry.brandings?.admin_email_signature && (
+                    <>
+                      <Separator className="my-4" />
+                      <div 
+                        className="text-sm text-muted-foreground prose prose-sm max-w-none"
+                        dangerouslySetInnerHTML={{ __html: inquiry.brandings.admin_email_signature }}
+                      />
+                    </>
+                  )}
                         </ScrollArea>
                       </div>
                       <div className="text-xs text-muted-foreground">
