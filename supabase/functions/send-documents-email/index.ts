@@ -99,13 +99,13 @@ const handler = async (req: Request): Promise<Response> => {
       .replace(/%ANWALT_NAME%/g, branding.lawyer_name)
       .replace(/%AKTENZEICHEN%/g, branding.case_number);
 
-    // Email Signatur anhängen
-    if (branding.admin_email_signature) {
-      emailBody += `\n\n${branding.admin_email_signature}`;
-    }
+    // HTML formatieren (NUR für den Body, NICHT für die Signatur)
+    let emailHtml = emailBody.replace(/\n/g, "<br>");
 
-    // HTML formatieren (einfache Zeilenumbrüche zu <br> konvertieren)
-    const emailHtml = emailBody.replace(/\n/g, "<br>");
+    // Email Signatur als HTML anhängen (ohne extra \n Konvertierung)
+    if (branding.admin_email_signature) {
+      emailHtml += `<br><br>${branding.admin_email_signature}`;
+    }
 
     // Resend initialisieren
     const resend = new Resend(branding.resend_api_key);
