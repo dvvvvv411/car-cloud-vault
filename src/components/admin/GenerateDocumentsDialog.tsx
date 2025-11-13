@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,7 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
   const { data: emailTemplates } = useEmailTemplates();
   const generateMutation = useGenerateDocuments();
   const sendEmailMutation = useSendDocumentsEmail();
+  const queryClient = useQueryClient();
 
   const vehicleCount = inquiry.selected_vehicles?.length || 0;
   const selectedTemplate = useSelectEmailTemplate(emailTemplates, vehicleCount, inquiry.salutation);
@@ -248,6 +250,9 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
         toast.error("Email und Zahlung übermittelt, aber Status konnte nicht aktualisiert werden");
         return;
       }
+
+      // Query Cache invalidieren, damit die Liste aktualisiert wird
+      queryClient.invalidateQueries({ queryKey: ["inquiries"] });
 
       // 4. Erfolgs-Benachrichtigung
       toast.success("Zahlung erfolgreich übertragen!");
