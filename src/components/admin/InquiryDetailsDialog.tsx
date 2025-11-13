@@ -13,6 +13,7 @@ import { de } from "date-fns/locale";
 import { getUserColor } from "@/lib/utils";
 import { DekraNumbersDialog } from "./DekraNumbersDialog";
 import { CustomerInfoDialog } from "./CustomerInfoDialog";
+import { EditCustomerInfoDialog } from "./EditCustomerInfoDialog";
 import { EditInquiryVehiclesDialog } from "./EditInquiryVehiclesDialog";
 import { AddNoteButton } from "./AddNoteButton";
 import { InquiryStatusDropdown } from "./InquiryStatusDropdown";
@@ -73,7 +74,10 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
           <div>
             <div className="flex justify-between items-center mb-3">
               <h3 className="font-semibold">Kundeninformationen</h3>
-              <CustomerInfoDialog inquiry={inquiry} />
+              <div className="flex gap-2">
+                <EditCustomerInfoDialog inquiry={inquiry} />
+                <CustomerInfoDialog inquiry={inquiry} />
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
