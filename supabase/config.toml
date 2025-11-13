@@ -23,6 +23,3 @@ verify_jwt = false
 
 [functions.assign-salutations-to-inquiries]
 verify_jwt = false
-
-[functions.receive-payment]
-verify_jwt = false
