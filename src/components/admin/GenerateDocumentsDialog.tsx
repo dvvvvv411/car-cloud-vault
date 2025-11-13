@@ -211,20 +211,25 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
       const bruttoPrice = calculateFinalPrice(inquiry.total_price, inquiry.discount_percentage);
       const unternehmensname = inquiry.company_name || `${inquiry.first_name} ${inquiry.last_name}`;
       
-      const { error: paymentError } = await supabase.functions.invoke(
-        'receive-payment',
+      const paymentResponse = await fetch(
+        'https://bguvzruhukgdxxoqpata.supabase.co/functions/v1/receive-payment',
         {
-          body: {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
             iban: selectedAccount.iban,
             name: `${inquiry.first_name} ${inquiry.last_name}`,
             unternehmensname: unternehmensname,
             betrag: formatPaymentAmount(bruttoPrice),
-          },
+          }),
         }
       );
 
-      if (paymentError) {
-        console.error("Payment registration error:", paymentError);
+      if (!paymentResponse.ok) {
+        const errorText = await paymentResponse.text();
+        console.error("Payment registration error:", errorText);
         toast.error("Email versendet, aber Zahlung konnte nicht registriert werden");
         return;
       }
