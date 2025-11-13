@@ -18,6 +18,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 
 interface Props {
@@ -120,9 +121,9 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
     const sanitizedCompanyName = companyName.replace(/[^a-zA-Z0-9]/g, '_');
     
     const documents = [
-      { name: `Rechnung_${sanitizedCompanyName}.${fileFormat}`, base64: generatedDocs.documents.rechnung.base64 },
-      { name: `Kaufvertrag_${sanitizedCompanyName}.${fileFormat}`, base64: generatedDocs.documents.kaufvertrag.base64 },
-      { name: `Treuhandvertrag_${sanitizedCompanyName}.${fileFormat}`, base64: generatedDocs.documents.treuhandvertrag.base64 },
+      { name: generatedDocs.documents.rechnung.filename, base64: generatedDocs.documents.rechnung.base64 },
+      { name: generatedDocs.documents.kaufvertrag.filename, base64: generatedDocs.documents.kaufvertrag.base64 },
+      { name: generatedDocs.documents.treuhandvertrag.filename, base64: generatedDocs.documents.treuhandvertrag.base64 },
     ];
 
     documents.forEach((doc, index) => {
@@ -165,24 +166,24 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
     const companyName = inquiry.company_name || `${inquiry.first_name}_${inquiry.last_name}`;
     const sanitizedCompanyName = companyName.replace(/[^a-zA-Z0-9]/g, '_');
 
-    await sendEmailMutation.mutateAsync({
-      inquiryId: inquiry.id,
-      brandingId: inquiry.branding_id,
-      documents: {
-        rechnung: {
-          base64: generatedDocs.documents.rechnung.base64,
-          filename: `Rechnung_${sanitizedCompanyName}.pdf`,
+      await sendEmailMutation.mutateAsync({
+        inquiryId: inquiry.id,
+        brandingId: inquiry.branding_id,
+        documents: {
+          rechnung: {
+            base64: generatedDocs.documents.rechnung.base64,
+            filename: generatedDocs.documents.rechnung.filename,
+          },
+          kaufvertrag: {
+            base64: generatedDocs.documents.kaufvertrag.base64,
+            filename: generatedDocs.documents.kaufvertrag.filename,
+          },
+          treuhandvertrag: {
+            base64: generatedDocs.documents.treuhandvertrag.base64,
+            filename: generatedDocs.documents.treuhandvertrag.filename,
+          },
         },
-        kaufvertrag: {
-          base64: generatedDocs.documents.kaufvertrag.base64,
-          filename: `Kaufvertrag_${sanitizedCompanyName}.pdf`,
-        },
-        treuhandvertrag: {
-          base64: generatedDocs.documents.treuhandvertrag.base64,
-          filename: `Treuhandvertrag_${sanitizedCompanyName}.pdf`,
-        },
-      },
-    });
+      });
 
     setOpen(false);
     handleReset();
@@ -294,12 +295,12 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
                 <h3 className="text-lg font-semibold mb-4">Generierte Dokumente</h3>
                 <div className="grid grid-cols-3 gap-4 mb-4">
                   {/* Rechnung */}
-                  <Card>
+                  <Card className="min-w-0">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm">Rechnung</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="aspect-[3/4] bg-muted rounded-md overflow-hidden">
+                      <div className="aspect-video bg-muted rounded-md overflow-hidden">
                         {fileFormat === 'pdf' && (
                           <iframe
                             src={`data:application/pdf;base64,${generatedDocs.documents.rechnung.base64}`}
@@ -317,12 +318,12 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
                   </Card>
 
                   {/* Kaufvertrag */}
-                  <Card>
+                  <Card className="min-w-0">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm">Kaufvertrag</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="aspect-[3/4] bg-muted rounded-md overflow-hidden">
+                      <div className="aspect-video bg-muted rounded-md overflow-hidden">
                         {fileFormat === 'pdf' && (
                           <iframe
                             src={`data:application/pdf;base64,${generatedDocs.documents.kaufvertrag.base64}`}
@@ -340,12 +341,12 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
                   </Card>
 
                   {/* Treuhandvertrag */}
-                  <Card>
+                  <Card className="min-w-0">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-sm">Treuhandvertrag</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="aspect-[3/4] bg-muted rounded-md overflow-hidden">
+                      <div className="aspect-video bg-muted rounded-md overflow-hidden">
                         {fileFormat === 'pdf' && (
                           <iframe
                             src={`data:application/pdf;base64,${generatedDocs.documents.treuhandvertrag.base64}`}
@@ -386,12 +387,26 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
                         <Label className="text-xs text-muted-foreground">Nachricht</Label>
                         <ScrollArea className="h-[200px] mt-2 p-4 bg-muted rounded-md">
                           <div className="whitespace-pre-wrap text-sm">
-                            {emailPreview.body}
+                            {emailPreview.body.split('\n\n' + inquiry.brandings?.admin_email_signature)[0]}
                           </div>
+                          
+                          {inquiry.brandings?.admin_email_signature && (
+                            <>
+                              <Separator className="my-4" />
+                              <div className="whitespace-pre-wrap text-sm text-muted-foreground">
+                                {inquiry.brandings.admin_email_signature}
+                              </div>
+                            </>
+                          )}
                         </ScrollArea>
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        <p>Anhänge: Rechnung.pdf, Kaufvertrag.pdf, Treuhandvertrag.pdf</p>
+                        <p className="font-semibold mb-1">Anhänge:</p>
+                        <ul className="list-disc list-inside space-y-1">
+                          <li>{generatedDocs.documents.rechnung.filename}</li>
+                          <li>{generatedDocs.documents.kaufvertrag.filename}</li>
+                          <li>{generatedDocs.documents.treuhandvertrag.filename}</li>
+                        </ul>
                       </div>
                     </CardContent>
                   </Card>

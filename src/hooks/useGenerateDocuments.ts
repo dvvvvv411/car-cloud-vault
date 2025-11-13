@@ -34,6 +34,7 @@ interface GeneratedDocuments {
   rechnung: GeneratedDocument;
   kaufvertrag: GeneratedDocument;
   treuhandvertrag: GeneratedDocument;
+  rechnungsnummer?: string;
 }
 
 interface UploadedDocument {
