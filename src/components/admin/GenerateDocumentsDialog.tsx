@@ -202,7 +202,7 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
                 <div className="border rounded-lg p-4">
                   <h3 className="font-semibold mb-2">Rechnung</h3>
                   <iframe
-                    src={generatedDocs.storagePaths[0].url}
+                    src={`data:application/pdf;base64,${generatedDocs.documents.rechnung.base64}`}
                     className="w-full h-[400px] border rounded"
                   />
                   <Button
@@ -219,7 +219,7 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
                 <div className="border rounded-lg p-4">
                   <h3 className="font-semibold mb-2">Kaufvertrag</h3>
                   <iframe
-                    src={generatedDocs.storagePaths[1].url}
+                    src={`data:application/pdf;base64,${generatedDocs.documents.kaufvertrag.base64}`}
                     className="w-full h-[400px] border rounded"
                   />
                   <Button
@@ -236,7 +236,7 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
                 <div className="border rounded-lg p-4">
                   <h3 className="font-semibold mb-2">Treuhandvertrag</h3>
                   <iframe
-                    src={generatedDocs.storagePaths[2].url}
+                    src={`data:application/pdf;base64,${generatedDocs.documents.treuhandvertrag.base64}`}
                     className="w-full h-[400px] border rounded"
                   />
                   <Button
