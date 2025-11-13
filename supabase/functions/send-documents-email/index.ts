@@ -136,26 +136,10 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("Email sent successfully:", emailResponse);
 
-    // Status aktualisieren auf "RG/KV gesendet"
-    const { error: updateError } = await supabase
-      .from("inquiries")
-      .update({ 
-        status: "RG/KV gesendet",
-        status_updated_at: new Date().toISOString()
-      })
-      .eq("id", inquiryId);
-
-    if (updateError) {
-      console.error("Error updating inquiry status:", updateError);
-      throw new Error("Fehler beim Aktualisieren des Status");
-    }
-
-    console.log("Inquiry status updated to 'RG/KV gesendet'");
-
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: "Email versendet und Status aktualisiert"
+        message: "Email erfolgreich versendet"
       }),
       {
         status: 200,
