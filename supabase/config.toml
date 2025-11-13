@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.create-bestellung-api]
 verify_jwt = false
+
+[functions.assign-salutations-to-inquiries]
+verify_jwt = false

@@ -8,6 +8,7 @@ const corsHeaders = {
 };
 
 interface InquiryRequest {
+  salutation: 'Herr' | 'Frau';
   brandingId?: string;
   customerType: string;
   companyName?: string;
@@ -62,6 +63,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { data: inquiryData, error: inquiryError } = await supabaseClient
       .from("inquiries")
       .insert({
+        salutation: requestData.salutation,
         branding_id: requestData.brandingId || null,
         customer_type: requestData.customerType,
         company_name: requestData.companyName || null,
