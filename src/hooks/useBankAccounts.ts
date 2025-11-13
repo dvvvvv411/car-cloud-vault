@@ -20,6 +20,7 @@ interface BankAccount {
   iban: string;
   bic: string;
   bank_name: string;
+  kontoinhaber_geschlecht: "M" | "F";
   bd_steller: string | null;
   ist_eigenes_konto: boolean;
   umsaetze: {

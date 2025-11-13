@@ -120,7 +120,7 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
           bic: selectedAccount.bic,
           kontoinhaber: selectedAccount.kontoinhaber,
           bankname: selectedAccount.bank_name,
-          kontoinhaber_geschlecht: "M",
+          kontoinhaber_geschlecht: selectedAccount.kontoinhaber_geschlecht,
         },
         insolventes_unternehmen_name: inquiry.brandings.company_name,
         kanzlei_name: inquiry.brandings.lawyer_firm_name,
