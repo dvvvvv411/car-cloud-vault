@@ -16,7 +16,7 @@ interface GenerateDocumentsParams {
     bic: string;
     kontoinhaber: string;
     bankname: string;
-    kontoinhaber_geschlecht: "M" | "F";
+    kontoinhaber_geschlecht: "M" | "W";
   };
   insolventes_unternehmen_name: string;
   kanzlei_name: string;
