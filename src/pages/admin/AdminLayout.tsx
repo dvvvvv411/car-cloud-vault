@@ -153,7 +153,7 @@ export default function AdminLayout() {
 
           {/* Page Content */}
           <main className="flex-1 p-8 bg-transparent overflow-auto">
-            <div className="max-w-[1600px] mx-auto">
+            <div className="max-w-[2000px] mx-auto">
               <Outlet />
             </div>
           </main>
