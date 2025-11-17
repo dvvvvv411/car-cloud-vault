@@ -229,6 +229,44 @@ export type Database = {
           },
         ]
       }
+      email_templates: {
+        Row: {
+          body: string
+          branding_id: string | null
+          created_at: string
+          id: string
+          subject: string
+          template_type: Database["public"]["Enums"]["email_template_type"]
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          branding_id?: string | null
+          created_at?: string
+          id?: string
+          subject?: string
+          template_type: Database["public"]["Enums"]["email_template_type"]
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          branding_id?: string | null
+          created_at?: string
+          id?: string
+          subject?: string
+          template_type?: Database["public"]["Enums"]["email_template_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_templates_branding_id_fkey"
+            columns: ["branding_id"]
+            isOneToOne: false
+            referencedRelation: "brandings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inquiries: {
         Row: {
           branding_id: string | null
@@ -247,6 +285,7 @@ export type Database = {
           lead_id: string | null
           message: string | null
           phone: string
+          salutation: Database["public"]["Enums"]["salutation_type"] | null
           selected_vehicles: Json
           status: Database["public"]["Enums"]["inquiry_status"]
           status_updated_at: string | null
@@ -271,6 +310,7 @@ export type Database = {
           lead_id?: string | null
           message?: string | null
           phone: string
+          salutation?: Database["public"]["Enums"]["salutation_type"] | null
           selected_vehicles: Json
           status?: Database["public"]["Enums"]["inquiry_status"]
           status_updated_at?: string | null
@@ -295,6 +335,7 @@ export type Database = {
           lead_id?: string | null
           message?: string | null
           phone?: string
+          salutation?: Database["public"]["Enums"]["salutation_type"] | null
           selected_vehicles?: Json
           status?: Database["public"]["Enums"]["inquiry_status"]
           status_updated_at?: string | null
@@ -644,6 +685,11 @@ export type Database = {
     }
     Enums: {
       app_role: "user" | "admin"
+      email_template_type:
+        | "single_male"
+        | "single_female"
+        | "multiple_male"
+        | "multiple_female"
       inquiry_status:
         | "Neu"
         | "Möchte RG/KV"
@@ -651,6 +697,7 @@ export type Database = {
         | "Bezahlt"
         | "Exchanged"
         | "Kein Interesse"
+      salutation_type: "Herr" | "Frau"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -779,6 +826,12 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["user", "admin"],
+      email_template_type: [
+        "single_male",
+        "single_female",
+        "multiple_male",
+        "multiple_female",
+      ],
       inquiry_status: [
         "Neu",
         "Möchte RG/KV",
@@ -787,6 +840,7 @@ export const Constants = {
         "Exchanged",
         "Kein Interesse",
       ],
+      salutation_type: ["Herr", "Frau"],
     },
   },
 } as const

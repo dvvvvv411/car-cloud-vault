@@ -42,6 +42,21 @@ interface UploadedDocument {
   url: string;
 }
 
+// Umlaute und Sonderzeichen für Dateipfade bereinigen
+function sanitizeForStorage(text: string): string {
+  return text
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/Ä/g, 'Ae')
+    .replace(/Ö/g, 'Oe')
+    .replace(/Ü/g, 'Ue')
+    .replace(/ß/g, 'ss')
+    .replace(/[^a-zA-Z0-9_-]/g, '_') // Alle anderen Sonderzeichen durch _ ersetzen
+    .replace(/_+/g, '_') // Mehrfache _ durch ein einziges ersetzen
+    .replace(/^_+|_+$/g, ''); // _ am Anfang/Ende entfernen
+}
+
 async function uploadDocument(
   doc: GeneratedDocument,
   customerName: string
@@ -56,7 +71,9 @@ async function uploadDocument(
   const blob = new Blob([byteArray], { type: "application/pdf" });
 
   // In Supabase Storage hochladen
-  const path = `${customerName}/${Date.now()}_${doc.filename}`;
+  const sanitizedCustomerName = sanitizeForStorage(customerName);
+  const sanitizedFilename = sanitizeForStorage(doc.filename);
+  const path = `${sanitizedCustomerName}/${Date.now()}_${sanitizedFilename}`;
   const { data, error } = await supabase.storage
     .from("inquiry-documents")
     .upload(path, blob, {
@@ -88,7 +105,9 @@ export const useGenerateDocuments = () => {
       );
 
       if (!response.ok) {
-        throw new Error("Fehler bei der PDF-Generierung");
+        const errorText = await response.text();
+        console.error("PDF-Generierung fehlgeschlagen:", errorText);
+        throw new Error(`Fehler bei der PDF-Generierung: ${errorText}`);
       }
 
       const documents: GeneratedDocuments = await response.json();
