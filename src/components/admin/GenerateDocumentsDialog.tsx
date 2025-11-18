@@ -50,13 +50,13 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
   useEffect(() => {
     if (step === 3 && selectedTemplate && inquiry.brandings) {
       let subject = selectedTemplate.subject
-        .replace(/%NACHNAME%/g, inquiry.last_name)
-        .replace(/%ANWALT_NAME%/g, inquiry.brandings.lawyer_name)
+        .replace(/%NACHNAME%/g, inquiry.last_name.trim())
+        .replace(/%ANWALT_NAME%/g, inquiry.brandings.lawyer_name.trim())
         .replace(/%AKTENZEICHEN%/g, inquiry.brandings.case_number);
 
       let body = selectedTemplate.body
-        .replace(/%NACHNAME%/g, inquiry.last_name)
-        .replace(/%ANWALT_NAME%/g, inquiry.brandings.lawyer_name)
+        .replace(/%NACHNAME%/g, inquiry.last_name.trim())
+        .replace(/%ANWALT_NAME%/g, inquiry.brandings.lawyer_name.trim())
         .replace(/%AKTENZEICHEN%/g, inquiry.brandings.case_number);
 
       // Signatur anhängen
