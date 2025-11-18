@@ -90,13 +90,13 @@ const handler = async (req: Request): Promise<Response> => {
 
     // Variablen im Template ersetzen
     let emailSubject = template.subject
-      .replace(/%NACHNAME%/g, inquiry.last_name)
-      .replace(/%ANWALT_NAME%/g, branding.lawyer_name)
+      .replace(/%NACHNAME%/g, inquiry.last_name.trim())
+      .replace(/%ANWALT_NAME%/g, branding.lawyer_name.trim())
       .replace(/%AKTENZEICHEN%/g, branding.case_number);
 
     let emailBody = template.body
-      .replace(/%NACHNAME%/g, inquiry.last_name)
-      .replace(/%ANWALT_NAME%/g, branding.lawyer_name)
+      .replace(/%NACHNAME%/g, inquiry.last_name.trim())
+      .replace(/%ANWALT_NAME%/g, branding.lawyer_name.trim())
       .replace(/%AKTENZEICHEN%/g, branding.case_number);
 
     // HTML formatieren (NUR für den Body, NICHT für die Signatur)
