@@ -43,6 +43,7 @@ export interface Inquiry {
     resend_api_key: string | null;
     resend_sender_email: string | null;
     resend_sender_name: string | null;
+    admin_email: string | null;
     admin_email_signature: string | null;
   } | null;
 }
