@@ -36,6 +36,15 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
   const [generatedDocs, setGeneratedDocs] = useState<any>(null);
   const [emailPreview, setEmailPreview] = useState<{ subject: string; body: string } | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [uploadedPdfs, setUploadedPdfs] = useState<{
+    rechnung: File | null;
+    kaufvertrag: File | null;
+    treuhandvertrag: File | null;
+  }>({
+    rechnung: null,
+    kaufvertrag: null,
+    treuhandvertrag: null,
+  });
 
   const { data: bankAccounts, isLoading: loadingBankAccounts } = useBankAccounts();
   const { data: emailTemplates } = useEmailTemplates();
@@ -144,6 +153,33 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
     setGeneratedDocs(null);
     setEmailPreview(null);
     setSearchTerm("");
+    setUploadedPdfs({
+      rechnung: null,
+      kaufvertrag: null,
+      treuhandvertrag: null,
+    });
+  };
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64 = reader.result?.toString().split(',')[1];
+        if (base64) resolve(base64);
+        else reject('Fehler beim Lesen der Datei');
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handlePdfUpload = (docType: 'rechnung' | 'kaufvertrag' | 'treuhandvertrag', file: File) => {
+    if (file.type !== 'application/pdf') {
+      toast.error('Bitte nur PDF-Dateien hochladen');
+      return;
+    }
+    setUploadedPdfs(prev => ({ ...prev, [docType]: file }));
+    toast.success(`${file.name} hochgeladen`);
   };
 
   const handleDownloadAll = () => {
@@ -202,25 +238,60 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
     }
 
     try {
-      // 1. E-Mail versenden
-      await sendEmailMutation.mutateAsync({
-        inquiryId: inquiry.id,
-        brandingId: inquiry.branding_id,
-        documents: {
-          rechnung: {
-            base64: generatedDocs.documents.rechnung.base64,
-            filename: generatedDocs.documents.rechnung.filename,
+      // Für DOCX: Prüfen ob alle PDFs hochgeladen wurden
+      if (fileFormat === 'docx') {
+        if (!uploadedPdfs.rechnung || !uploadedPdfs.kaufvertrag || !uploadedPdfs.treuhandvertrag) {
+          toast.error('Bitte alle 3 PDF-Dateien hochladen');
+          return;
+        }
+
+        // PDFs in Base64 konvertieren
+        const [rechnungB64, kaufvertragB64, treuhandB64] = await Promise.all([
+          fileToBase64(uploadedPdfs.rechnung),
+          fileToBase64(uploadedPdfs.kaufvertrag),
+          fileToBase64(uploadedPdfs.treuhandvertrag),
+        ]);
+
+        // E-Mail versenden mit hochgeladenen PDFs
+        await sendEmailMutation.mutateAsync({
+          inquiryId: inquiry.id,
+          brandingId: inquiry.branding_id,
+          documents: {
+            rechnung: {
+              base64: rechnungB64,
+              filename: uploadedPdfs.rechnung.name,
+            },
+            kaufvertrag: {
+              base64: kaufvertragB64,
+              filename: uploadedPdfs.kaufvertrag.name,
+            },
+            treuhandvertrag: {
+              base64: treuhandB64,
+              filename: uploadedPdfs.treuhandvertrag.name,
+            },
           },
-          kaufvertrag: {
-            base64: generatedDocs.documents.kaufvertrag.base64,
-            filename: generatedDocs.documents.kaufvertrag.filename,
+        });
+      } else {
+        // PDF-Format: Normale Logik mit generierten Dokumenten
+        await sendEmailMutation.mutateAsync({
+          inquiryId: inquiry.id,
+          brandingId: inquiry.branding_id,
+          documents: {
+            rechnung: {
+              base64: generatedDocs.documents.rechnung.base64,
+              filename: generatedDocs.documents.rechnung.filename,
+            },
+            kaufvertrag: {
+              base64: generatedDocs.documents.kaufvertrag.base64,
+              filename: generatedDocs.documents.kaufvertrag.filename,
+            },
+            treuhandvertrag: {
+              base64: generatedDocs.documents.treuhandvertrag.base64,
+              filename: generatedDocs.documents.treuhandvertrag.filename,
+            },
           },
-          treuhandvertrag: {
-            base64: generatedDocs.documents.treuhandvertrag.base64,
-            filename: generatedDocs.documents.treuhandvertrag.filename,
-          },
-        },
-      });
+        });
+      }
 
       // 2. Zahlung registrieren via receive-payment Edge Function
       const bruttoPrice = calculateFinalPrice(inquiry.total_price, inquiry.discount_percentage);
@@ -279,6 +350,7 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
   };
 
   const canSendEmail = inquiry.brandings?.resend_api_key && inquiry.brandings?.resend_sender_email;
+  const allPdfsUploaded = uploadedPdfs.rechnung && uploadedPdfs.kaufvertrag && uploadedPdfs.treuhandvertrag;
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => {
@@ -484,11 +556,11 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
                   <h3 className="text-lg font-semibold mb-4">Email Vorschau</h3>
                   <Card>
                     <CardHeader>
-                      {inquiry.brandings?.resend_sender_email && (
+                      {inquiry.brandings?.admin_email && (
                         <CardTitle className="text-sm text-muted-foreground mb-1">
-                          Von: {inquiry.brandings.resend_sender_name || inquiry.brandings.resend_sender_email}
+                          Von: {inquiry.brandings.resend_sender_name || inquiry.brandings.admin_email}
                           {inquiry.brandings.resend_sender_name && (
-                            <span className="text-xs ml-1">({inquiry.brandings.resend_sender_email})</span>
+                            <span className="text-xs ml-1">({inquiry.brandings.admin_email})</span>
                           )}
                         </CardTitle>
                       )}
@@ -517,13 +589,82 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
                   )}
                         </ScrollArea>
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        <p className="font-semibold mb-1">Anhänge:</p>
-                        <ul className="list-disc list-inside space-y-1">
-                          <li>{generatedDocs.documents.rechnung.filename}</li>
-                          <li>{generatedDocs.documents.kaufvertrag.filename}</li>
-                          <li>{generatedDocs.documents.treuhandvertrag.filename}</li>
-                        </ul>
+                      <div>
+                        {fileFormat === 'docx' ? (
+                          <>
+                            <Label className="text-sm font-semibold mb-3 block">PDF-Dokumente hochladen:</Label>
+                            <div className="space-y-3">
+                              {/* Rechnung Upload */}
+                              <div>
+                                <Label htmlFor="upload-rechnung" className="text-xs">Rechnung (PDF) *</Label>
+                                <Input
+                                  id="upload-rechnung"
+                                  type="file"
+                                  accept=".pdf"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) handlePdfUpload('rechnung', file);
+                                  }}
+                                  className="mt-1"
+                                />
+                                {uploadedPdfs.rechnung && (
+                                  <p className="text-xs text-green-600 mt-1">
+                                    ✓ {uploadedPdfs.rechnung.name}
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Kaufvertrag Upload */}
+                              <div>
+                                <Label htmlFor="upload-kaufvertrag" className="text-xs">Kaufvertrag (PDF) *</Label>
+                                <Input
+                                  id="upload-kaufvertrag"
+                                  type="file"
+                                  accept=".pdf"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) handlePdfUpload('kaufvertrag', file);
+                                  }}
+                                  className="mt-1"
+                                />
+                                {uploadedPdfs.kaufvertrag && (
+                                  <p className="text-xs text-green-600 mt-1">
+                                    ✓ {uploadedPdfs.kaufvertrag.name}
+                                  </p>
+                                )}
+                              </div>
+
+                              {/* Treuhandvertrag Upload */}
+                              <div>
+                                <Label htmlFor="upload-treuhandvertrag" className="text-xs">Treuhandvertrag (PDF) *</Label>
+                                <Input
+                                  id="upload-treuhandvertrag"
+                                  type="file"
+                                  accept=".pdf"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) handlePdfUpload('treuhandvertrag', file);
+                                  }}
+                                  className="mt-1"
+                                />
+                                {uploadedPdfs.treuhandvertrag && (
+                                  <p className="text-xs text-green-600 mt-1">
+                                    ✓ {uploadedPdfs.treuhandvertrag.name}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-xs text-muted-foreground">
+                            <p className="font-semibold mb-1">Anhänge:</p>
+                            <ul className="list-disc list-inside space-y-1">
+                              <li>{generatedDocs.documents.rechnung.filename}</li>
+                              <li>{generatedDocs.documents.kaufvertrag.filename}</li>
+                              <li>{generatedDocs.documents.treuhandvertrag.filename}</li>
+                            </ul>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -537,7 +678,11 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
                   <div className="flex gap-2 mt-4">
                     <Button 
                       onClick={handleSendEmail} 
-                      disabled={!canSendEmail || sendEmailMutation.isPending}
+                      disabled={
+                        !canSendEmail || 
+                        sendEmailMutation.isPending ||
+                        (fileFormat === 'docx' && !allPdfsUploaded)
+                      }
                       className="flex-1"
                     >
                       {sendEmailMutation.isPending ? (
