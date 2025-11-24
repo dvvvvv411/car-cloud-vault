@@ -168,7 +168,7 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
         slug,
         branding_type: brandingType,
         company_name: data.company_name,
-        case_number: data.case_number,
+        case_number: brandingType === 'fahrzeuge' ? '-' : data.case_number,
         kanzlei_logo_url: kanzleiLogoUrl,
         lawyer_photo_url: lawyerPhotoUrl,
         court_decision_pdf_url: courtPdfUrl,
@@ -261,17 +261,19 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
           )}
         </div>
 
-        <div>
-          <Label htmlFor="case_number">Aktenzeichen *</Label>
-          <Input
-            id="case_number"
-            {...register('case_number')}
-            placeholder="Az: 502 IN 14/25"
-          />
-          {errors.case_number && (
-            <p className="text-sm text-destructive mt-1">{errors.case_number.message}</p>
-          )}
-        </div>
+        {brandingType === 'insolvenz' && (
+          <div>
+            <Label htmlFor="case_number">Aktenzeichen *</Label>
+            <Input
+              id="case_number"
+              {...register('case_number')}
+              placeholder="Az: 502 IN 14/25"
+            />
+            {errors.case_number && (
+              <p className="text-sm text-destructive mt-1">{errors.case_number.message}</p>
+            )}
+          </div>
+        )}
       </div>
 
       {/* File Uploads */}
