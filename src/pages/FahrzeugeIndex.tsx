@@ -226,125 +226,50 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
   const someSelected = selectedVehicles.length > 0 && !allSelected;
   return <div className="min-h-screen bg-background relative">
       <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8 lg:py-12">
-        {/* Modern Header with Logo - Always Visible */}
+        {/* Modern Header with 50/50 Split Layout (Desktop XL+) */}
         <div className="mb-8 md:mb-10 lg:mb-12 animate-fade-in">
-
-          <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6 mb-4 md:mb-6">
-            {/* Logo und Badge */}
-            <div className="flex items-start gap-3">
-              <img src={branding?.kanzlei_logo_url || kbsLogo} alt="Kanzlei Logo" className="h-12 md:h-14 lg:h-16 w-auto" />
-              {/* Badge - nur auf Mobile/Tablet sichtbar */}
-              <Badge variant="secondary" className="lg:hidden text-xs sm:text-sm md:text-base px-3 md:px-4 py-1 md:py-1.5 font-semibold mt-1">
-                {branding?.case_number || 'Az: 502 IN 14/25'}
-              </Badge>
-            </div>
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 xl:gap-8">
             
-            <div className="hidden md:block h-16 lg:h-20 w-px bg-[hsl(var(--divider))]"></div>
-            
-            <div className="flex-1 relative min-h-[6rem] md:min-h-[8rem] w-full">
-              {/* Beschluss image - rechts oben auf Desktop */}
-              <div className="sm:absolute sm:top-0 sm:right-0 mb-4 sm:mb-0">
-                <div className="flex flex-col lg:flex-row lg:items-start lg:gap-3">
-                  {/* Badge - nur auf Desktop sichtbar */}
-                  <Badge variant="secondary" className="hidden lg:flex text-base px-4 py-1.5 font-semibold lg:mt-1">
-                    {branding?.case_number || 'Az: 502 IN 14/25'}
-                  </Badge>
-                  
-                  <div className="flex flex-col tour-beschluss">
-                    {branding?.court_decision_pdf_url ? (
-                      // Wenn PDF vorhanden: Klick öffnet PDF-Dialog
-                      <>
-                        {/* Mobile/Tablet Button */}
-                        <button
-                          onClick={() => setBeschlussPdfDialogOpen(true)}
-                          className="relative group lg:hidden w-full md:w-auto block"
-                        >
-                          <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[6rem] md:h-[7rem] w-full md:w-auto object-cover md:object-none cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all brightness-[0.85] md:brightness-100" />
-                          
-                          {/* Permanente Kennzeichnung nur auf Mobile */}
-                          <div className="absolute inset-0 rounded bg-black/30 md:bg-transparent flex flex-col items-center justify-center pointer-events-none">
-                            <FileText className="h-6 w-6 text-white md:hidden mb-1" />
-                            <span className="text-white text-xs md:hidden font-medium">Gerichtsbeschluss</span>
-                          </div>
-                          
-                          {/* Hover-Effekt (Eye) bleibt zusätzlich */}
-                          <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
-                            <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
-                          </div>
-                        </button>
-
-                        {/* Desktop Button */}
-                        <button
-                          onClick={() => setBeschlussPdfDialogOpen(true)}
-                          className="relative group hidden lg:block"
-                        >
-                          <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105" />
-                          <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
-                            <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
-                          </div>
-                        </button>
-                      </>
-                    ) : (
-                      // Wenn keine PDF: Bild-Dialog wie bisher
-                      <>
-                        {/* Drawer für Mobile/Tablet */}
-                        <Drawer open={isBeschlusskDrawerOpen} onOpenChange={setIsBeschlusskDrawerOpen}>
-                          <DrawerTrigger asChild>
-                            <div className="relative group lg:hidden w-full md:w-auto">
-                              <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[6rem] md:h-[7rem] w-full md:w-auto object-cover md:object-none cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all brightness-[0.85] md:brightness-100" />
-                              
-                              {/* Permanente Kennzeichnung nur auf Mobile */}
-                              <div className="absolute inset-0 rounded bg-black/30 md:bg-transparent flex flex-col items-center justify-center pointer-events-none">
-                                <FileText className="h-6 w-6 text-white md:hidden mb-1" />
-                                <span className="text-white text-xs md:hidden font-medium">Gerichtsbeschluss</span>
-                              </div>
-                              
-                              {/* Hover-Effekt (Eye) bleibt zusätzlich */}
-                              <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
-                                <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
-                              </div>
-                            </div>
-                          </DrawerTrigger>
-                          <DrawerContent className="h-screen rounded-none mt-0 border-0 bg-black p-0">
-                            <DrawerClose className="fixed top-4 right-4 z-[60] rounded-full bg-black/50 p-2 text-white hover:bg-black/70 transition-colors">
-                              <X className="h-6 w-6" />
-                            </DrawerClose>
-                            <div className="h-full w-full flex items-center justify-center">
-                              <img src={beschlussImage} alt="Gerichtsbeschluss" className="max-h-full max-w-full object-contain" />
-                            </div>
-                          </DrawerContent>
-                        </Drawer>
-
-                        {/* Dialog für Desktop */}
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <div className="relative group hidden lg:block">
-                              <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105" />
-                              <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
-                                <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
-                              </div>
-                            </div>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
-                            <img src={beschlussImage} alt="Gerichtsbeschluss" className="w-full h-auto" />
-                          </DialogContent>
-                        </Dialog>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
+            {/* LINKE HÄLFTE (50%) - Logo, Divider, Titel, Text */}
+            <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6">
+              <img 
+                src={branding?.kanzlei_logo_url || kbsLogo} 
+                alt="Logo" 
+                className="h-12 md:h-14 lg:h-16 w-auto" 
+              />
               
-              <div className="mb-2">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight" style={{
-                color: "hsl(var(--text-primary))"
-              }}>
-                  Fahrzeuge
-                </h1>
+              <div className="hidden md:block h-16 lg:h-20 w-px bg-[hsl(var(--divider))]"></div>
+              
+              <div className="flex-1">
+                <div className="mb-2">
+                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight" style={{
+                    color: "hsl(var(--text-primary))"
+                  }}>
+                    Fahrzeuge
+                  </h1>
+                </div>
+                <p className="text-base md:text-lg lg:text-xl" style={{
+                  color: "hsl(var(--text-secondary))"
+                }}>
+                  Übersicht verfügbarer Fahrzeuge von {branding?.company_name || 'Autohändler'}.
+                </p>
               </div>
-              <p className="text-base md:text-lg lg:text-xl" style={{
-              color: "hsl(var(--text-secondary))"
-            }}>Übersicht verfügbarer Fahrzeuge von {branding?.company_name || 'Autohändler'}.</p>
+            </div>
+
+            {/* RECHTE HÄLFTE (50%) - Kontaktkarte integriert (nur Desktop XL+) */}
+            <div className="hidden xl:block">
+              <LawyerContactCard
+                inlineHeaderMode={true}
+                lawyerName={branding?.lawyer_name}
+                lawyerPhotoUrl={branding?.lawyer_photo_url}
+                firmName={branding?.lawyer_firm_name}
+                firmSubtitle={branding?.lawyer_firm_subtitle}
+                addressStreet={branding?.lawyer_address_street}
+                addressCity={branding?.lawyer_address_city}
+                email={branding?.lawyer_email}
+                phone={branding?.lawyer_phone}
+                websiteUrl={branding?.lawyer_website_url}
+              />
             </div>
           </div>
         </div>
