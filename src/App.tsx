@@ -8,6 +8,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import BrandedIndex from "./pages/BrandedIndex";
+import FahrzeugeIndex from "./pages/FahrzeugeIndex";
+import FahrzeugeBrandedIndex from "./pages/FahrzeugeBrandedIndex";
 import Auth from "./pages/Auth";
 import DomainBasedRedirect from "@/components/DomainBasedRedirect";
 import Zustandsbericht from "./pages/Zustandsbericht";
@@ -44,6 +46,8 @@ const App = () => (
             <Route path="/" element={<DomainBasedRedirect targetPath="root" />} />
             <Route path="/insolvenz" element={<DomainBasedRedirect targetPath="insolvenz" />} />
             <Route path="/insolvenz/:slug" element={<BrandedIndex />} />
+            <Route path="/fahrzeuge" element={<FahrzeugeIndex />} />
+            <Route path="/fahrzeuge/:slug" element={<FahrzeugeBrandedIndex />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/zustandsbericht/:reportNr" element={<Zustandsbericht />} />
             <Route 

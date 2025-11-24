@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 export interface Branding {
   id: string;
   slug: string;
+  branding_type: 'insolvenz' | 'fahrzeuge';
   company_name: string;
   case_number: string;
   kanzlei_logo_url: string | null;

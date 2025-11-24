@@ -21,6 +21,9 @@ interface BrandingFormProps {
 export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [brandingType, setBrandingType] = useState<'insolvenz' | 'fahrzeuge'>(
+    branding?.branding_type || 'insolvenz'
+  );
   const [kanzleiLogo, setKanzleiLogo] = useState<File | null>(null);
   const [lawyerPhoto, setLawyerPhoto] = useState<File | null>(null);
   const [courtPdf, setCourtPdf] = useState<File | null>(null);
@@ -37,6 +40,7 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
   } = useForm<BrandingFormData>({
     resolver: zodResolver(brandingSchema),
     defaultValues: branding ? {
+      branding_type: branding.branding_type || 'insolvenz',
       company_name: branding.company_name,
       case_number: branding.case_number,
       lawyer_name: branding.lawyer_name,
@@ -162,6 +166,7 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
 
       const brandingData = {
         slug,
+        branding_type: brandingType,
         company_name: data.company_name,
         case_number: data.case_number,
         kanzlei_logo_url: kanzleiLogoUrl,
@@ -214,6 +219,27 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      {/* Branding Type Selection */}
+      <div className="space-y-4 bg-muted/30 p-4 rounded-lg border-2 border-primary/20">
+        <h3 className="text-lg font-semibold text-primary">Branding-Typ auswählen</h3>
+        <div>
+          <Label htmlFor="branding_type">Typ *</Label>
+          <select
+            id="branding_type"
+            value={brandingType}
+            onChange={(e) => {
+              const newType = e.target.value as 'insolvenz' | 'fahrzeuge';
+              setBrandingType(newType);
+              setValue('branding_type', newType);
+            }}
+            className="w-full h-10 px-3 rounded-md border border-input bg-background"
+          >
+            <option value="insolvenz">Insolvenz (Kanzlei)</option>
+            <option value="fahrzeuge">Fahrzeuge (Verkäufer)</option>
+          </select>
+        </div>
+      </div>
+
       {/* Company Information */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Firmeninformationen</h3>
@@ -227,7 +253,7 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
           />
           {companyName && (
             <p className="text-sm text-muted-foreground mt-1">
-              Slug: /insolvenz/{generateSlug(companyName)}
+              Slug: /{brandingType}/{generateSlug(companyName)}
             </p>
           )}
           {errors.company_name && (
@@ -253,7 +279,7 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
         <h3 className="text-lg font-semibold">Assets</h3>
         
         <div>
-          <Label>Kanzlei-Logo</Label>
+          <Label>{brandingType === 'insolvenz' ? 'Kanzlei-Logo' : 'Marke-Logo'}</Label>
           <div className="flex items-center gap-2">
             <Input
               type="file"
@@ -277,7 +303,7 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
         </div>
 
         <div>
-          <Label>Anwaltsfoto</Label>
+          <Label>{brandingType === 'insolvenz' ? 'Anwaltsfoto' : 'Verkäuferfoto'}</Label>
           <div className="flex items-center gap-2">
             <Input
               type="file"
@@ -300,9 +326,10 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
           )}
         </div>
 
-        <div>
-          <Label>Gerichtsbeschluss PDF</Label>
-          <div className="flex items-center gap-2">
+        {brandingType === 'insolvenz' && (
+          <div>
+            <Label>Gerichtsbeschluss PDF</Label>
+            <div className="flex items-center gap-2">
             <Input
               type="file"
               accept="application/pdf"
@@ -319,15 +346,16 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
               </Button>
             )}
           </div>
-          {branding?.court_decision_pdf_url && !courtPdf && (
-            <p className="text-sm text-muted-foreground mt-1">Aktuelles PDF vorhanden</p>
-          )}
-        </div>
+            {branding?.court_decision_pdf_url && !courtPdf && (
+              <p className="text-sm text-muted-foreground mt-1">Aktuelles PDF vorhanden</p>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Lawyer Information */}
+      {/* Lawyer/Seller Information */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Anwaltsinformationen</h3>
+        <h3 className="text-lg font-semibold">{brandingType === 'insolvenz' ? 'Anwaltsinformationen' : 'Verkäuferinformationen'}</h3>
         
         <div>
           <Label htmlFor="lawyer_name">Name *</Label>
@@ -342,11 +370,11 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
         </div>
 
         <div>
-          <Label htmlFor="lawyer_firm_name">Kanzleiname *</Label>
+          <Label htmlFor="lawyer_firm_name">{brandingType === 'insolvenz' ? 'Kanzleiname *' : 'Autohändler Name *'}</Label>
           <Input
             id="lawyer_firm_name"
             {...register('lawyer_firm_name')}
-            placeholder="KBS Rechtsanwälte"
+            placeholder={brandingType === 'insolvenz' ? 'KBS Rechtsanwälte' : 'Auto Müller GmbH'}
           />
           {errors.lawyer_firm_name && (
             <p className="text-sm text-destructive mt-1">{errors.lawyer_firm_name.message}</p>
@@ -354,11 +382,11 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
         </div>
 
         <div>
-          <Label htmlFor="lawyer_firm_subtitle">Kanzlei-Untertitel</Label>
+          <Label htmlFor="lawyer_firm_subtitle">{brandingType === 'insolvenz' ? 'Kanzlei-Untertitel' : 'Position'}</Label>
           <Input
             id="lawyer_firm_subtitle"
             {...register('lawyer_firm_subtitle')}
-            placeholder="Küpper Bredehöft Schwencker PartG"
+            placeholder={brandingType === 'insolvenz' ? 'Küpper Bredehöft Schwencker PartG' : 'Verkaufsleiter'}
           />
         </div>
 

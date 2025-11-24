@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           admin_email: string | null
           admin_email_signature: string | null
+          branding_type: Database["public"]["Enums"]["branding_type"]
           case_number: string
           company_name: string
           court_decision_pdf_url: string | null
@@ -43,6 +44,7 @@ export type Database = {
         Insert: {
           admin_email?: string | null
           admin_email_signature?: string | null
+          branding_type?: Database["public"]["Enums"]["branding_type"]
           case_number: string
           company_name: string
           court_decision_pdf_url?: string | null
@@ -68,6 +70,7 @@ export type Database = {
         Update: {
           admin_email?: string | null
           admin_email_signature?: string | null
+          branding_type?: Database["public"]["Enums"]["branding_type"]
           case_number?: string
           company_name?: string
           court_decision_pdf_url?: string | null
@@ -685,6 +688,7 @@ export type Database = {
     }
     Enums: {
       app_role: "user" | "admin"
+      branding_type: "insolvenz" | "fahrzeuge"
       email_template_type:
         | "single_male"
         | "single_female"
@@ -826,6 +830,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["user", "admin"],
+      branding_type: ["insolvenz", "fahrzeuge"],
       email_template_type: [
         "single_male",
         "single_female",
