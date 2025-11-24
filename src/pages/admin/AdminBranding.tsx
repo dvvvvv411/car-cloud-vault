@@ -118,12 +118,12 @@ const AdminBranding = () => {
                       <TableCell className="font-mono text-sm text-muted-foreground">{branding.case_number}</TableCell>
                       <TableCell>
                         <a
-                          href={`/insolvenz/${branding.slug}`}
+                          href={branding.branding_type === 'fahrzeuge' ? `/fahrzeuge/${branding.slug}` : `/insolvenz/${branding.slug}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1.5 text-primary hover:text-primary/80 hover:underline transition-colors font-medium text-sm"
                         >
-                          /insolvenz/{branding.slug}
+                          {branding.branding_type === 'fahrzeuge' ? `/fahrzeuge/${branding.slug}` : `/insolvenz/${branding.slug}`}
                           <ExternalLink className="h-3.5 w-3.5" />
                         </a>
                       </TableCell>

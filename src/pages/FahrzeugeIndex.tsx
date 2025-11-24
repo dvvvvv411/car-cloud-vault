@@ -1,0 +1,771 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { Input } from "@/components/ui/input";
+import { Search, ArrowUpDown, ChevronRight, Eye, Phone, X, FileText, LogOut, LogIn, Shield, FileDown, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog";
+import { Drawer, DrawerClose, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
+import LawyerContactCard from "@/components/fahrzeuge/FahrzeugeLawyerContactCard";
+import { InquiryForm } from "@/components/fahrzeuge/FahrzeugeInquiryForm";
+import { InquiryConfirmation } from "@/components/fahrzeuge/FahrzeugeInquiryConfirmation";
+import kbsLogo from "@/assets/kbs_blue.png";
+import demoVehicle from "@/assets/demo-vehicle.png";
+import dekraLogoWhite from "@/assets/dekra-logo-white.png";
+import { useVehicles, type Vehicle } from "@/hooks/useVehicles";
+import { useMyReservations } from "@/hooks/useLeadReservations";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
+import type { Branding } from "@/hooks/useBranding";
+
+const ITEMS_PER_PAGE = 10;
+
+interface FahrzeugeIndexProps {
+  branding?: Branding;
+}
+
+const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
+  const navigate = useNavigate();
+  const { user, role, signOut } = useAuth();
+  const {
+    data: vehicles = [],
+    isLoading
+  } = useVehicles();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof Vehicle | null;
+    direction: "asc" | "desc";
+  }>({
+    key: null,
+    direction: "asc"
+  });
+  const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
+  const [showInquiryForm, setShowInquiryForm] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [submittedInquiry, setSubmittedInquiry] = useState<any>(null);
+  const [submittedVehicles, setSubmittedVehicles] = useState<Vehicle[]>([]);
+  const [submittedTotalPrice, setSubmittedTotalPrice] = useState(0);
+  const [isBeschlusskDrawerOpen, setIsBeschlusskDrawerOpen] = useState(false);
+  const [pdfDialogOpen, setPdfDialogOpen] = useState(false);
+  const [currentPdfUrl, setCurrentPdfUrl] = useState<string | null>(null);
+  const [imageDialogOpen, setImageDialogOpen] = useState(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [zustandsberichtDialogOpen, setZustandsberichtDialogOpen] = useState(false);
+  const [selectedReportNr, setSelectedReportNr] = useState<string | null>(null);
+  
+  // Get leadId from localStorage
+  const leadId = localStorage.getItem('leadId');
+  const { data: myReservations = [] } = useMyReservations(leadId);
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  // Reset to page 1 when sort changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [sortConfig.key, sortConfig.direction]);
+
+  // Tour mode on every visit
+  useEffect(() => {
+    if (!isLoading && vehicles.length > 0) {
+      const timer = setTimeout(() => {
+        const driverObj = driver({
+          showProgress: true,
+          nextBtnText: 'Weiter',
+          prevBtnText: 'Zurück',
+          doneBtnText: 'Fertig',
+          progressText: '{{current}} von {{total}}',
+          allowClose: true,
+          disableActiveInteraction: true,
+          steps: [
+            {
+              element: window.innerWidth < 1024 ? '.tour-mobile-price' : '.tour-price-row',
+              popover: {
+                title: 'Preise',
+                description: window.innerWidth < 1024 
+                  ? 'Hier sehen Sie den Preis des Fahrzeugs. Alle Preise sind exkl. MwSt.' 
+                  : 'Alle angezeigten Preise sind exkl. MwSt.',
+                side: window.innerWidth < 1024 ? 'bottom' : 'right',
+                align: 'center'
+              }
+            },
+            {
+              element: window.innerWidth < 1024 ? '.tour-mobile-selection' : '.tour-selection-row',
+              popover: {
+                title: 'Fahrzeugauswahl',
+                description: window.innerWidth < 1024
+                  ? 'Tippen Sie hier auf die Checkbox, um dieses Fahrzeug auszuwählen.'
+                  : 'Wählen Sie hier die Fahrzeuge aus, an denen Sie interessiert sind, und senden Sie anschließend eine Anfrage ab.',
+                side: window.innerWidth < 1024 ? 'bottom' : 'right',
+                align: 'center'
+              }
+            },
+            {
+              element: window.innerWidth < 1024 ? '.tour-mobile-report' : '.tour-report-row',
+              popover: {
+                title: 'Zustandsbericht',
+                description: window.innerWidth < 1024
+                  ? 'Klicken Sie auf "Zustandsbericht anzeigen", um den detaillierten Zustandsbericht des Fahrzeugs zu öffnen.'
+                  : 'Klicken Sie auf das Dokument-Icon in der "Bericht"-Spalte, um den detaillierten Zustandsbericht des Fahrzeugs zu öffnen.',
+                side: window.innerWidth < 1024 ? 'bottom' : 'left',
+                align: 'center'
+              }
+            }
+          ]
+        });
+        
+        driverObj.drive();
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, vehicles]);
+
+  const handleLogout = async () => {
+    await signOut();
+  };
+
+  const handleLogin = () => {
+    navigate('/auth');
+  };
+
+  // Helper function to get vehicle thumbnail
+  const getVehicleThumbnail = (vehicle: Vehicle): string => {
+    if (vehicle.vehicle_photos && Array.isArray(vehicle.vehicle_photos) && vehicle.vehicle_photos.length > 0) {
+      return vehicle.vehicle_photos[0];
+    }
+    // Fallback to demo image
+    return demoVehicle;
+  };
+
+  const toggleVehicleSelection = (chassis: string) => {
+    setSelectedVehicles(current => current.includes(chassis) ? current.filter(c => c !== chassis) : [...current, chassis]);
+  };
+  
+  // Check if vehicle is reserved for this lead
+  const isVehicleReserved = (chassis: string, reportNr: string) => {
+    return myReservations.some(r => 
+      r.vehicle_chassis === chassis || r.vehicle_chassis === reportNr
+    );
+  };
+
+  const handleOpenZustandsbericht = (reportNr: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedReportNr(reportNr);
+    setZustandsberichtDialogOpen(true);
+  };
+  
+  const filteredAndSortedVehicles = vehicles.filter(vehicle => vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.chassis.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.report_nr.toLowerCase().includes(searchTerm.toLowerCase())).sort((a, b) => {
+    if (!sortConfig.key) return 0;
+    const aValue = a[sortConfig.key];
+    const bValue = b[sortConfig.key];
+    if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredAndSortedVehicles.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedVehicles = filteredAndSortedVehicles.slice(startIndex, endIndex);
+
+  const selectAll = () => {
+    setSelectedVehicles(filteredAndSortedVehicles.map(v => v.chassis));
+  };
+  const deselectAll = () => {
+    setSelectedVehicles([]);
+  };
+  const handleSort = (key: keyof Vehicle) => {
+    setSortConfig(current => ({
+      key,
+      direction: current.key === key && current.direction === "asc" ? "desc" : "asc"
+    }));
+  };
+  
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("de-DE", {
+      style: "currency",
+      currency: "EUR"
+    }).format(price);
+  };
+  const formatKilometers = (km: number) => {
+    return new Intl.NumberFormat("de-DE").format(km);
+  };
+  const totalPrice = selectedVehicles.reduce((sum, chassis) => {
+    const vehicle = vehicles.find(v => v.chassis === chassis);
+    return sum + (vehicle?.price || 0);
+  }, 0);
+  const allSelected = filteredAndSortedVehicles.length > 0 && filteredAndSortedVehicles.every(v => selectedVehicles.includes(v.chassis));
+  const someSelected = selectedVehicles.length > 0 && !allSelected;
+  
+  return <div className="min-h-screen bg-background relative">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8 lg:py-12">
+        {/* Modern Header with Logo - Always Visible */}
+        <div className="mb-8 md:mb-10 lg:mb-12 animate-fade-in">
+
+          <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6 mb-4 md:mb-6">
+            {/* Logo und Badge */}
+            <div className="flex items-start gap-3">
+              <img src={branding?.kanzlei_logo_url || kbsLogo} alt="Logo" className="h-12 md:h-14 lg:h-16 w-auto" />
+              {/* Badge - nur auf Mobile/Tablet sichtbar */}
+              <Badge variant="secondary" className="lg:hidden text-xs sm:text-sm md:text-base px-3 md:px-4 py-1 md:py-1.5 font-semibold mt-1">
+                {branding?.case_number || 'Fahrzeuge'}
+              </Badge>
+            </div>
+            
+            <div className="hidden md:block h-16 lg:h-20 w-px bg-[hsl(var(--divider))]"></div>
+            
+            <div className="flex-1 relative min-h-[6rem] md:min-h-[8rem] w-full">
+              {/* Badge - nur auf Desktop sichtbar */}
+              <div className="sm:absolute sm:top-0 sm:right-0 mb-4 sm:mb-0">
+                <div className="flex flex-col lg:flex-row lg:items-start lg:gap-3">
+                  <Badge variant="secondary" className="hidden lg:flex text-base px-4 py-1.5 font-semibold lg:mt-1">
+                    {branding?.case_number || 'Fahrzeuge'}
+                  </Badge>
+                </div>
+              </div>
+              
+              <div className="mb-2">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight" style={{
+                color: "hsl(var(--text-primary))"
+              }}>
+                  Fahrzeuge
+                </h1>
+              </div>
+              <p className="text-base md:text-lg lg:text-xl" style={{
+              color: "hsl(var(--text-secondary))"
+            }}>
+                {branding?.company_name || 'Verfügbare Fahrzeuge'}
+              </p>
+              
+              {user && (
+                <div className="absolute top-0 right-0 flex items-center gap-2">
+                  {role === 'admin' && (
+                    <Button
+                      onClick={() => navigate('/admin')}
+                      variant="outline"
+                      size="sm"
+                      className="bg-background/80 backdrop-blur-sm"
+                    >
+                      <Shield className="h-4 w-4 mr-2" />
+                      Admin
+                    </Button>
+                  )}
+                  <Button
+                    onClick={handleLogout}
+                    variant="outline"
+                    size="sm"
+                    className="bg-background/80 backdrop-blur-sm"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Abmelden
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Search & Action Bar */}
+        {!showInquiryForm && !showConfirmation && (
+          <div className="mb-6 md:mb-8 lg:mb-10 animate-fade-in" style={{
+          animationDelay: "0.1s"
+        }}>
+            <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+              <div className="relative flex-1 max-w-2xl">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5" style={{
+              color: "hsl(var(--text-tertiary))"
+            }} />
+                <Input placeholder="Marke, Modell, Fahrgestellnummer oder Bericht-Nr. suchen..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-12 h-12 md:h-14 text-base md:text-lg backdrop-blur-md bg-white/10 border-white/20 focus:border-primary/50 transition-all shadow-sm hover:shadow-md" />
+              </div>
+              <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                <Button onClick={selectAll} variant="outline" size="sm" className="bg-background/80 backdrop-blur-sm hover:bg-background/90 transition-all text-xs md:text-sm h-10 md:h-12 px-3 md:px-4">
+                  Alle auswählen
+                </Button>
+                <Button onClick={deselectAll} variant="outline" size="sm" className="bg-background/80 backdrop-blur-sm hover:bg-background/90 transition-all text-xs md:text-sm h-10 md:h-12 px-3 md:px-4">
+                  Alle abwählen
+                </Button>
+                <Button onClick={() => setShowInquiryForm(true)} disabled={selectedVehicles.length === 0} className="shadow-md hover:shadow-lg transition-all text-xs md:text-sm h-10 md:h-12 px-4 md:px-6 font-semibold">
+                  Anfragen ({selectedVehicles.length})
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Total Price Badge - Desktop & Tablet */}
+        {selectedVehicles.length > 0 && !showInquiryForm && !showConfirmation && (
+          <div className="hidden md:flex justify-end mb-6 animate-fade-in" style={{
+          animationDelay: "0.15s"
+        }}>
+            <div className="bg-primary text-primary-foreground px-6 py-3 rounded-full shadow-lg">
+              <span className="text-sm font-medium mr-2">Gesamtpreis:</span>
+              <span className="text-xl font-bold">{formatPrice(totalPrice)}</span>
+              <span className="text-xs ml-2 opacity-90">(exkl. MwSt.)</span>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile Total Price Sticky Bar */}
+        {selectedVehicles.length > 0 && !showInquiryForm && !showConfirmation && (
+          <div className="md:hidden fixed bottom-0 left-0 right-0 bg-primary text-primary-foreground py-3 px-4 shadow-[0_-4px_12px_rgba(0,0,0,0.1)] z-50 animate-slide-up">
+            <div className="flex items-center justify-between max-w-md mx-auto">
+              <div>
+                <div className="text-xs opacity-90">Gesamtpreis (exkl. MwSt.)</div>
+                <div className="text-xl font-bold">{formatPrice(totalPrice)}</div>
+              </div>
+              <Button onClick={() => setShowInquiryForm(true)} className="bg-background text-foreground hover:bg-background/90 shadow-md">
+                Anfragen ({selectedVehicles.length})
+                <ChevronRight className="ml-1 h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Main Content */}
+        {!showInquiryForm && !showConfirmation ? <>
+            {/* Desktop Table */}
+            <div className="hidden lg:block">
+              {/* Sticky header container */}
+              <div className="bg-background/95 backdrop-blur-xl border-t border-b shadow-[0_4px_12px_-2px_rgba(0,0,0,0.05)] sticky top-0 z-40 animate-fade-in rounded-t-2xl" style={{
+              animationDelay: "0.2s"
+            }}>
+                <div className="overflow-x-auto">
+                  <div className="min-w-[900px]">
+                    <table className="w-full">
+                      <thead>
+                        <tr>
+                          <th className="pl-6 pr-2 py-4" style={{
+                        width: "50px"
+                      }}>
+                            <Checkbox checked={allSelected} ref={input => {
+                          if (input) input.indeterminate = someSelected;
+                        }} onCheckedChange={allSelected || someSelected ? deselectAll : selectAll} />
+                          </th>
+                          <th className="px-2 py-4 text-sm font-medium uppercase tracking-wider" style={{
+                        color: "hsl(var(--text-tertiary))",
+                        width: "100px"
+                      }}>
+                            Bild
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-medium uppercase tracking-wider" style={{
+                        color: "hsl(var(--text-tertiary))"
+                      }}>
+                            <Button variant="ghost" onClick={() => handleSort("brand")} className="hover:bg-transparent p-0 h-auto font-medium -ml-2" style={{
+                          color: "hsl(var(--text-tertiary))"
+                        }}>
+                              Marke / Modell
+                              <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
+                            </Button>
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-medium uppercase tracking-wider" style={{
+                        color: "hsl(var(--text-tertiary))"
+                      }}>
+                            Fahrgestellnummer
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-medium uppercase tracking-wider" style={{
+                        color: "hsl(var(--text-tertiary))"
+                      }}>
+                            Bericht-Nr.
+                          </th>
+                          <th className="px-3 py-4 text-left text-sm font-medium uppercase tracking-wider" style={{
+                        color: "hsl(var(--text-tertiary))"
+                      }}>
+                            <Button variant="ghost" onClick={() => handleSort("first_registration")} className="hover:bg-transparent p-0 h-auto font-medium -ml-2" style={{
+                          color: "hsl(var(--text-tertiary))"
+                        }}>
+                              Erstzul.
+                              <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
+                            </Button>
+                          </th>
+                          <th className="text-right px-3 py-4 text-sm font-medium uppercase tracking-wider" style={{
+                        color: "hsl(var(--text-tertiary))"
+                      }}>
+                            <Button variant="ghost" onClick={() => handleSort("kilometers")} className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto" style={{
+                          color: "hsl(var(--text-tertiary))"
+                        }}>
+                              Kilometer
+                              <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
+                            </Button>
+                          </th>
+                          <th className="text-right px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
+                        color: "hsl(var(--text-tertiary))"
+                      }}>
+                            <Button variant="ghost" onClick={() => handleSort("price")} className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto" style={{
+                          color: "hsl(var(--text-tertiary))"
+                        }}>
+                              Einzelpreis
+                              <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
+                            </Button>
+                          </th>
+                          <th className="text-center px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
+                        color: "hsl(var(--text-tertiary))"
+                      }}>
+                            Bericht
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {paginatedVehicles.map((vehicle, index) => {
+                      const isSelected = selectedVehicles.includes(vehicle.chassis);
+                      const isReserved = isVehicleReserved(vehicle.chassis, vehicle.report_nr);
+                      return <tr key={index} className={`h-[100px] border-b hover-lift cursor-pointer group transition-colors ${isSelected ? "bg-primary/5" : ""} ${isReserved ? "opacity-50 pointer-events-none" : ""}`} style={{
+                        borderColor: "hsl(var(--divider))",
+                        animationDelay: `${0.3 + index * 0.05}s`
+                      }} onClick={() => !isReserved && toggleVehicleSelection(vehicle.chassis)}>
+                              <td className={`px-6 py-0 align-middle ${index === 2 ? 'tour-selection-row' : ''}`} onClick={e => e.stopPropagation()}>
+                                <Checkbox checked={isSelected} onCheckedChange={() => !isReserved && toggleVehicleSelection(vehicle.chassis)} disabled={isReserved} />
+                              </td>
+                              <td 
+                                className="px-6 py-0 align-middle cursor-pointer" 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedImageUrl(getVehicleThumbnail(vehicle));
+                                  setImageDialogOpen(true);
+                                }}
+                              >
+                                <div className="relative w-24 h-16 rounded-lg overflow-hidden bg-muted hover:ring-2 hover:ring-primary transition-all">
+                                  <img src={getVehicleThumbnail(vehicle)} alt={`${vehicle.brand} ${vehicle.model}`} className="w-full h-full object-cover" />
+                                  {isReserved && (
+                                    <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
+                                      <span className="text-white text-xs font-bold tracking-wider">RESERVIERT</span>
+                                    </div>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-6 py-0 align-middle">
+                                <div>
+                                  <div className="font-medium text-base" style={{
+                              color: "hsl(var(--text-primary))"
+                            }}>
+                                    {vehicle.brand}
+                                  </div>
+                                  <div className="text-base mt-0.5" style={{
+                              color: "hsl(var(--text-secondary))"
+                            }}>
+                                    {vehicle.model}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-6 py-0 align-middle">
+                                <span className="text-base font-mono" style={{
+                            color: "hsl(var(--text-secondary))"
+                          }}>
+                                  {vehicle.chassis}
+                                </span>
+                              </td>
+                              <td className="px-6 py-0 align-middle">
+                                <span className="text-base" style={{
+                            color: "hsl(var(--text-secondary))"
+                          }}>
+                                  {vehicle.report_nr}
+                                </span>
+                              </td>
+                              <td className="px-3 py-0 align-middle">
+                                <span className="text-base" style={{
+                            color: "hsl(var(--text-secondary))"
+                          }}>
+                                  {vehicle.first_registration}
+                                </span>
+                              </td>
+                              <td className="px-3 py-0 align-middle text-right">
+                                <span className="text-base font-medium" style={{
+                            color: "hsl(var(--text-primary))"
+                          }}>
+                                  {formatKilometers(vehicle.kilometers)}
+                                </span>
+                              </td>
+                              <td className={`px-6 py-0 align-middle text-right ${index === 2 ? 'tour-price-row' : ''}`}>
+                                <span className="text-lg font-semibold" style={{
+                            color: "hsl(var(--text-primary))"
+                          }}>
+                                  {formatPrice(vehicle.price)}
+                                 </span>
+                              </td>
+                              <td className={`px-6 py-4 text-center align-middle ${index === 2 ? 'tour-report-row' : ''}`}>
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <button
+                                        onClick={(e) => handleOpenZustandsbericht(vehicle.report_nr, e)}
+                                        className="w-10 h-10 rounded-full flex items-center justify-center mx-auto hover:bg-primary/10 transition-colors"
+                                      >
+                                        <FileText className="h-5 w-5 text-primary" />
+                                      </button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Zustandsbericht anzeigen</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
+                              </td>
+                            </tr>;
+                    })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+              {/* Desktop Pagination - Below table */}
+              {totalPages > 1 && (
+                <div className="mt-6 bg-background/95 backdrop-blur-xl border-t border-border/50 shadow-[0_-4px_12px_-2px_rgba(0,0,0,0.05)] rounded-t-2xl">
+                  <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-6">
+                    <Pagination>
+                      <PaginationContent className="gap-1">
+                        <PaginationItem>
+                          <PaginationPrevious 
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            className={currentPage === 1 ? "pointer-events-none opacity-40" : "cursor-pointer"}
+                          />
+                        </PaginationItem>
+                        
+                        <div className="w-3" />
+                        
+                        {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                          let pageNumber;
+                          if (totalPages <= 7) {
+                            pageNumber = i + 1;
+                          } else if (currentPage <= 4) {
+                            pageNumber = i + 1;
+                          } else if (currentPage >= totalPages - 3) {
+                            pageNumber = totalPages - 6 + i;
+                          } else {
+                            pageNumber = currentPage - 3 + i;
+                          }
+                          
+                          if (totalPages > 7 && i === 6 && currentPage < totalPages - 3) {
+                            return (
+                              <PaginationItem key="ellipsis">
+                                <PaginationEllipsis />
+                              </PaginationItem>
+                            );
+                          }
+                          
+                          return (
+                            <PaginationItem key={pageNumber}>
+                              <PaginationLink
+                                onClick={() => setCurrentPage(pageNumber)}
+                                isActive={currentPage === pageNumber}
+                                className="cursor-pointer"
+                              >
+                                {pageNumber}
+                              </PaginationLink>
+                            </PaginationItem>
+                          );
+                        })}
+                        
+                        <div className="w-3" />
+                        
+                        <PaginationItem>
+                          <PaginationNext 
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            className={currentPage === totalPages ? "pointer-events-none opacity-40" : "cursor-pointer"}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                    
+                    <p className="text-center text-sm mt-4" style={{
+                      color: "hsl(var(--text-tertiary))"
+                    }}>
+                      Zeige {startIndex + 1}-{Math.min(endIndex, filteredAndSortedVehicles.length)} von {filteredAndSortedVehicles.length} Fahrzeugen
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Vehicle Cards - Mobile */}
+            <div className="block lg:hidden space-y-4 mb-8 animate-fade-in" style={{
+          animationDelay: "0.2s"
+        }}>
+              <div>
+                  {paginatedVehicles.map((vehicle, index) => {
+                const isSelected = selectedVehicles.includes(vehicle.chassis);
+                const isReserved = isVehicleReserved(vehicle.chassis, vehicle.report_nr);
+                return <div key={index} onClick={() => !isReserved && toggleVehicleSelection(vehicle.chassis)} className={`glassmorphism rounded-2xl overflow-hidden cursor-pointer transition-all ${isSelected ? "ring-2 ring-primary" : ""} ${isReserved ? "opacity-60 pointer-events-none" : ""}`} style={{
+                  animationDelay: `${0.3 + index * 0.05}s`
+                }}>
+                        {/* Image */}
+                        <div className="relative h-48 bg-muted">
+                          <img src={getVehicleThumbnail(vehicle)} alt={`${vehicle.brand} ${vehicle.model}`} className={`w-full h-full object-cover ${isReserved ? "brightness-50" : ""}`} />
+                          {isReserved && (
+                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                              <span className="text-white text-2xl font-bold tracking-wider">RESERVIERT</span>
+                            </div>
+                          )}
+                          <div className={`absolute top-3 right-3 ${index === 0 ? 'tour-mobile-selection' : ''}`} onClick={e => e.stopPropagation()}>
+                            <Checkbox checked={isSelected} onCheckedChange={() => !isReserved && toggleVehicleSelection(vehicle.chassis)} className="w-6 h-6 bg-background/80" disabled={isReserved} />
+                          </div>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-4 space-y-3">
+                          <div>
+                            <h3 className="text-xl font-medium" style={{
+                    color: "hsl(var(--text-primary))"
+                  }}>{vehicle.brand}</h3>
+                            <p className="text-lg" style={{
+                    color: "hsl(var(--text-secondary))"
+                  }}>{vehicle.model}</p>
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div>
+                              <span style={{
+                      color: "hsl(var(--text-tertiary))"
+                    }}>Erstzulassung:</span>
+                              <span className="ml-2 font-medium" style={{
+                      color: "hsl(var(--text-primary))"
+                    }}>{vehicle.first_registration}</span>
+                            </div>
+                            <div>
+                              <span style={{
+                      color: "hsl(var(--text-tertiary))"
+                    }}>KM:</span>
+                              <span className="ml-2 font-medium" style={{
+                      color: "hsl(var(--text-primary))"
+                    }}>{formatKilometers(vehicle.kilometers)}</span>
+                            </div>
+                            <div className="col-span-2">
+                              <span style={{
+                      color: "hsl(var(--text-tertiary))"
+                    }}>Bericht-Nr.:</span>
+                              <span className="ml-2 font-medium" style={{
+                      color: "hsl(var(--text-primary))"
+                    }}>{vehicle.report_nr}</span>
+                            </div>
+                          </div>
+
+                          <div className="text-xs font-mono" style={{
+                    color: "hsl(var(--text-tertiary))"
+                  }}>
+                            Fahrgestell: {vehicle.chassis}
+                          </div>
+
+                          <div className={`text-2xl font-semibold ${index === 0 ? 'tour-mobile-price' : ''}`} style={{
+                    color: "hsl(var(--text-primary))"
+                  }}>
+                            {formatPrice(vehicle.price)}
+                          </div>
+
+                          <div className={`pt-3 mt-3 border-t border-border/50 ${index === 0 ? 'tour-mobile-report' : ''}`}>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenZustandsbericht(vehicle.report_nr, e);
+                              }}
+                              className="w-full flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-primary/10 transition-colors"
+                            >
+                              <FileText className="h-5 w-5 text-primary" />
+                              <span className="text-sm font-medium text-primary">Zustandsbericht anzeigen</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>;
+              })}
+                </div>
+            </div>
+          </>
+        ) : showInquiryForm ? (
+            <InquiryForm 
+              selectedVehicles={selectedVehicles} 
+              vehicles={vehicles} 
+              onRemoveVehicle={toggleVehicleSelection} 
+              onBack={() => setShowInquiryForm(false)} 
+              onSuccess={(data, vehicles, totalPrice) => {
+                setSubmittedInquiry(data);
+                setSubmittedVehicles(vehicles);
+                setSubmittedTotalPrice(totalPrice);
+                setShowInquiryForm(false);
+                setShowConfirmation(true);
+              }}
+              brandingId={branding?.id} 
+            />
+          ) : (
+            <InquiryConfirmation
+              inquiry={submittedInquiry!}
+              vehicles={submittedVehicles}
+              totalPrice={submittedTotalPrice}
+              onBackToList={() => {
+                setShowConfirmation(false);
+                setSelectedVehicles([]);
+                setSubmittedInquiry(null);
+                setSubmittedVehicles([]);
+                setSubmittedTotalPrice(0);
+              }}
+            />
+          )}
+
+        {/* Contact Card - Always Visible, Desktop Only */}
+        <LawyerContactCard 
+          hideMobileButton={isBeschlusskDrawerOpen}
+          lawyerName={branding?.lawyer_name}
+          lawyerPhotoUrl={branding?.lawyer_photo_url || undefined}
+          firmName={branding?.lawyer_firm_name}
+          firmSubtitle={branding?.lawyer_firm_subtitle || undefined}
+          addressStreet={branding?.lawyer_address_street}
+          addressCity={branding?.lawyer_address_city}
+          email={branding?.lawyer_email}
+          phone={branding?.lawyer_phone}
+          websiteUrl={branding?.lawyer_website_url}
+        />
+
+        {/* Image Dialog */}
+        <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+            {selectedImageUrl && (
+              <img 
+                src={selectedImageUrl} 
+                alt="Fahrzeugbild" 
+                className="w-full h-auto"
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Zustandsbericht Dialog */}
+        <Dialog open={zustandsberichtDialogOpen} onOpenChange={setZustandsberichtDialogOpen}>
+          <DialogContent className="max-w-7xl max-h-[90vh] p-0 overflow-hidden">
+            <DialogTitle className="sr-only">Zustandsbericht</DialogTitle>
+            {selectedReportNr && (
+              <iframe
+                src={`/zustandsbericht/${selectedReportNr}`}
+                className="w-full h-[90vh] border-0"
+                title="Zustandsbericht"
+              />
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* DEKRA Logo */}
+        <div className="fixed bottom-4 left-4 z-[55] opacity-60 hover:opacity-100 transition-opacity">
+          <img 
+            src={dekraLogoWhite} 
+            alt="DEKRA" 
+            className="h-6 md:h-8 w-auto drop-shadow-lg" 
+          />
+        </div>
+      </div>
+    </div>;
+};
+
+export default FahrzeugeIndex;
