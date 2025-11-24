@@ -63,6 +63,7 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
   });
 
   const companyName = watch('company_name');
+  const lawyerName = watch('lawyer_name');
   const isActive = watch('is_active');
 
   const uploadFile = async (file: File, folder: string, companyName?: string): Promise<string> => {
@@ -144,7 +145,9 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
   const onSubmit = async (data: BrandingFormData) => {
     setIsSubmitting(true);
     try {
-      const slug = generateSlug(data.company_name);
+      const slug = brandingType === 'fahrzeuge' 
+        ? generateSlug(data.lawyer_name)
+        : generateSlug(data.company_name);
 
       // Upload files if provided
       let kanzleiLogoUrl = branding?.kanzlei_logo_url || null;
@@ -251,9 +254,9 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
             {...register('company_name')}
             placeholder="TZ-West GmbH"
           />
-          {companyName && (
+          {brandingType === 'insolvenz' && companyName && (
             <p className="text-sm text-muted-foreground mt-1">
-              Slug: /{brandingType}/{generateSlug(companyName)}
+              Slug: /insolvenz/{generateSlug(companyName)}
             </p>
           )}
           {errors.company_name && (
@@ -366,6 +369,11 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
             {...register('lawyer_name')}
             placeholder="Mark Steh"
           />
+          {brandingType === 'fahrzeuge' && lawyerName && (
+            <p className="text-sm text-muted-foreground mt-1">
+              Slug: /fahrzeuge/{generateSlug(lawyerName)}
+            </p>
+          )}
           {errors.lawyer_name && (
             <p className="text-sm text-destructive mt-1">{errors.lawyer_name.message}</p>
           )}
