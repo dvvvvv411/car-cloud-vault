@@ -59,6 +59,7 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
       admin_email_signature: branding.admin_email_signature || '',
     } : {
       is_active: true,
+      case_number: '',
     },
   });
 
@@ -234,6 +235,9 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
               const newType = e.target.value as 'insolvenz' | 'fahrzeuge';
               setBrandingType(newType);
               setValue('branding_type', newType);
+              if (newType === 'fahrzeuge') {
+                setValue('case_number', '-');
+              }
             }}
             className="w-full h-10 px-3 rounded-md border border-input bg-background"
           >

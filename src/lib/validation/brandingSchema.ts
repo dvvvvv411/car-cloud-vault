@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const brandingSchema = z.object({
   branding_type: z.enum(['insolvenz', 'fahrzeuge']).default('insolvenz'),
   company_name: z.string().min(1, 'Unternehmensname ist erforderlich').max(200),
-  case_number: z.string().min(1, 'Aktenzeichen ist erforderlich').max(100),
+  case_number: z.string().max(100).optional().or(z.literal('')),
   lawyer_name: z.string().min(1, 'Anwaltsname ist erforderlich').max(200),
   lawyer_firm_name: z.string().min(1, 'Kanzleiname ist erforderlich').max(200),
   lawyer_firm_subtitle: z.string().max(200).optional(),
