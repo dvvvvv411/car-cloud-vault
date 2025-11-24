@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
-import { Search, ArrowUpDown, ChevronRight, Eye, Phone, X, FileText, LogOut, LogIn, Shield, FileDown, Loader2, Building2, MapPin, ExternalLink, Mail } from "lucide-react";
+import { Search, ArrowUpDown, ChevronRight, Eye, Phone, X, FileText, LogOut, LogIn, Shield, FileDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -11,13 +11,13 @@ import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/
 import { Drawer, DrawerClose, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from "@/components/ui/pagination";
-
+import LawyerContactCard from "@/components/fahrzeuge/FahrzeugeLawyerContactCard";
 import { InquiryForm } from "@/components/fahrzeuge/FahrzeugeInquiryForm";
 import { InquiryConfirmation } from "@/components/fahrzeuge/FahrzeugeInquiryConfirmation";
 import kbsLogo from "@/assets/kbs_blue.png";
 import demoVehicle from "@/assets/demo-vehicle.png";
+import beschlussImage from "@/assets/beschluss.png";
 import dekraLogoWhite from "@/assets/dekra-logo-white.png";
-import lawyerAvatar from "@/assets/lawyer-avatar-placeholder.png";
 import { useVehicles, type Vehicle } from "@/hooks/useVehicles";
 import { useMyReservations } from "@/hooks/useLeadReservations";
 import { driver } from "driver.js";
@@ -51,10 +51,12 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
   const [submittedInquiry, setSubmittedInquiry] = useState<any>(null);
   const [submittedVehicles, setSubmittedVehicles] = useState<Vehicle[]>([]);
   const [submittedTotalPrice, setSubmittedTotalPrice] = useState(0);
+  const [isBeschlusskDrawerOpen, setIsBeschlusskDrawerOpen] = useState(false);
   const [pdfDialogOpen, setPdfDialogOpen] = useState(false);
   const [currentPdfUrl, setCurrentPdfUrl] = useState<string | null>(null);
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+  const [beschlussPdfDialogOpen, setBeschlussPdfDialogOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [zustandsberichtDialogOpen, setZustandsberichtDialogOpen] = useState(false);
   const [selectedReportNr, setSelectedReportNr] = useState<string | null>(null);
@@ -86,6 +88,15 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
           allowClose: true,
           disableActiveInteraction: true,
           steps: [
+            {
+              element: '.tour-beschluss',
+              popover: {
+                title: 'Gerichtsbeschluss',
+                description: 'Hier finden Sie den Gerichtsbeschluss zur Insolvenzmasse. Klicken Sie auf das Bild, um es in voller Größe anzuzeigen.',
+                side: 'bottom',
+                align: 'center'
+              }
+            },
             {
               element: window.innerWidth < 1024 ? '.tour-mobile-price' : '.tour-price-row',
               popover: {
@@ -215,225 +226,126 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
   const someSelected = selectedVehicles.length > 0 && !allSelected;
   return <div className="min-h-screen bg-background relative">
       <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8 lg:py-12">
-        {/* Modern Header mit 1/2 Layout */}
+        {/* Modern Header with Logo - Always Visible */}
         <div className="mb-8 md:mb-10 lg:mb-12 animate-fade-in">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+
+          <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6 mb-4 md:mb-6">
+            {/* Logo und Badge */}
+            <div className="flex items-start gap-3">
+              <img src={branding?.kanzlei_logo_url || kbsLogo} alt="Kanzlei Logo" className="h-12 md:h-14 lg:h-16 w-auto" />
+              {/* Badge - nur auf Mobile/Tablet sichtbar */}
+              <Badge variant="secondary" className="lg:hidden text-xs sm:text-sm md:text-base px-3 md:px-4 py-1 md:py-1.5 font-semibold mt-1">
+                {branding?.case_number || 'Az: 502 IN 14/25'}
+              </Badge>
+            </div>
             
-            {/* LINKE HÄLFTE: Logo + Text */}
-            <div className="flex flex-col justify-center space-y-4">
-              <img 
-                src={branding?.kanzlei_logo_url || kbsLogo} 
-                alt="Logo" 
-                className="h-12 md:h-14 lg:h-16 w-auto" 
-              />
+            <div className="hidden md:block h-16 lg:h-20 w-px bg-[hsl(var(--divider))]"></div>
+            
+            <div className="flex-1 relative min-h-[6rem] md:min-h-[8rem] w-full">
+              {/* Beschluss image - rechts oben auf Desktop */}
+              <div className="sm:absolute sm:top-0 sm:right-0 mb-4 sm:mb-0">
+                <div className="flex flex-col lg:flex-row lg:items-start lg:gap-3">
+                  {/* Badge - nur auf Desktop sichtbar */}
+                  <Badge variant="secondary" className="hidden lg:flex text-base px-4 py-1.5 font-semibold lg:mt-1">
+                    {branding?.case_number || 'Az: 502 IN 14/25'}
+                  </Badge>
+                  
+                  <div className="flex flex-col tour-beschluss">
+                    {branding?.court_decision_pdf_url ? (
+                      // Wenn PDF vorhanden: Klick öffnet PDF-Dialog
+                      <>
+                        {/* Mobile/Tablet Button */}
+                        <button
+                          onClick={() => setBeschlussPdfDialogOpen(true)}
+                          className="relative group lg:hidden w-full md:w-auto block"
+                        >
+                          <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[6rem] md:h-[7rem] w-full md:w-auto object-cover md:object-none cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all brightness-[0.85] md:brightness-100" />
+                          
+                          {/* Permanente Kennzeichnung nur auf Mobile */}
+                          <div className="absolute inset-0 rounded bg-black/30 md:bg-transparent flex flex-col items-center justify-center pointer-events-none">
+                            <FileText className="h-6 w-6 text-white md:hidden mb-1" />
+                            <span className="text-white text-xs md:hidden font-medium">Gerichtsbeschluss</span>
+                          </div>
+                          
+                          {/* Hover-Effekt (Eye) bleibt zusätzlich */}
+                          <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
+                            <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
+                          </div>
+                        </button>
+
+                        {/* Desktop Button */}
+                        <button
+                          onClick={() => setBeschlussPdfDialogOpen(true)}
+                          className="relative group hidden lg:block"
+                        >
+                          <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105" />
+                          <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
+                            <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
+                          </div>
+                        </button>
+                      </>
+                    ) : (
+                      // Wenn keine PDF: Bild-Dialog wie bisher
+                      <>
+                        {/* Drawer für Mobile/Tablet */}
+                        <Drawer open={isBeschlusskDrawerOpen} onOpenChange={setIsBeschlusskDrawerOpen}>
+                          <DrawerTrigger asChild>
+                            <div className="relative group lg:hidden w-full md:w-auto">
+                              <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[6rem] md:h-[7rem] w-full md:w-auto object-cover md:object-none cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all brightness-[0.85] md:brightness-100" />
+                              
+                              {/* Permanente Kennzeichnung nur auf Mobile */}
+                              <div className="absolute inset-0 rounded bg-black/30 md:bg-transparent flex flex-col items-center justify-center pointer-events-none">
+                                <FileText className="h-6 w-6 text-white md:hidden mb-1" />
+                                <span className="text-white text-xs md:hidden font-medium">Gerichtsbeschluss</span>
+                              </div>
+                              
+                              {/* Hover-Effekt (Eye) bleibt zusätzlich */}
+                              <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
+                                <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
+                              </div>
+                            </div>
+                          </DrawerTrigger>
+                          <DrawerContent className="h-screen rounded-none mt-0 border-0 bg-black p-0">
+                            <DrawerClose className="fixed top-4 right-4 z-[60] rounded-full bg-black/50 p-2 text-white hover:bg-black/70 transition-colors">
+                              <X className="h-6 w-6" />
+                            </DrawerClose>
+                            <div className="h-full w-full flex items-center justify-center">
+                              <img src={beschlussImage} alt="Gerichtsbeschluss" className="max-h-full max-w-full object-contain" />
+                            </div>
+                          </DrawerContent>
+                        </Drawer>
+
+                        {/* Dialog für Desktop */}
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <div className="relative group hidden lg:block">
+                              <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105" />
+                              <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
+                                <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
+                              </div>
+                            </div>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-auto">
+                            <img src={beschlussImage} alt="Gerichtsbeschluss" className="w-full h-auto" />
+                          </DialogContent>
+                        </Dialog>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
               
-              <div>
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight mb-2" 
-                    style={{ color: "hsl(var(--text-primary))" }}>
+              <div className="mb-2">
+                <h1 className="text-3xl md:text-4xl lg:text-5xl font-light tracking-tight" style={{
+                color: "hsl(var(--text-primary))"
+              }}>
                   Fahrzeuge
                 </h1>
-                <p className="text-base md:text-lg lg:text-xl" 
-                   style={{ color: "hsl(var(--text-secondary))" }}>
-                  Übersicht verfügbarer Fahrzeuge von {branding?.company_name || 'Autohändler'}.
-                </p>
               </div>
+              <p className="text-base md:text-lg lg:text-xl" style={{
+              color: "hsl(var(--text-secondary))"
+            }}>Übersicht verfügbarer Fahrzeuge von {branding?.company_name || 'Autohändler'}.</p>
             </div>
-            
-            {/* RECHTE HÄLFTE: Kontaktkarte (nur Desktop) */}
-            <div className="hidden lg:block">
-              <div className="bg-[#003e7e] text-white rounded-3xl p-8 shadow-2xl h-full flex flex-col justify-center">
-                {/* Kontaktinhalt */}
-                <div className="flex items-center gap-6 mb-6">
-                  <img 
-                    src={branding?.lawyer_photo_url || lawyerAvatar} 
-                    alt={branding?.lawyer_name || "Verkäufer"}
-                    className="w-24 h-24 rounded-full object-cover shadow-lg"
-                  />
-                  <div>
-                    <p className="text-sm text-white/80 mb-1">Ihr Ansprechpartner</p>
-                    <h3 className="text-2xl font-bold">{branding?.lawyer_name || "Mark Steh"}</h3>
-                  </div>
-                </div>
-                
-                {/* Divider */}
-                <div className="w-full h-px bg-white/20 mb-4" />
-                
-                {/* Firmeninfo */}
-                <div className="space-y-2 mb-4 text-sm">
-                  <div className="flex items-start gap-2">
-                    <Building2 className="w-4 h-4 flex-shrink-0 mt-0.5 text-white/70" />
-                    <div>
-                      <p className="font-medium">{branding?.lawyer_firm_name || "Auto Müller GmbH"}</p>
-                      {branding?.lawyer_firm_subtitle && (
-                        <p className="text-white/80">{branding.lawyer_firm_subtitle}</p>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-2">
-                    <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5 text-white/70" />
-                    <div className="text-white/80">
-                      <p>{branding?.lawyer_address_street || "Musterstraße 123"}</p>
-                      <p>{branding?.lawyer_address_city || "12345 Berlin"}</p>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Divider */}
-                <div className="w-full h-px bg-white/20 mb-4" />
-                
-                {/* Email */}
-                <div className="mb-4">
-                  <a 
-                    href={`mailto:${branding?.lawyer_email || 'verkauf@automueller.de'}`}
-                    className="flex items-center gap-2 text-sm hover:text-white/80 transition-colors group"
-                  >
-                    <Mail className="w-4 h-4 flex-shrink-0" />
-                    <span className="break-all">{branding?.lawyer_email || 'verkauf@automueller.de'}</span>
-                  </a>
-                </div>
-                
-                {/* Telefon (dominant) */}
-                <div className="bg-white/10 rounded-xl p-4 mb-4 border border-white/20">
-                  <div className="flex flex-col items-center gap-2">
-                    <Phone className="w-6 h-6 text-white/90" />
-                    <a 
-                      href={`tel:${(branding?.lawyer_phone || '030 12345678').replace(/\s/g, '')}`}
-                      className="text-2xl font-bold hover:text-white/80 transition-colors"
-                    >
-                      {branding?.lawyer_phone || '030 12345678'}
-                    </a>
-                  </div>
-                </div>
-                
-                {/* CTA Buttons */}
-                <div className="space-y-2">
-                  <a href={`tel:${(branding?.lawyer_phone || '030 12345678').replace(/\s/g, '')}`} className="block">
-                    <Button 
-                      className="w-full bg-white text-[#003e7e] hover:bg-white/90 font-semibold shadow-lg"
-                      size="lg"
-                    >
-                      <Phone className="w-4 h-4 mr-2" />
-                      Jetzt anrufen
-                    </Button>
-                  </a>
-                  
-                  <a href={branding?.lawyer_website_url || "https://automueller.de"} target="_blank" rel="noopener noreferrer" className="block">
-                    <Button 
-                      className="w-full bg-[#C5A572] text-white hover:bg-[#B4954F] font-semibold shadow-lg"
-                      size="lg"
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Zur Website
-                    </Button>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Mobile: Floating Button + Drawer */}
-          <div className="lg:hidden fixed bottom-6 right-6 z-[70]">
-            <Drawer>
-              <DrawerTrigger asChild>
-                <button
-                  className="bg-[#003e7e] text-white rounded-full p-4 shadow-2xl hover:bg-[#002d5c] transition-all hover:scale-110"
-                  aria-label="Kontakt öffnen"
-                >
-                  <Phone className="w-6 h-6" />
-                </button>
-              </DrawerTrigger>
-              <DrawerContent className="bg-[#003e7e] text-white border-t-4 border-white/20 max-h-[90vh]">
-                <div className="p-6 overflow-y-auto">
-                  {/* Kontaktinhalt für Mobile */}
-                  <div className="flex items-center gap-4 mb-6">
-                    <img 
-                      src={branding?.lawyer_photo_url || lawyerAvatar} 
-                      alt={branding?.lawyer_name || "Verkäufer"}
-                      className="w-20 h-20 rounded-full object-cover shadow-lg"
-                    />
-                    <div>
-                      <p className="text-sm text-white/80 mb-1">Ihr Ansprechpartner</p>
-                      <h3 className="text-xl font-bold">{branding?.lawyer_name || "Mark Steh"}</h3>
-                    </div>
-                  </div>
-                  
-                  {/* Divider */}
-                  <div className="w-full h-px bg-white/20 mb-4" />
-                  
-                  {/* Firmeninfo */}
-                  <div className="space-y-2 mb-4 text-sm">
-                    <div className="flex items-start gap-2">
-                      <Building2 className="w-4 h-4 flex-shrink-0 mt-0.5 text-white/70" />
-                      <div>
-                        <p className="font-medium">{branding?.lawyer_firm_name || "Auto Müller GmbH"}</p>
-                        {branding?.lawyer_firm_subtitle && (
-                          <p className="text-white/80">{branding.lawyer_firm_subtitle}</p>
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start gap-2">
-                      <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5 text-white/70" />
-                      <div className="text-white/80">
-                        <p>{branding?.lawyer_address_street || "Musterstraße 123"}</p>
-                        <p>{branding?.lawyer_address_city || "12345 Berlin"}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Divider */}
-                  <div className="w-full h-px bg-white/20 mb-4" />
-                  
-                  {/* Email */}
-                  <div className="mb-4">
-                    <a 
-                      href={`mailto:${branding?.lawyer_email || 'verkauf@automueller.de'}`}
-                      className="flex items-center gap-2 text-sm hover:text-white/80 transition-colors"
-                    >
-                      <Mail className="w-4 h-4 flex-shrink-0" />
-                      <span className="break-all">{branding?.lawyer_email || 'verkauf@automueller.de'}</span>
-                    </a>
-                  </div>
-                  
-                  {/* Telefon */}
-                  <div className="bg-white/10 rounded-xl p-4 mb-4 border border-white/20">
-                    <div className="flex flex-col items-center gap-2">
-                      <Phone className="w-6 h-6 text-white/90" />
-                      <a 
-                        href={`tel:${(branding?.lawyer_phone || '030 12345678').replace(/\s/g, '')}`}
-                        className="text-2xl font-bold hover:text-white/80 transition-colors"
-                      >
-                        {branding?.lawyer_phone || '030 12345678'}
-                      </a>
-                    </div>
-                  </div>
-                  
-                  {/* CTA Buttons */}
-                  <div className="space-y-2">
-                    <a href={`tel:${(branding?.lawyer_phone || '030 12345678').replace(/\s/g, '')}`} className="block">
-                      <Button 
-                        className="w-full bg-white text-[#003e7e] hover:bg-white/90 font-semibold shadow-lg"
-                        size="lg"
-                      >
-                        <Phone className="w-4 h-4 mr-2" />
-                        Jetzt anrufen
-                      </Button>
-                    </a>
-                    
-                    <a href={branding?.lawyer_website_url || "https://automueller.de"} target="_blank" rel="noopener noreferrer" className="block">
-                      <Button 
-                        className="w-full bg-[#C5A572] text-white hover:bg-[#B4954F] font-semibold shadow-lg"
-                        size="lg"
-                      >
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        Zur Website
-                      </Button>
-                    </a>
-                  </div>
-                </div>
-              </DrawerContent>
-            </Drawer>
           </div>
         </div>
 
@@ -903,6 +815,19 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
             />
           )}
 
+        {/* Lawyer Contact Card - Always Visible, Desktop Only */}
+        <LawyerContactCard 
+          hideMobileButton={isBeschlusskDrawerOpen}
+          lawyerName={branding?.lawyer_name}
+          lawyerPhotoUrl={branding?.lawyer_photo_url || undefined}
+          firmName={branding?.lawyer_firm_name}
+          firmSubtitle={branding?.lawyer_firm_subtitle || undefined}
+          addressStreet={branding?.lawyer_address_street}
+          addressCity={branding?.lawyer_address_city}
+          email={branding?.lawyer_email}
+          phone={branding?.lawyer_phone}
+          websiteUrl={branding?.lawyer_website_url}
+        />
       </div>
 
       {/* PDF Viewer Dialog */}
@@ -935,6 +860,43 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                   src={`${currentPdfUrl}#view=FitH`}
                   className="w-full h-full"
                   title="DEKRA Bericht"
+                />
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Gerichtsbeschluss PDF Viewer Dialog */}
+      <Dialog open={beschlussPdfDialogOpen} onOpenChange={setBeschlussPdfDialogOpen}>
+        <DialogContent className="max-w-5xl max-h-[90vh] p-0">
+          <DialogTitle className="sr-only">Gerichtsbeschluss</DialogTitle>
+          <div className="flex flex-col h-[85vh]">
+            <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+              <div className="flex items-center gap-2">
+                <div className="bg-primary p-2 rounded">
+                  <FileText className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-semibold text-gray-900">Gerichtsbeschluss</h3>
+              </div>
+              {branding?.court_decision_pdf_url && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(branding.court_decision_pdf_url, '_blank')}
+                  className="gap-2"
+                >
+                  <FileDown className="h-4 w-4" />
+                  Herunterladen
+                </Button>
+              )}
+            </div>
+            <div className="flex-1 overflow-hidden">
+              {branding?.court_decision_pdf_url && (
+                <iframe
+                  src={`${branding.court_decision_pdf_url}#view=FitH`}
+                  className="w-full h-full"
+                  title="Gerichtsbeschluss"
                 />
               )}
             </div>
@@ -1112,6 +1074,39 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
           </DialogContent>
         </Dialog>
 
+        {/* Beschluss PDF Dialog */}
+        <Dialog open={beschlussPdfDialogOpen} onOpenChange={setBeschlussPdfDialogOpen}>
+          <DialogContent className="max-w-7xl max-h-[90vh] p-0">
+            <DialogTitle className="sr-only">Gerichtsbeschluss</DialogTitle>
+            <div className="flex flex-col h-[85vh]">
+              <div className="flex items-center justify-between p-4 border-b bg-muted/30">
+                <div className="flex items-center gap-2">
+                  <div className="bg-primary p-2 rounded">
+                    <FileText className="h-5 w-5 text-primary-foreground" />
+                  </div>
+                  <h3 className="font-semibold">Gerichtsbeschluss</h3>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(branding?.court_decision_pdf_url || '', '_blank')}
+                  className="gap-2"
+                >
+                  In neuem Tab öffnen
+                </Button>
+              </div>
+              <div className="flex-1 overflow-hidden">
+                {branding?.court_decision_pdf_url && (
+                  <iframe
+                    src={branding.court_decision_pdf_url}
+                    className="w-full h-full"
+                    title="Gerichtsbeschluss"
+                  />
+                )}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
     </div>;
 };
 export default FahrzeugeIndex;
