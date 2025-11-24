@@ -51,7 +51,6 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
   const [submittedInquiry, setSubmittedInquiry] = useState<any>(null);
   const [submittedVehicles, setSubmittedVehicles] = useState<Vehicle[]>([]);
   const [submittedTotalPrice, setSubmittedTotalPrice] = useState(0);
-  const [isBeschlusskDrawerOpen, setIsBeschlusskDrawerOpen] = useState(false);
   const [pdfDialogOpen, setPdfDialogOpen] = useState(false);
   const [currentPdfUrl, setCurrentPdfUrl] = useState<string | null>(null);
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
@@ -739,20 +738,6 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
               }}
             />
           )}
-
-        {/* Lawyer Contact Card - Always Visible, Desktop Only */}
-        <LawyerContactCard 
-          hideMobileButton={isBeschlusskDrawerOpen}
-          lawyerName={branding?.lawyer_name}
-          lawyerPhotoUrl={branding?.lawyer_photo_url || undefined}
-          firmName={branding?.lawyer_firm_name}
-          firmSubtitle={branding?.lawyer_firm_subtitle || undefined}
-          addressStreet={branding?.lawyer_address_street}
-          addressCity={branding?.lawyer_address_city}
-          email={branding?.lawyer_email}
-          phone={branding?.lawyer_phone}
-          websiteUrl={branding?.lawyer_website_url}
-        />
       </div>
 
       {/* PDF Viewer Dialog */}
