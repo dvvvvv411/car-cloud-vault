@@ -13,6 +13,7 @@ import { X } from "lucide-react";
 import lawyerAvatar from "@/assets/lawyer-avatar-placeholder.png";
 
 interface LawyerContactCardProps {
+  inlineHeaderMode?: boolean;
   hideMobileButton?: boolean;
   lawyerName?: string;
   lawyerPhotoUrl?: string;
@@ -26,6 +27,7 @@ interface LawyerContactCardProps {
 }
 
 const LawyerContactCard = ({ 
+  inlineHeaderMode = false,
   hideMobileButton = false,
   lawyerName = "Max Müller",
   lawyerPhotoUrl = lawyerAvatar,
@@ -43,7 +45,86 @@ const LawyerContactCard = ({
   // Format phone number for tel: link
   const phoneLink = `tel:${phone.replace(/\s/g, '')}`;
 
-  // Contact Card Content Component (reusable for both desktop and mobile)
+  // Inline Header Content for Desktop 50/50 Layout
+  const InlineHeaderContent = () => (
+    <div className="bg-[#003e7e] text-white rounded-lg h-full p-6 lg:p-8 flex flex-col justify-center">
+      <div className="grid grid-cols-2 gap-x-6 lg:gap-x-8 gap-y-4 lg:gap-y-6">
+        
+        {/* Linke Spalte: Foto + Name */}
+        <div className="flex flex-col items-center justify-center space-y-3">
+          <img 
+            src={lawyerPhotoUrl} 
+            alt={lawyerName}
+            className="w-20 lg:w-24 h-20 lg:h-24 rounded-full object-cover shadow-lg border-2 border-white/20"
+          />
+          <div className="text-center">
+            <p className="text-xs lg:text-sm text-white/70 mb-1">Ihr Ansprechpartner</p>
+            <h3 className="text-lg lg:text-xl font-bold">{lawyerName}</h3>
+          </div>
+        </div>
+
+        {/* Rechte Spalte: Kontaktinfos */}
+        <div className="flex flex-col justify-center space-y-3 lg:space-y-4">
+          {/* Firma */}
+          <div className="flex items-start gap-2">
+            <Building2 className="w-4 h-4 flex-shrink-0 mt-1 text-white/70" />
+            <div className="text-xs lg:text-sm">
+              <p className="font-medium">{firmName}</p>
+              {firmSubtitle && <p className="text-white/80">{firmSubtitle}</p>}
+            </div>
+          </div>
+
+          {/* Adresse */}
+          <div className="flex items-start gap-2">
+            <MapPin className="w-4 h-4 flex-shrink-0 mt-1 text-white/70" />
+            <div className="text-xs lg:text-sm text-white/80">
+              <p>{addressStreet}</p>
+              <p>{addressCity}</p>
+            </div>
+          </div>
+
+          {/* Email */}
+          <a 
+            href={`mailto:${email}`}
+            className="flex items-center gap-2 text-xs lg:text-sm hover:text-white/80 transition-colors group"
+          >
+            <Mail className="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform" />
+            <span className="break-all">{email}</span>
+          </a>
+
+          {/* Telefon prominent */}
+          <div className="bg-white/10 rounded-lg p-2 lg:p-3 border border-white/20">
+            <a 
+              href={phoneLink}
+              className="flex items-center justify-center gap-2 text-base lg:text-lg font-bold hover:text-white/80 transition-colors"
+            >
+              <Phone className="w-4 lg:w-5 h-4 lg:h-5" />
+              {phone}
+            </a>
+          </div>
+        </div>
+
+        {/* Buttons über gesamte Breite */}
+        <div className="col-span-2 grid grid-cols-2 gap-3 mt-2">
+          <a href={phoneLink}>
+            <Button className="w-full bg-white text-[#003e7e] hover:bg-white/90 font-semibold text-xs lg:text-sm">
+              <Phone className="w-3 lg:w-4 h-3 lg:h-4 mr-2" />
+              Jetzt anrufen
+            </Button>
+          </a>
+          <a href={websiteUrl} target="_blank" rel="noopener noreferrer">
+            <Button className="w-full bg-[#C5A572] text-white hover:bg-[#B4954F] font-semibold text-xs lg:text-sm">
+              <ExternalLink className="w-3 lg:w-4 h-3 lg:h-4 mr-2" />
+              Zur Website
+            </Button>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  );
+
+  // Contact Card Content Component (reusable for drawer and fixed card)
   const ContactContent = () => (
     <>
       {/* Profile Image & Name - Side by Side Layout */}
@@ -135,8 +216,13 @@ const LawyerContactCard = ({
 
   return (
     <>
-      {/* Mobile/Tablet: Floating Contact Button + Drawer */}
-      {!hideMobileButton && (
+      {/* Inline Header Mode für Desktop XL+ */}
+      {inlineHeaderMode ? (
+        <InlineHeaderContent />
+      ) : (
+        <>
+          {/* Mobile/Tablet: Floating Contact Button + Drawer */}
+          {!hideMobileButton && (
         <div className="block xl:hidden">
           <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
             <DrawerTrigger asChild>
@@ -164,11 +250,11 @@ const LawyerContactCard = ({
             </div>
           </DrawerContent>
         </Drawer>
-      </div>
-      )}
+          </div>
+          )}
 
-      {/* Desktop: Fixed Card at Bottom Right */}
-      <div className={`hidden xl:block fixed bottom-0 right-[max(1rem,calc(((100vw-1400px)/4)-266px))] w-[500px] bg-[#003e7e] text-white rounded-t-full shadow-2xl z-[60] transition-all duration-300 ${isCollapsed ? 'h-12 pt-2 pb-2 px-10' : 'pt-20 pb-8 px-10'}`}>
+          {/* Desktop: Fixed Card at Bottom Right */}
+          <div className={`hidden xl:block fixed bottom-0 right-[max(1rem,calc(((100vw-1400px)/4)-266px))] w-[500px] bg-[#003e7e] text-white rounded-t-full shadow-2xl z-[60] transition-all duration-300 ${isCollapsed ? 'h-12 pt-2 pb-2 px-10' : 'pt-20 pb-8 px-10'}`}>
       {/* Collapse Button */}
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
@@ -178,11 +264,13 @@ const LawyerContactCard = ({
         {isCollapsed ? <ChevronUp className="w-6 h-6" /> : <ChevronDown className="w-6 h-6" />}
       </button>
 
-        {/* Content - only visible when not collapsed */}
-        <div className={`transition-opacity duration-300 ${isCollapsed ? 'opacity-0 invisible h-0 overflow-hidden' : 'opacity-100 visible'}`}>
-          <ContactContent />
-        </div>
-      </div>
+            {/* Content - only visible when not collapsed */}
+            <div className={`transition-opacity duration-300 ${isCollapsed ? 'opacity-0 invisible h-0 overflow-hidden' : 'opacity-100 visible'}`}>
+              <ContactContent />
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 };
