@@ -587,10 +587,10 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
         }}>
               {/* Fixed height wrapper to keep pagination position consistent */}
               <div>
-                  {paginatedVehicles.map((vehicle, index) => {
-                const isSelected = selectedVehicles.includes(vehicle.chassis);
-                const isReserved = isVehicleReserved(vehicle.chassis, vehicle.report_nr);
-                return <div key={index} onClick={() => !isReserved && toggleVehicleSelection(vehicle.chassis)} className={`glassmorphism rounded-2xl overflow-hidden cursor-pointer transition-all ${isSelected ? "ring-2 ring-primary" : ""} ${isReserved ? "opacity-60 pointer-events-none" : ""}`} style={{
+              {paginatedVehicles.map((vehicle, index) => {
+                const isSelected = selectedVehicles.includes(vehicle.fin);
+                const isReserved = myReservations.some(r => r.vehicle_chassis === vehicle.fin);
+                return <div key={index} onClick={() => !isReserved && toggleVehicleSelection(vehicle.fin)} className={`glassmorphism rounded-2xl overflow-hidden cursor-pointer transition-all ${isSelected ? "ring-2 ring-primary" : ""} ${isReserved ? "opacity-60 pointer-events-none" : ""}`} style={{
                   animationDelay: `${0.3 + index * 0.05}s`
                 }}>
                         {/* Image */}
@@ -604,7 +604,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                           )}
                           {/* Checkbox overlay */}
                           <div className={`absolute top-3 right-3 ${index === 0 ? 'tour-mobile-selection' : ''}`} onClick={e => e.stopPropagation()}>
-                            <Checkbox checked={isSelected} onCheckedChange={() => !isReserved && toggleVehicleSelection(vehicle.chassis)} className="w-6 h-6 bg-background/80" disabled={isReserved} />
+                            <Checkbox checked={isSelected} onCheckedChange={() => !isReserved && toggleVehicleSelection(vehicle.fin)} className="w-6 h-6 bg-background/80" disabled={isReserved} />
                           </div>
                         </div>
 
@@ -628,7 +628,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                     }}>Erstzulassung:</span>
                               <span className="ml-2 font-medium" style={{
                       color: "hsl(var(--text-primary))"
-                    }}>{vehicle.first_registration}</span>
+                    }}>{vehicle.erstzulassung}</span>
                             </div>
                             <div>
                               <span style={{
@@ -636,44 +636,22 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                     }}>KM:</span>
                               <span className="ml-2 font-medium" style={{
                       color: "hsl(var(--text-primary))"
-                    }}>{formatKilometers(vehicle.kilometers)}</span>
-                            </div>
-                            <div className="col-span-2">
-                              <span style={{
-                      color: "hsl(var(--text-tertiary))"
-                    }}>Bericht-Nr.:</span>
-                              <span className="ml-2 font-medium" style={{
-                      color: "hsl(var(--text-primary))"
-                    }}>{vehicle.report_nr}</span>
+                    }}>{formatKilometers(vehicle.laufleistung)}</span>
                             </div>
                           </div>
 
-                          {/* Chassis Number */}
+                          {/* FIN Number */}
                           <div className="text-xs font-mono" style={{
                     color: "hsl(var(--text-tertiary))"
                   }}>
-                            Fahrgestell: {vehicle.chassis}
+                            FIN: {vehicle.fin}
                           </div>
 
                           {/* Price */}
                           <div className={`text-2xl font-semibold ${index === 0 ? 'tour-mobile-price' : ''}`} style={{
                     color: "hsl(var(--text-primary))"
                   }}>
-                            {formatPrice(vehicle.price)}
-                          </div>
-
-                          {/* Zustandsbericht Button */}
-                          <div className={`pt-3 mt-3 border-t border-border/50 ${index === 0 ? 'tour-mobile-report' : ''}`}>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleOpenZustandsbericht(vehicle.report_nr, e);
-                              }}
-                              className="w-full flex items-center justify-center gap-2 py-2 rounded-lg hover:bg-primary/10 transition-colors"
-                            >
-                              <FileText className="h-5 w-5 text-primary" />
-                              <span className="text-sm font-medium text-primary">Zustandsbericht anzeigen</span>
-                            </button>
+                            {formatPrice(vehicle.preis)}
                           </div>
                         </div>
                       </div>;
@@ -683,12 +661,12 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
           </> : showInquiryForm ? (
             <InquiryForm 
               selectedVehicles={selectedVehicles} 
-              vehicles={vehicles} 
+              vehicles={vehicles as any} 
               onRemoveVehicle={toggleVehicleSelection} 
               onBack={() => setShowInquiryForm(false)} 
               onSuccess={(data, vehicles, totalPrice) => {
                 setSubmittedInquiry(data);
-                setSubmittedVehicles(vehicles);
+                setSubmittedVehicles(vehicles as any);
                 setSubmittedTotalPrice(totalPrice);
                 setShowInquiryForm(false);
                 setShowConfirmation(true);
@@ -698,7 +676,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
           ) : (
             <InquiryConfirmation
               inquiry={submittedInquiry!}
-              vehicles={submittedVehicles}
+              vehicles={submittedVehicles as any}
               totalPrice={submittedTotalPrice}
               onBackToList={() => {
                 setShowConfirmation(false);
