@@ -308,85 +308,64 @@ export type Database = {
       }
       fahrzeuge_vehicles: {
         Row: {
-          assistenzsysteme: Json | null
+          ausstattung_sections: Json | null
           brand: string
           created_at: string | null
           erstzulassung: string
-          exterieur: Json | null
           farbe: string | null
           fin: string
-          garantie: string | null
-          highlights: Json | null
           hubraum: string | null
           id: string
           innenausstattung: string | null
-          interieur: Json | null
           laufleistung: number
           leistung_kw: number | null
           leistung_ps: number | null
           model: string
           motor_antrieb: string | null
-          multimedia: Json | null
           preis: number
           sitze: number | null
-          sonstiges: Json | null
-          technik_sicherheit: Json | null
           tueren: number | null
           updated_at: string | null
           vehicle_photos: Json | null
         }
         Insert: {
-          assistenzsysteme?: Json | null
+          ausstattung_sections?: Json | null
           brand: string
           created_at?: string | null
           erstzulassung: string
-          exterieur?: Json | null
           farbe?: string | null
           fin: string
-          garantie?: string | null
-          highlights?: Json | null
           hubraum?: string | null
           id?: string
           innenausstattung?: string | null
-          interieur?: Json | null
           laufleistung: number
           leistung_kw?: number | null
           leistung_ps?: number | null
           model: string
           motor_antrieb?: string | null
-          multimedia?: Json | null
           preis: number
           sitze?: number | null
-          sonstiges?: Json | null
-          technik_sicherheit?: Json | null
           tueren?: number | null
           updated_at?: string | null
           vehicle_photos?: Json | null
         }
         Update: {
-          assistenzsysteme?: Json | null
+          ausstattung_sections?: Json | null
           brand?: string
           created_at?: string | null
           erstzulassung?: string
-          exterieur?: Json | null
           farbe?: string | null
           fin?: string
-          garantie?: string | null
-          highlights?: Json | null
           hubraum?: string | null
           id?: string
           innenausstattung?: string | null
-          interieur?: Json | null
           laufleistung?: number
           leistung_kw?: number | null
           leistung_ps?: number | null
           model?: string
           motor_antrieb?: string | null
-          multimedia?: Json | null
           preis?: number
           sitze?: number | null
-          sonstiges?: Json | null
-          technik_sicherheit?: Json | null
           tueren?: number | null
           updated_at?: string | null
           vehicle_photos?: Json | null
