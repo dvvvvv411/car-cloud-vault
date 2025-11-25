@@ -11,6 +11,13 @@ const formatKilometers = (km: number) => {
   return km.toLocaleString('de-DE') + ' km';
 };
 
+const formatPrice = (price: number) => {
+  return price.toLocaleString('de-DE', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }) + '.-€';
+};
+
 interface AusstattungSection {
   id: string;
   title: string;
@@ -138,7 +145,7 @@ export default function Bericht() {
           
           <div className="flex-1 flex flex-col items-center justify-start px-8">
             <h1 className="text-2xl font-bold mb-1 text-center">Fahrzeugbericht</h1>
-            <p className="text-lg text-muted-foreground text-center">FIN: {vehicle.fin}</p>
+            <p className="text-lg text-muted-foreground text-center">{vehicle.brand} {vehicle.model}</p>
           </div>
           
           {branding?.kanzlei_logo_url && (
@@ -173,58 +180,59 @@ export default function Bericht() {
         {/* Vehicle Description */}
         <section className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Fahrzeugbeschreibung</h2>
-          <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-sm">
-            <div className="grid grid-cols-[200px_1fr] gap-x-4">
-              <span className="font-semibold">Marke</span>
-              <span>{vehicle.brand}</span>
+          <div className="flex gap-8">
+            {/* Linke Spalte - Fahrzeugdaten */}
+            <div className="flex-1 space-y-2 text-sm">
+              <div className="flex">
+                <span className="font-semibold w-[180px]">Leistung (KW/PS):</span>
+                <span>
+                  {vehicle.leistung_kw && vehicle.leistung_ps 
+                    ? `${vehicle.leistung_kw}/${vehicle.leistung_ps}` 
+                    : '-'}
+                </span>
+              </div>
+              <div className="flex">
+                <span className="font-semibold w-[180px]">Laufleistung:</span>
+                <span>{formatKilometers(vehicle.laufleistung)}</span>
+              </div>
+              <div className="flex">
+                <span className="font-semibold w-[180px]">Erstzulassung:</span>
+                <span>{vehicle.erstzulassung}</span>
+              </div>
+              <div className="flex">
+                <span className="font-semibold w-[180px]">Motor/Antrieb:</span>
+                <span>{vehicle.motor_antrieb || '-'}</span>
+              </div>
+              <div className="flex">
+                <span className="font-semibold w-[180px]">Farbe:</span>
+                <span>{vehicle.farbe || '-'}</span>
+              </div>
+              <div className="flex">
+                <span className="font-semibold w-[180px]">Innenausstattung:</span>
+                <span>{vehicle.innenausstattung || '-'}</span>
+              </div>
+              <div className="flex">
+                <span className="font-semibold w-[180px]">Türen/Sitze:</span>
+                <span>{vehicle.tueren || '-'}/{vehicle.sitze || '-'}</span>
+              </div>
+              <div className="flex">
+                <span className="font-semibold w-[180px]">Hubraum:</span>
+                <span>{vehicle.hubraum || '-'}</span>
+              </div>
+              <div className="flex">
+                <span className="font-semibold w-[180px]">FIN:</span>
+                <span>{vehicle.fin}</span>
+              </div>
             </div>
-            <div className="grid grid-cols-[200px_1fr] gap-x-4">
-              <span className="font-semibold">Modell</span>
-              <span>{vehicle.model}</span>
-            </div>
-            <div className="grid grid-cols-[200px_1fr] gap-x-4">
-              <span className="font-semibold">FIN</span>
-              <span>{vehicle.fin}</span>
-            </div>
-            <div className="grid grid-cols-[200px_1fr] gap-x-4">
-              <span className="font-semibold">Erstzulassung</span>
-              <span>{vehicle.erstzulassung}</span>
-            </div>
-            <div className="grid grid-cols-[200px_1fr] gap-x-4">
-              <span className="font-semibold">Laufleistung</span>
-              <span>{formatKilometers(vehicle.laufleistung)}</span>
-            </div>
-            <div className="grid grid-cols-[200px_1fr] gap-x-4">
-              <span className="font-semibold">Leistung</span>
-              <span>
-                {vehicle.leistung_kw && vehicle.leistung_ps 
-                  ? `${vehicle.leistung_kw} KW / ${vehicle.leistung_ps} PS` 
-                  : '-'}
+            
+            {/* Rechte Spalte - Preis dominant */}
+            <div className="w-[200px] flex flex-col items-end justify-center text-right">
+              <span className="text-3xl font-bold text-primary">
+                {formatPrice(vehicle.preis)}
               </span>
-            </div>
-            <div className="grid grid-cols-[200px_1fr] gap-x-4">
-              <span className="font-semibold">Motor/Antrieb</span>
-              <span>{vehicle.motor_antrieb || '-'}</span>
-            </div>
-            <div className="grid grid-cols-[200px_1fr] gap-x-4">
-              <span className="font-semibold">Farbe</span>
-              <span>{vehicle.farbe || '-'}</span>
-            </div>
-            <div className="grid grid-cols-[200px_1fr] gap-x-4">
-              <span className="font-semibold">Innenausstattung</span>
-              <span>{vehicle.innenausstattung || '-'}</span>
-            </div>
-            <div className="grid grid-cols-[200px_1fr] gap-x-4">
-              <span className="font-semibold">Türen</span>
-              <span>{vehicle.tueren || '-'}</span>
-            </div>
-            <div className="grid grid-cols-[200px_1fr] gap-x-4">
-              <span className="font-semibold">Sitze</span>
-              <span>{vehicle.sitze || '-'}</span>
-            </div>
-            <div className="grid grid-cols-[200px_1fr] gap-x-4">
-              <span className="font-semibold">Hubraum</span>
-              <span>{vehicle.hubraum || '-'}</span>
+              <span className="text-sm text-muted-foreground mt-1">
+                inkl. MwSt
+              </span>
             </div>
           </div>
         </section>
@@ -235,10 +243,10 @@ export default function Bericht() {
             <h2 className="text-xl font-semibold mb-4">Ausstattung</h2>
             {ausstattungSections.map((section) => (
               <div key={section.id} className="mb-4">
-                <h3 className="font-semibold text-sm mb-2 border-b border-border pb-1">
+                <h3 className="font-semibold text-base mb-2">
                   {section.title}
                 </h3>
-                <p className="text-xs whitespace-pre-line leading-relaxed">
+                <p className="text-sm whitespace-pre-line leading-relaxed">
                   {section.content}
                 </p>
               </div>
