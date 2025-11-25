@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Car } from "lucide-react";
+import { Plus, Pencil, Trash2, Car, Zap } from "lucide-react";
 import { FahrzeugeVehicleForm } from "@/components/admin/FahrzeugeVehicleForm";
+import { QuickAddVehicleDialog } from "@/components/admin/QuickAddVehicleDialog";
 import { FahrzeugeVehicleFormData } from "@/lib/validation/fahrzeugeVehicleSchema";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,6 +23,8 @@ export default function AdminFahrzeuge() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<FahrzeugeVehicle | null>(null);
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+  const [quickAddData, setQuickAddData] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const textareaToJsonArray = (text?: string): string => {
@@ -384,14 +387,26 @@ export default function AdminFahrzeuge() {
         </CardContent>
       </Card>
 
-      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Neues Fahrzeug erstellen</DialogTitle>
-          </DialogHeader>
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <div className="flex items-center justify-between">
+                <DialogTitle>Neues Fahrzeug erstellen</DialogTitle>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsQuickAddOpen(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Zap className="h-4 w-4" />
+                  Quick Add
+                </Button>
+              </div>
+            </DialogHeader>
           <FahrzeugeVehicleForm
             onSubmit={handleCreate}
             onCancel={() => setIsCreateDialogOpen(false)}
+            defaultValues={quickAddData}
           />
         </DialogContent>
       </Dialog>
@@ -437,6 +452,15 @@ export default function AdminFahrzeuge() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <QuickAddVehicleDialog
+        open={isQuickAddOpen}
+        onOpenChange={setIsQuickAddOpen}
+        onDataParsed={(data) => {
+          setQuickAddData(data);
+          setIsCreateDialogOpen(true);
+        }}
+      />
     </div>
   );
 }

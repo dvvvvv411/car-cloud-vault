@@ -16,6 +16,7 @@ interface FahrzeugeVehicleFormProps {
   vehicle?: FahrzeugeVehicle;
   onSubmit: (data: FahrzeugeVehicleFormData, vehiclePhotos?: File[]) => void;
   onCancel: () => void;
+  defaultValues?: Partial<FahrzeugeVehicleFormData>;
 }
 
 const jsonArrayToText = (jsonData: string[] | null): string => {
@@ -23,14 +24,14 @@ const jsonArrayToText = (jsonData: string[] | null): string => {
   return jsonData.join('\n');
 };
 
-export const FahrzeugeVehicleForm = ({ vehicle, onSubmit, onCancel }: FahrzeugeVehicleFormProps) => {
+export const FahrzeugeVehicleForm = ({ vehicle, onSubmit, onCancel, defaultValues }: FahrzeugeVehicleFormProps) => {
   const { data: brandings = [] } = useFahrzeugeBrandings();
   const [vehiclePhotos, setVehiclePhotos] = React.useState<File[]>([]);
   const [existingVehiclePhotos, setExistingVehiclePhotos] = React.useState<string[]>(vehicle?.vehicle_photos || []);
 
   const form = useForm<FahrzeugeVehicleFormData>({
     resolver: zodResolver(fahrzeugeVehicleSchema),
-    defaultValues: {
+    defaultValues: defaultValues || {
       brand: vehicle?.brand || "",
       model: vehicle?.model || "",
       fin: vehicle?.fin || "",
@@ -56,6 +57,31 @@ export const FahrzeugeVehicleForm = ({ vehicle, onSubmit, onCancel }: FahrzeugeV
       branding_ids: vehicle?.branding_ids || [],
     },
   });
+
+  // Update form when defaultValues change (Quick Add)
+  React.useEffect(() => {
+    if (defaultValues && Object.keys(defaultValues).length > 0) {
+      form.reset({ ...form.getValues(), ...defaultValues });
+    }
+  }, [defaultValues]);
+
+  const handleReorderVehiclePhotos = (fromIndex: number, toIndex: number) => {
+    const newUrls = [...existingVehiclePhotos];
+    const [movedUrl] = newUrls.splice(fromIndex, 1);
+    newUrls.splice(toIndex, 0, movedUrl);
+    setExistingVehiclePhotos(newUrls);
+    
+    const newFiles = [...vehiclePhotos];
+    if (fromIndex < newFiles.length && toIndex < newFiles.length) {
+      const [movedFile] = newFiles.splice(fromIndex, 1);
+      newFiles.splice(toIndex, 0, movedFile);
+      setVehiclePhotos(newFiles);
+    }
+  };
+
+  const handleSetFeaturedVehiclePhoto = (index: number) => {
+    handleReorderVehiclePhotos(index, 0);
+  };
 
   const handleSubmit = (data: FahrzeugeVehicleFormData) => {
     onSubmit(data, vehiclePhotos.length > 0 ? vehiclePhotos : undefined);
@@ -308,12 +334,21 @@ export const FahrzeugeVehicleForm = ({ vehicle, onSubmit, onCancel }: FahrzeugeV
           <Label>Fahrzeugbilder</Label>
           <ImageDropZone
             images={existingVehiclePhotos}
-            onImagesChange={(files) => setVehiclePhotos([...vehiclePhotos, ...files])}
-            onRemove={(index) => {
-              const newPhotos = [...existingVehiclePhotos];
-              newPhotos.splice(index, 1);
-              setExistingVehiclePhotos(newPhotos);
+            onImagesChange={(files) => {
+              setVehiclePhotos([...vehiclePhotos, ...files]);
+              const newUrls = files.map(file => URL.createObjectURL(file));
+              setExistingVehiclePhotos([...existingVehiclePhotos, ...newUrls]);
             }}
+            onRemove={(index) => {
+              const newPhotos = existingVehiclePhotos.filter((_, i) => i !== index);
+              setExistingVehiclePhotos(newPhotos);
+              if (index < vehiclePhotos.length) {
+                const newFiles = vehiclePhotos.filter((_, i) => i !== index);
+                setVehiclePhotos(newFiles);
+              }
+            }}
+            onReorder={handleReorderVehiclePhotos}
+            onSetAsFeatured={handleSetFeaturedVehiclePhoto}
             label="Fahrzeugbilder hochladen"
           />
           {vehiclePhotos.length > 0 && (
