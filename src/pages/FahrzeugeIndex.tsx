@@ -438,6 +438,11 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                               <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
                             </Button>
                           </th>
+                          <th className="text-center px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
+                        color: "hsl(var(--text-tertiary))"
+                      }}>
+                            Bericht
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -512,6 +517,26 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                           }}>
                                   {formatPrice(vehicle.preis)}
                                  </span>
+                              </td>
+                              <td className="px-6 py-4 text-center align-middle">
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          navigate(`/bericht/${vehicle.id}`);
+                                        }}
+                                        className="w-10 h-10 rounded-full flex items-center justify-center mx-auto hover:bg-primary/10 transition-colors"
+                                      >
+                                        <FileText className="h-5 w-5 text-primary" />
+                                      </button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Bericht anzeigen</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               </td>
                             </tr>;
                     })}
@@ -661,6 +686,20 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                   }}>
                             {formatPrice(vehicle.preis)}
                           </div>
+                          
+                          {/* Bericht Button */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="w-full"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/bericht/${vehicle.id}`);
+                            }}
+                          >
+                            <FileText className="h-4 w-4 mr-2" />
+                            Bericht anzeigen
+                          </Button>
                         </div>
                       </div>;
               })}
