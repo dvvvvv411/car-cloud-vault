@@ -56,11 +56,29 @@ export const useFahrzeugeVehicles = () => {
 
       if (error) throw error;
       
-      return (data || []).map(vehicle => ({
-        ...vehicle,
-        ausstattung_sections: (vehicle.ausstattung_sections as unknown as AusstattungSection[]) || null,
-        branding_ids: (vehicle.fahrzeuge_vehicle_brandings as any[] || []).map((b: any) => b.branding_id),
-      })) as FahrzeugeVehicle[];
+      return (data || []).map(vehicle => {
+        // Defensive parsing for vehicle_photos
+        let vehiclePhotos = vehicle.vehicle_photos;
+        
+        if (typeof vehiclePhotos === 'string') {
+          try {
+            vehiclePhotos = JSON.parse(vehiclePhotos);
+          } catch (e) {
+            vehiclePhotos = [];
+          }
+        }
+        
+        if (!Array.isArray(vehiclePhotos)) {
+          vehiclePhotos = [];
+        }
+        
+        return {
+          ...vehicle,
+          vehicle_photos: vehiclePhotos,
+          ausstattung_sections: (vehicle.ausstattung_sections as unknown as AusstattungSection[]) || null,
+          branding_ids: (vehicle.fahrzeuge_vehicle_brandings as any[] || []).map((b: any) => b.branding_id),
+        };
+      }) as FahrzeugeVehicle[];
     },
     staleTime: 0,
     refetchOnMount: 'always',
