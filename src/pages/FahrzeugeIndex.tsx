@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
@@ -69,6 +69,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
   const [zustandsberichtDialogOpen, setZustandsberichtDialogOpen] = useState(false);
   const [selectedReportNr, setSelectedReportNr] = useState<string | null>(null);
   const [infoBoxDismissed, setInfoBoxDismissed] = useState(false);
+  const tourShownRef = useRef(false);
   
   // Get leadId from localStorage
   const leadId = localStorage.getItem('leadId');
@@ -98,70 +99,76 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
     };
   }, []);
 
-  // Tour mode on every visit
+  // Tour mode - only once per page visit
   useEffect(() => {
-    if (!isLoading && vehicles.length > 0) {
-      const timer = setTimeout(() => {
-        const driverObj = driver({
-          showProgress: true,
-          nextBtnText: 'Weiter',
-          prevBtnText: 'Zurück',
-          doneBtnText: 'Fertig',
-          progressText: '{{current}} von {{total}}',
-          allowClose: true,
-          disableActiveInteraction: true,
-          steps: [
-            {
-              element: window.innerWidth < 1280 ? undefined : '.tour-ansprechpartner',
-              popover: {
-                title: 'Ihr Ansprechpartner',
-                description: 'Hier finden Sie die Kontaktdaten Ihres persönlichen Ansprechpartners. Bei Fragen können Sie ihn jederzeit kontaktieren.',
-                side: 'left',
-                align: 'center'
-              }
-            },
-            {
-              element: window.innerWidth < 1024 ? '.tour-mobile-price' : '.tour-price-row',
-              popover: {
-                title: 'Preise',
-                description: window.innerWidth < 1024 
-                  ? 'Hier sehen Sie den Preis des Fahrzeugs. Alle Preise sind inkl. MwSt.' 
-                  : 'Alle angezeigten Preise verstehen sich inkl. MwSt.',
-                side: window.innerWidth < 1024 ? 'bottom' : 'left',
-                align: 'center'
-              }
-            },
-            {
-              element: window.innerWidth < 1024 ? '.tour-mobile-selection' : '.tour-selection-row',
-              popover: {
-                title: 'Fahrzeugauswahl',
-                description: window.innerWidth < 1024
-                  ? 'Tippen Sie hier auf die Checkbox, um Fahrzeuge auszuwählen.'
-                  : 'Wählen Sie hier die Fahrzeuge aus, für die Sie sich interessieren. Sie können mehrere Fahrzeuge gleichzeitig auswählen.',
-                side: window.innerWidth < 1024 ? 'bottom' : 'right',
-                align: 'center'
-              }
-            },
-            {
-              element: window.innerWidth < 1024 ? '.tour-mobile-report' : '.tour-report-row',
-              popover: {
-                title: 'Fahrzeugbericht',
-                description: window.innerWidth < 1024
-                  ? 'Klicken Sie hier, um den detaillierten Fahrzeugbericht anzuzeigen.'
-                  : 'Klicken Sie auf das Dokument-Icon, um den detaillierten Fahrzeugbericht mit allen technischen Daten und der Ausstattung anzuzeigen.',
-                side: window.innerWidth < 1024 ? 'bottom' : 'left',
-                align: 'center'
-              }
-            }
-          ]
-        });
-        
-        driverObj.drive();
-      }, 1000);
-      
-      return () => clearTimeout(timer);
+    // Skip if tour was already shown or still loading or no vehicles
+    if (tourShownRef.current || isLoading || vehicles.length === 0) {
+      return;
     }
-  }, [isLoading, vehicles]);
+    
+    // Mark tour as shown immediately to prevent re-runs
+    tourShownRef.current = true;
+    
+    const timer = setTimeout(() => {
+      const driverObj = driver({
+        showProgress: true,
+        nextBtnText: 'Weiter',
+        prevBtnText: 'Zurück',
+        doneBtnText: 'Fertig',
+        progressText: '{{current}} von {{total}}',
+        allowClose: true,
+        disableActiveInteraction: true,
+        steps: [
+          {
+            element: window.innerWidth < 1280 ? undefined : '.tour-ansprechpartner',
+            popover: {
+              title: 'Ihr Ansprechpartner',
+              description: 'Hier finden Sie die Kontaktdaten Ihres persönlichen Ansprechpartners. Bei Fragen können Sie ihn jederzeit kontaktieren.',
+              side: 'left',
+              align: 'center'
+            }
+          },
+          {
+            element: window.innerWidth < 1024 ? '.tour-mobile-price' : '.tour-price-row',
+            popover: {
+              title: 'Preise',
+              description: window.innerWidth < 1024 
+                ? 'Hier sehen Sie den Preis des Fahrzeugs. Alle Preise sind inkl. MwSt.' 
+                : 'Alle angezeigten Preise verstehen sich inkl. MwSt.',
+              side: window.innerWidth < 1024 ? 'bottom' : 'left',
+              align: 'center'
+            }
+          },
+          {
+            element: window.innerWidth < 1024 ? '.tour-mobile-selection' : '.tour-selection-row',
+            popover: {
+              title: 'Fahrzeugauswahl',
+              description: window.innerWidth < 1024
+                ? 'Tippen Sie hier auf die Checkbox, um Fahrzeuge auszuwählen.'
+                : 'Wählen Sie hier die Fahrzeuge aus, für die Sie sich interessieren. Sie können mehrere Fahrzeuge gleichzeitig auswählen.',
+              side: window.innerWidth < 1024 ? 'bottom' : 'right',
+              align: 'center'
+            }
+          },
+          {
+            element: window.innerWidth < 1024 ? '.tour-mobile-report' : '.tour-report-row',
+            popover: {
+              title: 'Fahrzeugbericht',
+              description: window.innerWidth < 1024
+                ? 'Klicken Sie hier, um den detaillierten Fahrzeugbericht anzuzeigen.'
+                : 'Klicken Sie auf das Dokument-Icon, um den detaillierten Fahrzeugbericht mit allen technischen Daten und der Ausstattung anzuzeigen.',
+              side: window.innerWidth < 1024 ? 'bottom' : 'left',
+              align: 'center'
+            }
+          }
+        ]
+      });
+      
+      driverObj.drive();
+    }, 1000);
+    
+    return () => clearTimeout(timer);
+  }, [isLoading, vehicles.length]);
 
   const handleLogout = async () => {
     await signOut();
