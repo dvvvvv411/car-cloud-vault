@@ -393,15 +393,25 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                               <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
                             </Button>
                           </th>
-                          <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
+                          <th className="text-left px-4 py-4 text-sm font-medium uppercase tracking-wider" style={{
                         color: "hsl(var(--text-tertiary))"
                       }}>
-                            Fahrgestell-Nr.
+                            <Button variant="ghost" onClick={() => handleSort("leistung_kw")} className="hover:bg-transparent p-0 h-auto font-medium -ml-2" style={{
+                          color: "hsl(var(--text-tertiary))"
+                        }}>
+                              Leistung (KW/PS)
+                              <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
+                            </Button>
                           </th>
-                          <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
+                          <th className="text-right px-3 py-4 text-sm font-medium uppercase tracking-wider" style={{
                         color: "hsl(var(--text-tertiary))"
                       }}>
-                            FIN
+                            <Button variant="ghost" onClick={() => handleSort("laufleistung")} className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto" style={{
+                          color: "hsl(var(--text-tertiary))"
+                        }}>
+                              Laufleistung
+                              <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
+                            </Button>
                           </th>
                           <th className="text-left px-3 py-4 text-sm font-medium uppercase tracking-wider" style={{
                         color: "hsl(var(--text-tertiary))"
@@ -413,15 +423,20 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                               <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
                             </Button>
                           </th>
-                          <th className="text-right px-3 py-4 text-sm font-medium uppercase tracking-wider" style={{
+                          <th className="text-left px-4 py-4 text-sm font-medium uppercase tracking-wider" style={{
                         color: "hsl(var(--text-tertiary))"
                       }}>
-                            <Button variant="ghost" onClick={() => handleSort("laufleistung")} className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto" style={{
-                          color: "hsl(var(--text-tertiary))"
-                        }}>
-                              Kilometer
-                              <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
-                            </Button>
+                            Motor/Antrieb
+                          </th>
+                          <th className="text-left px-4 py-4 text-sm font-medium uppercase tracking-wider" style={{
+                        color: "hsl(var(--text-tertiary))"
+                      }}>
+                            Farbe
+                          </th>
+                          <th className="text-left px-4 py-4 text-sm font-medium uppercase tracking-wider" style={{
+                        color: "hsl(var(--text-tertiary))"
+                      }}>
+                            Innenausstattung
                           </th>
                           <th className="text-right px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
                         color: "hsl(var(--text-tertiary))"
@@ -429,7 +444,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                             <Button variant="ghost" onClick={() => handleSort("preis")} className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto" style={{
                           color: "hsl(var(--text-tertiary))"
                         }}>
-                              Einzelpreis
+                              Preis
                               <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
                             </Button>
                           </th>
@@ -464,24 +479,27 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                                 </div>
                               </td>
                               <td className="px-6 py-0 align-middle">
-                                <div>
-                                  <div className="font-medium text-base" style={{
+                                <span className="text-base font-medium" style={{
                               color: "hsl(var(--text-primary))"
                             }}>
-                                    {vehicle.brand}
-                                  </div>
-                                  <div className="text-base mt-0.5" style={{
-                              color: "hsl(var(--text-secondary))"
-                            }}>
-                                    {vehicle.model}
-                                  </div>
-                                </div>
+                                  {vehicle.brand} {vehicle.model}
+                                </span>
                               </td>
-                              <td className="px-6 py-0 align-middle">
-                                <span className="text-base font-mono" style={{
+                              <td className="px-4 py-0 align-middle">
+                                <span className="text-base" style={{
                             color: "hsl(var(--text-secondary))"
                           }}>
-                                  {vehicle.fin}
+                                  {vehicle.leistung_kw && vehicle.leistung_ps 
+                                    ? `${vehicle.leistung_kw}/${vehicle.leistung_ps}`
+                                    : "-"
+                                  }
+                                </span>
+                              </td>
+                              <td className="px-3 py-0 align-middle text-right">
+                                <span className="text-base font-medium" style={{
+                            color: "hsl(var(--text-primary))"
+                          }}>
+                                  {formatKilometers(vehicle.laufleistung)}
                                 </span>
                               </td>
                               <td className="px-3 py-0 align-middle">
@@ -491,11 +509,25 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                                   {vehicle.erstzulassung}
                                 </span>
                               </td>
-                              <td className="px-3 py-0 align-middle text-right">
-                                <span className="text-base font-medium" style={{
-                            color: "hsl(var(--text-primary))"
+                              <td className="px-4 py-0 align-middle">
+                                <span className="text-sm" style={{
+                            color: "hsl(var(--text-secondary))"
                           }}>
-                                  {formatKilometers(vehicle.laufleistung)}
+                                  {vehicle.motor_antrieb || "-"}
+                                </span>
+                              </td>
+                              <td className="px-4 py-0 align-middle">
+                                <span className="text-sm" style={{
+                            color: "hsl(var(--text-secondary))"
+                          }}>
+                                  {vehicle.farbe || "-"}
+                                </span>
+                              </td>
+                              <td className="px-4 py-0 align-middle">
+                                <span className="text-sm" style={{
+                            color: "hsl(var(--text-secondary))"
+                          }}>
+                                  {vehicle.innenausstattung || "-"}
                                 </span>
                               </td>
                               <td className={`px-6 py-0 align-middle text-right ${index === 2 ? 'tour-price-row' : ''}`}>
