@@ -12,7 +12,8 @@ import { FahrzeugeVehicle, AusstattungSection } from "@/hooks/useFahrzeugeVehicl
 import { useFahrzeugeBrandings } from "@/hooks/useFahrzeugeBrandings";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ImageDropZone } from "./ImageDropZone";
-import { Plus, Trash2 } from "lucide-react";
+import { AusstattungQuickImportDialog } from "./AusstattungQuickImportDialog";
+import { Plus, Trash2, Zap } from "lucide-react";
 
 interface FahrzeugeVehicleFormProps {
   vehicle?: FahrzeugeVehicle;
@@ -30,6 +31,7 @@ export const FahrzeugeVehicleForm = ({ vehicle, onSubmit, onCancel, defaultValue
   const [ausstattungSections, setAusstattungSections] = React.useState<AusstattungSection[]>(
     Array.isArray(vehicle?.ausstattung_sections) ? vehicle.ausstattung_sections : []
   );
+  const [quickImportOpen, setQuickImportOpen] = React.useState(false);
 
   const form = useForm<FahrzeugeVehicleFormData>({
     resolver: zodResolver(fahrzeugeVehicleSchema),
@@ -92,6 +94,11 @@ export const FahrzeugeVehicleForm = ({ vehicle, onSubmit, onCancel, defaultValue
 
   const handleSetFeaturedVehiclePhoto = (index: number) => {
     handleReorderVehiclePhotos(index, 0);
+  };
+
+  const handleQuickImportSections = (newSections: AusstattungSection[]) => {
+    setAusstattungSections([...ausstattungSections, ...newSections]);
+    setQuickImportOpen(false);
   };
 
   const handleSubmit = (data: FahrzeugeVehicleFormData) => {
@@ -419,15 +426,25 @@ export const FahrzeugeVehicleForm = ({ vehicle, onSubmit, onCancel, defaultValue
                 </div>
               ))}
               
-              <Button
-                type="button"
-                variant="outline"
-                onClick={addSection}
-                className="w-full"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Neuen Abschnitt hinzufügen
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addSection}
+                  className="flex-1"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Neuen Abschnitt hinzufügen
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setQuickImportOpen(true)}
+                >
+                  <Zap className="h-4 w-4 mr-2" />
+                  Quick Add
+                </Button>
+              </div>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -441,6 +458,12 @@ export const FahrzeugeVehicleForm = ({ vehicle, onSubmit, onCancel, defaultValue
           </Button>
         </div>
       </form>
+      
+      <AusstattungQuickImportDialog
+        open={quickImportOpen}
+        onOpenChange={setQuickImportOpen}
+        onDataParsed={handleQuickImportSections}
+      />
     </Form>
   );
 };
