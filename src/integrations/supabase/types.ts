@@ -270,6 +270,129 @@ export type Database = {
           },
         ]
       }
+      fahrzeuge_vehicle_brandings: {
+        Row: {
+          branding_id: string
+          created_at: string | null
+          id: string
+          vehicle_id: string
+        }
+        Insert: {
+          branding_id: string
+          created_at?: string | null
+          id?: string
+          vehicle_id: string
+        }
+        Update: {
+          branding_id?: string
+          created_at?: string | null
+          id?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fahrzeuge_vehicle_brandings_branding_id_fkey"
+            columns: ["branding_id"]
+            isOneToOne: false
+            referencedRelation: "brandings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fahrzeuge_vehicle_brandings_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "fahrzeuge_vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fahrzeuge_vehicles: {
+        Row: {
+          assistenzsysteme: Json | null
+          brand: string
+          created_at: string | null
+          erstzulassung: string
+          exterieur: Json | null
+          farbe: string | null
+          fin: string
+          garantie: string | null
+          highlights: Json | null
+          hubraum: string | null
+          id: string
+          innenausstattung: string | null
+          interieur: Json | null
+          laufleistung: number
+          leistung_kw: number | null
+          leistung_ps: number | null
+          model: string
+          motor_antrieb: string | null
+          multimedia: Json | null
+          preis: number
+          sitze: number | null
+          sonstiges: Json | null
+          technik_sicherheit: Json | null
+          tueren: number | null
+          updated_at: string | null
+          vehicle_photos: Json | null
+        }
+        Insert: {
+          assistenzsysteme?: Json | null
+          brand: string
+          created_at?: string | null
+          erstzulassung: string
+          exterieur?: Json | null
+          farbe?: string | null
+          fin: string
+          garantie?: string | null
+          highlights?: Json | null
+          hubraum?: string | null
+          id?: string
+          innenausstattung?: string | null
+          interieur?: Json | null
+          laufleistung: number
+          leistung_kw?: number | null
+          leistung_ps?: number | null
+          model: string
+          motor_antrieb?: string | null
+          multimedia?: Json | null
+          preis: number
+          sitze?: number | null
+          sonstiges?: Json | null
+          technik_sicherheit?: Json | null
+          tueren?: number | null
+          updated_at?: string | null
+          vehicle_photos?: Json | null
+        }
+        Update: {
+          assistenzsysteme?: Json | null
+          brand?: string
+          created_at?: string | null
+          erstzulassung?: string
+          exterieur?: Json | null
+          farbe?: string | null
+          fin?: string
+          garantie?: string | null
+          highlights?: Json | null
+          hubraum?: string | null
+          id?: string
+          innenausstattung?: string | null
+          interieur?: Json | null
+          laufleistung?: number
+          leistung_kw?: number | null
+          leistung_ps?: number | null
+          model?: string
+          motor_antrieb?: string | null
+          multimedia?: Json | null
+          preis?: number
+          sitze?: number | null
+          sonstiges?: Json | null
+          technik_sicherheit?: Json | null
+          tueren?: number | null
+          updated_at?: string | null
+          vehicle_photos?: Json | null
+        }
+        Relationships: []
+      }
       inquiries: {
         Row: {
           branding_id: string | null

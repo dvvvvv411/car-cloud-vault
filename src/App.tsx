@@ -16,6 +16,7 @@ import Zustandsbericht from "./pages/Zustandsbericht";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPositionen from "./pages/admin/AdminPositionen";
+import AdminFahrzeuge from "./pages/admin/AdminFahrzeuge";
 import AdminAnfragen from "./pages/admin/AdminAnfragen";
 import AdminBenutzer from "./pages/admin/AdminBenutzer";
 import AdminBranding from "./pages/admin/AdminBranding";
@@ -60,6 +61,7 @@ const App = () => (
             >
               <Route index element={<AdminDashboard />} />
               <Route path="positionen" element={<AdminPositionen />} />
+              <Route path="fahrzeuge" element={<AdminFahrzeuge />} />
               <Route path="anfragen" element={<AdminAnfragen />} />
               <Route path="leads" element={<AdminLeads />} />
               <Route path="kaltaquise" element={<AdminKaltaquise />} />
