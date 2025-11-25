@@ -196,7 +196,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                         {formatPrice(selectedVehicleData.reduce((sum, v) => sum + v.price, 0))}
                       </p>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">Alle Preise exkl. MwSt.</p>
+                    <p className="text-xs text-muted-foreground mt-1">Alle Preise inkl. MwSt.</p>
                   </div>
                 </div>
               </CollapsibleContent>
@@ -240,7 +240,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                 </tr>
                 <tr>
                   <td colSpan={4} className="px-2 md:px-4 pb-3 md:pb-4 pt-1 md:pt-2 text-right text-xs md:text-sm text-muted-foreground">
-                    Alle Preise exkl. MwSt.
+                    Alle Preise inkl. MwSt.
                   </td>
                 </tr>
               </tfoot>

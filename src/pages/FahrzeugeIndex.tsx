@@ -68,6 +68,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [zustandsberichtDialogOpen, setZustandsberichtDialogOpen] = useState(false);
   const [selectedReportNr, setSelectedReportNr] = useState<string | null>(null);
+  const [infoBoxDismissed, setInfoBoxDismissed] = useState(false);
   
   // Get leadId from localStorage
   const leadId = localStorage.getItem('leadId');
@@ -843,9 +844,16 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
       </Dialog>
 
       {/* Fixed Info Box - No Binding Order */}
-      {showInquiryForm && selectedVehicles.length > 0 && <div className="hidden lg:block fixed bottom-[140px] md:bottom-[160px] left-0 right-0 z-40 px-4 md:px-6 lg:px-8">
+      {showInquiryForm && selectedVehicles.length > 0 && !infoBoxDismissed && <div className="hidden lg:block fixed bottom-[140px] md:bottom-[160px] left-0 right-0 z-40 px-4 md:px-6 lg:px-8">
           <div className="max-w-[1400px] mx-auto">
-            <div className="glassmorphism rounded-2xl p-4 md:p-6 bg-accent/20 border-2 border-accent">
+            <div className="glassmorphism rounded-2xl p-4 md:p-6 bg-accent/20 border-2 border-accent relative">
+              <button 
+                onClick={() => setInfoBoxDismissed(true)}
+                className="absolute top-2 right-2 p-1 rounded-full hover:bg-accent/30 transition-colors"
+                aria-label="Schließen"
+              >
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
               <div className="flex items-start gap-2 md:gap-3">
                 <div className="rounded-full bg-accent/30 p-1.5 md:p-2 mt-0.5 flex-shrink-0">
                   <svg className="w-4 h-4 md:w-5 md:h-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
