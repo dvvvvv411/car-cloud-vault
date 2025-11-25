@@ -13,6 +13,7 @@ import FahrzeugeBrandedIndex from "./pages/FahrzeugeBrandedIndex";
 import Auth from "./pages/Auth";
 import DomainBasedRedirect from "@/components/DomainBasedRedirect";
 import Zustandsbericht from "./pages/Zustandsbericht";
+import Bericht from "./pages/Bericht";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPositionen from "./pages/admin/AdminPositionen";
@@ -51,7 +52,8 @@ const App = () => (
             <Route path="/fahrzeuge/:slug" element={<FahrzeugeBrandedIndex />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/zustandsbericht/:reportNr" element={<Zustandsbericht />} />
-            <Route 
+            <Route path="/bericht/:id" element={<Bericht />} />
+            <Route
               path="/admin" 
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
