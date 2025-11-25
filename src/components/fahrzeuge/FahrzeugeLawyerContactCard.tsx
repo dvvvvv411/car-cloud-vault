@@ -47,7 +47,7 @@ const LawyerContactCard = ({
 
   // Inline Header Content for Desktop 50/50 Layout
   const InlineHeaderContent = () => (
-    <div className="bg-[#003e7e] text-white rounded-lg h-full p-4 lg:p-5 flex items-center">
+    <div className="bg-[#003e7e] text-white rounded-2xl h-full p-4 lg:p-5 flex items-center">
       <div className="grid grid-cols-3 gap-x-4 lg:gap-x-6 w-full items-center">
         
         {/* SPALTE 1: Foto + Name */}
