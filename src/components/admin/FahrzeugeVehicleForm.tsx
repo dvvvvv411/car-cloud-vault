@@ -24,9 +24,11 @@ interface FahrzeugeVehicleFormProps {
 export const FahrzeugeVehicleForm = ({ vehicle, onSubmit, onCancel, defaultValues }: FahrzeugeVehicleFormProps) => {
   const { data: brandings = [] } = useFahrzeugeBrandings();
   const [vehiclePhotos, setVehiclePhotos] = React.useState<File[]>([]);
-  const [existingVehiclePhotos, setExistingVehiclePhotos] = React.useState<string[]>(vehicle?.vehicle_photos || []);
+  const [existingVehiclePhotos, setExistingVehiclePhotos] = React.useState<string[]>(
+    Array.isArray(vehicle?.vehicle_photos) ? vehicle.vehicle_photos : []
+  );
   const [ausstattungSections, setAusstattungSections] = React.useState<AusstattungSection[]>(
-    vehicle?.ausstattung_sections || []
+    Array.isArray(vehicle?.ausstattung_sections) ? vehicle.ausstattung_sections : []
   );
 
   const form = useForm<FahrzeugeVehicleFormData>({
