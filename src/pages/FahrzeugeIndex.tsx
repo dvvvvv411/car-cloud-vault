@@ -14,6 +14,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import LawyerContactCard from "@/components/fahrzeuge/FahrzeugeLawyerContactCard";
 import { InquiryForm } from "@/components/fahrzeuge/FahrzeugeInquiryForm";
 import { InquiryConfirmation } from "@/components/fahrzeuge/FahrzeugeInquiryConfirmation";
+import { BerichtContent } from "@/components/fahrzeuge/BerichtContent";
 import kbsLogo from "@/assets/kbs_blue.png";
 import demoVehicle from "@/assets/demo-vehicle.png";
 import beschlussImage from "@/assets/beschluss.png";
@@ -62,6 +63,8 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
   const [beschlussPdfDialogOpen, setBeschlussPdfDialogOpen] = useState(false);
+  const [berichtDialogOpen, setBerichtDialogOpen] = useState(false);
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [zustandsberichtDialogOpen, setZustandsberichtDialogOpen] = useState(false);
   const [selectedReportNr, setSelectedReportNr] = useState<string | null>(null);
@@ -525,7 +528,8 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                                       <button
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          navigate(`/bericht/${vehicle.id}`);
+                                          setSelectedVehicleId(vehicle.id);
+                                          setBerichtDialogOpen(true);
                                         }}
                                         className="w-10 h-10 rounded-full flex items-center justify-center mx-auto hover:bg-primary/10 transition-colors"
                                       >
@@ -1011,6 +1015,15 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                 )}
               </div>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Bericht Dialog */}
+        <Dialog open={berichtDialogOpen} onOpenChange={setBerichtDialogOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
+            {selectedVehicleId && branding && (
+              <BerichtContent vehicleId={selectedVehicleId} branding={branding} />
+            )}
           </DialogContent>
         </Dialog>
     </div>;
