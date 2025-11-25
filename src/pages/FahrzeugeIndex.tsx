@@ -83,6 +83,20 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
     setCurrentPage(1);
   }, [sortConfig.key, sortConfig.direction]);
 
+  // Set page title for Fahrzeuge
+  useEffect(() => {
+    document.title = "Fahrzeugverkauf - Digitale Verkaufsplattform";
+    
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', 'Digitale Plattform für professionellen Fahrzeugverkauf');
+    }
+    
+    return () => {
+      document.title = "Insolvenzverwaltung - Digitale Plattform";
+    };
+  }, []);
+
   // Tour mode on every visit
   useEffect(() => {
     if (!isLoading && vehicles.length > 0) {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -51,6 +51,13 @@ export default function Bericht() {
   });
 
   const { branding, isLoading: brandingLoading } = useDomainBranding();
+
+  // Set page title for Bericht
+  useEffect(() => {
+    document.title = vehicle 
+      ? `${vehicle.brand} ${vehicle.model} - Fahrzeugbericht`
+      : "Fahrzeugbericht - Digitale Verkaufsplattform";
+  }, [vehicle]);
 
   if (isLoading || brandingLoading) {
     return (
