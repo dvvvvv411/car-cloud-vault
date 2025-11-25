@@ -95,7 +95,7 @@ export default function AdminFahrzeuge() {
         
         const { error: updateError } = await supabase
           .from("fahrzeuge_vehicles")
-          .update({ vehicle_photos: JSON.stringify(photoUrls) })
+          .update({ vehicle_photos: photoUrls })
           .eq("id", newVehicle.id);
         
         if (updateError) throw updateError;
@@ -165,7 +165,7 @@ export default function AdminFahrzeuge() {
           sitze: data.sitze || null,
           hubraum: data.hubraum || null,
           ausstattung_sections: data.ausstattung_sections || [],
-          vehicle_photos: JSON.stringify(finalPhotoUrls),
+          vehicle_photos: finalPhotoUrls,
         })
         .eq("id", selectedVehicle.id);
 
