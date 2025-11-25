@@ -181,8 +181,8 @@ export default function Bericht() {
         <section className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Fahrzeugbeschreibung</h2>
           <div className="flex gap-8">
-            {/* Linke Spalte - Fahrzeugdaten */}
-            <div className="flex-1 space-y-2 text-sm">
+          {/* Linke Spalte - Fahrzeugdaten */}
+          <div className="flex-1 space-y-1 text-sm">
               <div className="flex">
                 <span className="font-semibold w-[180px]">Leistung (KW/PS):</span>
                 <span>
@@ -227,7 +227,7 @@ export default function Bericht() {
             
             {/* Rechte Spalte - Preis dominant */}
             <div className="w-[200px] flex flex-col items-end justify-center text-right">
-              <span className="text-3xl font-bold text-primary">
+              <span className="text-4xl font-bold text-primary">
                 {formatPrice(vehicle.preis)}
               </span>
               <span className="text-sm text-muted-foreground mt-1">
@@ -240,12 +240,12 @@ export default function Bericht() {
         {/* Equipment Sections */}
         {ausstattungSections.length > 0 && (
           <section className="mb-8 avoid-break">
-            <h2 className="text-xl font-semibold mb-4">Ausstattung</h2>
+            <h2 className="text-xl font-semibold mb-4 underline">Ausstattung</h2>
             {ausstattungSections.map((section) => (
-              <div key={section.id} className="mb-4">
-                <h3 className="font-semibold text-base mb-2">
-                  {section.title}
-                </h3>
+          <div key={section.id} className="mb-3">
+            <h3 className="font-semibold text-base mb-1">
+              {section.title}:
+            </h3>
                 <p className="text-sm whitespace-pre-line leading-relaxed">
                   {section.content}
                 </p>
