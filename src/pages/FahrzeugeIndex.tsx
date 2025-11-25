@@ -232,7 +232,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
     }).format(price);
   };
   const formatKilometers = (km: number) => {
-    return new Intl.NumberFormat("de-DE").format(km);
+    return new Intl.NumberFormat("de-DE").format(km) + " km";
   };
   const totalPrice = selectedVehicles.reduce((sum, fin) => {
     const vehicle = vehicles.find(v => v.fin === fin);
@@ -859,7 +859,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                   <p className="text-xs md:text-sm text-muted-foreground">
                     Sie geben hiermit keine verbindliche Bestellung auf. Dies ist eine
                     unverbindliche Anfrage für die ausgewählten Positionen. Nach
-                    Absenden der Anfrage wird sich unser Rechtsanwalt kostenlos mit
+                    Absenden der Anfrage wird sich unser Verkäufer kostenlos mit
                     Ihnen in Verbindung setzen, um alle Details zu besprechen.
                   </p>
                 </div>
@@ -889,7 +889,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                   <p className="text-sm" style={{
                 color: "hsl(var(--text-tertiary))"
               }}>
-                    Alle Preise exkl. MwSt.
+                    Alle Preise inkl. MwSt.
                   </p>
                 </div>
               </div>
@@ -924,7 +924,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                           <p className="text-xs text-muted-foreground">
                             Sie geben hiermit keine verbindliche Bestellung auf. Dies ist eine
                             unverbindliche Anfrage für die ausgewählten Positionen. Nach
-                            Absenden der Anfrage wird sich unser Rechtsanwalt kostenlos mit
+                            Absenden der Anfrage wird sich unser Verkäufer kostenlos mit
                             Ihnen in Verbindung setzen, um alle Details zu besprechen.
                           </p>
                         </div>
