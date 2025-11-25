@@ -250,7 +250,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                 <p className="text-base md:text-lg lg:text-xl" style={{
                   color: "hsl(var(--text-secondary))"
                 }}>
-                  Übersicht verfügbarer Fahrzeuge von {branding?.company_name || 'Autohändler'}.
+                  Übersicht verfügbarer Fahrzeuge von {branding?.company_name || 'Autohändler'}, verwaltet und verkauft durch {branding?.lawyer_name || 'unseren Verkäufer'}.
                 </p>
               </div>
             </div>
