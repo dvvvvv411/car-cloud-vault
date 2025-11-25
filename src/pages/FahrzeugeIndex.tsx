@@ -14,7 +14,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import LawyerContactCard from "@/components/fahrzeuge/FahrzeugeLawyerContactCard";
 import { InquiryForm } from "@/components/fahrzeuge/FahrzeugeInquiryForm";
 import { InquiryConfirmation } from "@/components/fahrzeuge/FahrzeugeInquiryConfirmation";
-import { BerichtContent } from "@/components/fahrzeuge/BerichtContent";
+
 import kbsLogo from "@/assets/kbs_blue.png";
 import demoVehicle from "@/assets/demo-vehicle.png";
 import beschlussImage from "@/assets/beschluss.png";
@@ -1019,13 +1019,18 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
         </Dialog>
 
         {/* Bericht Dialog */}
-        <Dialog open={berichtDialogOpen} onOpenChange={setBerichtDialogOpen}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-0">
-            {selectedVehicleId && branding && (
-              <BerichtContent vehicleId={selectedVehicleId} branding={branding} />
-            )}
-          </DialogContent>
-        </Dialog>
+      <Dialog open={berichtDialogOpen} onOpenChange={setBerichtDialogOpen}>
+        <DialogContent className="max-w-5xl h-[90vh] p-0">
+          <DialogTitle className="sr-only">Fahrzeugbericht</DialogTitle>
+          {selectedVehicleId && (
+            <iframe 
+              src={`/bericht/${selectedVehicleId}`}
+              className="w-full h-full border-0 rounded-lg"
+              title="Fahrzeugbericht"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>;
 };
 export default FahrzeugeIndex;
