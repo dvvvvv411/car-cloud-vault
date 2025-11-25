@@ -94,11 +94,11 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
           disableActiveInteraction: true,
           steps: [
             {
-              element: '.tour-beschluss',
+              element: window.innerWidth < 1280 ? undefined : '.tour-ansprechpartner',
               popover: {
-                title: 'Gerichtsbeschluss',
-                description: 'Hier finden Sie den Gerichtsbeschluss zur Insolvenzmasse. Klicken Sie auf das Bild, um es in voller Größe anzuzeigen.',
-                side: 'bottom',
+                title: 'Ihr Ansprechpartner',
+                description: 'Hier finden Sie die Kontaktdaten Ihres persönlichen Ansprechpartners. Bei Fragen können Sie ihn jederzeit kontaktieren.',
+                side: 'left',
                 align: 'center'
               }
             },
@@ -107,9 +107,9 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
               popover: {
                 title: 'Preise',
                 description: window.innerWidth < 1024 
-                  ? 'Hier sehen Sie den Preis des Fahrzeugs. Alle Preise sind exkl. MwSt.' 
-                  : 'Alle angezeigten Preise sind exkl. MwSt.',
-                side: window.innerWidth < 1024 ? 'bottom' : 'right',
+                  ? 'Hier sehen Sie den Preis des Fahrzeugs. Alle Preise sind inkl. MwSt.' 
+                  : 'Alle angezeigten Preise verstehen sich inkl. MwSt.',
+                side: window.innerWidth < 1024 ? 'bottom' : 'left',
                 align: 'center'
               }
             },
@@ -118,8 +118,8 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
               popover: {
                 title: 'Fahrzeugauswahl',
                 description: window.innerWidth < 1024
-                  ? 'Tippen Sie hier auf die Checkbox, um dieses Fahrzeug auszuwählen.'
-                  : 'Wählen Sie hier die Fahrzeuge aus, an denen Sie interessiert sind, und senden Sie anschließend eine Anfrage ab.',
+                  ? 'Tippen Sie hier auf die Checkbox, um Fahrzeuge auszuwählen.'
+                  : 'Wählen Sie hier die Fahrzeuge aus, für die Sie sich interessieren. Sie können mehrere Fahrzeuge gleichzeitig auswählen.',
                 side: window.innerWidth < 1024 ? 'bottom' : 'right',
                 align: 'center'
               }
@@ -127,10 +127,10 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
             {
               element: window.innerWidth < 1024 ? '.tour-mobile-report' : '.tour-report-row',
               popover: {
-                title: 'Zustandsbericht',
+                title: 'Fahrzeugbericht',
                 description: window.innerWidth < 1024
-                  ? 'Klicken Sie auf "Zustandsbericht anzeigen", um den detaillierten Zustandsbericht des Fahrzeugs zu öffnen.'
-                  : 'Klicken Sie auf das Dokument-Icon in der "Bericht"-Spalte, um den detaillierten Zustandsbericht des Fahrzeugs zu öffnen.',
+                  ? 'Klicken Sie hier, um den detaillierten Fahrzeugbericht anzuzeigen.'
+                  : 'Klicken Sie auf das Dokument-Icon, um den detaillierten Fahrzeugbericht mit allen technischen Daten und der Ausstattung anzuzeigen.',
                 side: window.innerWidth < 1024 ? 'bottom' : 'left',
                 align: 'center'
               }
@@ -256,7 +256,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
             </div>
 
             {/* RECHTE HÄLFTE (50%) - Kontaktkarte integriert (nur Desktop XL+) */}
-            <div className="hidden xl:block">
+            <div className="hidden xl:block tour-ansprechpartner">
               <LawyerContactCard
                 inlineHeaderMode={true}
                 lawyerName={branding?.lawyer_name}
@@ -434,7 +434,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                             <Button variant="ghost" onClick={() => handleSort("preis")} className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto" style={{
                           color: "hsl(var(--text-tertiary))"
                         }}>
-                              Preis
+                              Preis (inkl. MwSt.)
                               <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
                             </Button>
                           </th>
@@ -453,7 +453,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                         borderColor: "hsl(var(--divider))",
                         animationDelay: `${0.3 + index * 0.05}s`
                       }} onClick={() => !isReserved && toggleVehicleSelection(vehicle.fin)}>
-                              <td className={`px-6 py-0 align-middle ${index === 2 ? 'tour-selection-row' : ''}`} onClick={e => e.stopPropagation()}>
+                              <td className={`px-6 py-0 align-middle ${index === 0 ? 'tour-selection-row' : ''}`} onClick={e => e.stopPropagation()}>
                                 <Checkbox checked={isSelected} onCheckedChange={() => !isReserved && toggleVehicleSelection(vehicle.fin)} disabled={isReserved} />
                               </td>
                               <td 
@@ -511,14 +511,14 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                                   {vehicle.farbe || "-"}
                                 </span>
                               </td>
-                              <td className={`px-6 py-0 align-middle text-right ${index === 2 ? 'tour-price-row' : ''}`}>
+                              <td className={`px-6 py-0 align-middle text-right ${index === 0 ? 'tour-price-row' : ''}`}>
                                 <span className="text-lg font-semibold" style={{
                             color: "hsl(var(--text-primary))"
                           }}>
                                   {formatPrice(vehicle.preis)}
                                  </span>
                               </td>
-                              <td className="px-6 py-4 text-center align-middle">
+                              <td className={`px-6 py-4 text-center align-middle ${index === 0 ? 'tour-report-row' : ''}`}>
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
