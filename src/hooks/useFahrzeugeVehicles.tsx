@@ -1,6 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
+export interface AusstattungSection {
+  id: string;
+  title: string;
+  content: string;
+}
+
 export interface FahrzeugeVehicle {
   id: string;
   brand: string;
@@ -22,15 +28,8 @@ export interface FahrzeugeVehicle {
   // Price
   preis: number;
   
-  // Equipment
-  garantie?: string | null;
-  highlights?: string[] | null;
-  assistenzsysteme?: string[] | null;
-  multimedia?: string[] | null;
-  technik_sicherheit?: string[] | null;
-  interieur?: string[] | null;
-  exterieur?: string[] | null;
-  sonstiges?: string[] | null;
+  // Dynamic equipment sections
+  ausstattung_sections?: AusstattungSection[] | null;
   
   // Images
   vehicle_photos: string[] | null;
@@ -59,13 +58,7 @@ export const useFahrzeugeVehicles = () => {
       
       return (data || []).map(vehicle => ({
         ...vehicle,
-        highlights: vehicle.highlights as string[] | null,
-        assistenzsysteme: vehicle.assistenzsysteme as string[] | null,
-        multimedia: vehicle.multimedia as string[] | null,
-        technik_sicherheit: vehicle.technik_sicherheit as string[] | null,
-        interieur: vehicle.interieur as string[] | null,
-        exterieur: vehicle.exterieur as string[] | null,
-        sonstiges: vehicle.sonstiges as string[] | null,
+        ausstattung_sections: (vehicle.ausstattung_sections as unknown as AusstattungSection[]) || null,
         branding_ids: (vehicle.fahrzeuge_vehicle_brandings as any[] || []).map((b: any) => b.branding_id),
       })) as FahrzeugeVehicle[];
     },

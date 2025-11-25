@@ -1,3 +1,4 @@
+import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -7,10 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { fahrzeugeVehicleSchema, type FahrzeugeVehicleFormData } from "@/lib/validation/fahrzeugeVehicleSchema";
-import { FahrzeugeVehicle } from "@/hooks/useFahrzeugeVehicles";
+import { FahrzeugeVehicle, AusstattungSection } from "@/hooks/useFahrzeugeVehicles";
 import { useFahrzeugeBrandings } from "@/hooks/useFahrzeugeBrandings";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ImageDropZone } from "./ImageDropZone";
+import { Plus, Trash2 } from "lucide-react";
 
 interface FahrzeugeVehicleFormProps {
   vehicle?: FahrzeugeVehicle;
@@ -19,15 +21,13 @@ interface FahrzeugeVehicleFormProps {
   defaultValues?: Partial<FahrzeugeVehicleFormData>;
 }
 
-const jsonArrayToText = (jsonData: string[] | null): string => {
-  if (!jsonData || !Array.isArray(jsonData)) return '';
-  return jsonData.join('\n');
-};
-
 export const FahrzeugeVehicleForm = ({ vehicle, onSubmit, onCancel, defaultValues }: FahrzeugeVehicleFormProps) => {
   const { data: brandings = [] } = useFahrzeugeBrandings();
   const [vehiclePhotos, setVehiclePhotos] = React.useState<File[]>([]);
   const [existingVehiclePhotos, setExistingVehiclePhotos] = React.useState<string[]>(vehicle?.vehicle_photos || []);
+  const [ausstattungSections, setAusstattungSections] = React.useState<AusstattungSection[]>(
+    vehicle?.ausstattung_sections || []
+  );
 
   const form = useForm<FahrzeugeVehicleFormData>({
     resolver: zodResolver(fahrzeugeVehicleSchema),
@@ -46,14 +46,6 @@ export const FahrzeugeVehicleForm = ({ vehicle, onSubmit, onCancel, defaultValue
       tueren: vehicle?.tueren || undefined,
       sitze: vehicle?.sitze || undefined,
       hubraum: vehicle?.hubraum || "",
-      garantie: vehicle?.garantie || "",
-      highlights: jsonArrayToText(vehicle?.highlights),
-      assistenzsysteme: jsonArrayToText(vehicle?.assistenzsysteme),
-      multimedia: jsonArrayToText(vehicle?.multimedia),
-      technik_sicherheit: jsonArrayToText(vehicle?.technik_sicherheit),
-      interieur: jsonArrayToText(vehicle?.interieur),
-      exterieur: jsonArrayToText(vehicle?.exterieur),
-      sonstiges: jsonArrayToText(vehicle?.sonstiges),
       branding_ids: vehicle?.branding_ids || [],
     },
   });
@@ -64,6 +56,23 @@ export const FahrzeugeVehicleForm = ({ vehicle, onSubmit, onCancel, defaultValue
       form.reset({ ...form.getValues(), ...defaultValues });
     }
   }, [defaultValues]);
+
+  const addSection = () => {
+    setAusstattungSections([
+      ...ausstattungSections,
+      { id: crypto.randomUUID(), title: "", content: "" }
+    ]);
+  };
+
+  const removeSection = (id: string) => {
+    setAusstattungSections(sections => sections.filter(s => s.id !== id));
+  };
+
+  const updateSection = (id: string, field: 'title' | 'content', value: string) => {
+    setAusstattungSections(sections =>
+      sections.map(s => s.id === id ? { ...s, [field]: value } : s)
+    );
+  };
 
   const handleReorderVehiclePhotos = (fromIndex: number, toIndex: number) => {
     const newUrls = [...existingVehiclePhotos];
@@ -84,7 +93,13 @@ export const FahrzeugeVehicleForm = ({ vehicle, onSubmit, onCancel, defaultValue
   };
 
   const handleSubmit = (data: FahrzeugeVehicleFormData) => {
-    onSubmit(data, vehiclePhotos.length > 0 ? vehiclePhotos : undefined);
+    const finalData = {
+      ...data,
+      ausstattung_sections: ausstattungSections.filter(
+        s => s.title.trim() && s.content.trim()
+      ),
+    };
+    onSubmit(finalData, vehiclePhotos.length > 0 ? vehiclePhotos : undefined);
   };
 
   return (
@@ -362,139 +377,68 @@ export const FahrzeugeVehicleForm = ({ vehicle, onSubmit, onCancel, defaultValue
           <AccordionItem value="ausstattung">
             <AccordionTrigger>Ausstattung</AccordionTrigger>
             <AccordionContent className="space-y-4">
-              <FormField
-                control={form.control}
-                name="garantie"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Garantie</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} placeholder="z.B. Anschlussgarantie 3 Jahre max. 100.000 km" rows={2} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="highlights"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Highlights</FormLabel>
-                    <FormDescription>Ein Highlight pro Zeile</FormDescription>
-                    <FormControl>
-                      <Textarea {...field} placeholder="Bang & Olufsen Premium Sound System..." rows={4} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="assistenzsysteme"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Assistenzsysteme</FormLabel>
-                    <FormDescription>Ein Assistenzsystem pro Zeile</FormDescription>
-                    <FormControl>
-                      <Textarea {...field} placeholder="Multifunktionskamera..." rows={6} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="multimedia"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Multimedia</FormLabel>
-                    <FormDescription>Ein Multimedia-Feature pro Zeile</FormDescription>
-                    <FormControl>
-                      <Textarea {...field} placeholder="Audi phone box..." rows={4} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="technik_sicherheit"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Technik & Sicherheit</FormLabel>
-                    <FormDescription>Ein Feature pro Zeile</FormDescription>
-                    <FormControl>
-                      <Textarea {...field} placeholder="Kindersitzbefestigung ISOFIX..." rows={8} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="interieur"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Interieur</FormLabel>
-                    <FormDescription>Ein Interieur-Feature pro Zeile</FormDescription>
-                    <FormControl>
-                      <Textarea {...field} placeholder="Sitzheizung vorn..." rows={6} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="exterieur"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Exterieur</FormLabel>
-                    <FormDescription>Ein Exterieur-Feature pro Zeile</FormDescription>
-                    <FormControl>
-                      <Textarea {...field} placeholder="Akustikverglasung..." rows={6} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="sonstiges"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Sonstiges</FormLabel>
-                    <FormDescription>Ein Feature pro Zeile</FormDescription>
-                    <FormControl>
-                      <Textarea {...field} placeholder="Innenfarbe schwarz..." rows={6} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {ausstattungSections.map((section, index) => (
+                <div key={section.id} className="border rounded-lg p-4 space-y-3 bg-muted/30">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      Abschnitt {index + 1}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeSection(section.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Titel</Label>
+                    <Input
+                      value={section.title}
+                      onChange={(e) => updateSection(section.id, 'title', e.target.value)}
+                      placeholder="z.B. Highlights, Premium-Paket, Winter-Ausstattung"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Inhalt</Label>
+                    <Textarea
+                      value={section.content}
+                      onChange={(e) => updateSection(section.id, 'content', e.target.value)}
+                      placeholder="Beschreibung der Ausstattung..."
+                      rows={6}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Der Text wird 1:1 übernommen (keine automatische Formatierung)
+                    </p>
+                  </div>
+                </div>
+              ))}
+              
+              <Button
+                type="button"
+                variant="outline"
+                onClick={addSection}
+                className="w-full"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Neuen Abschnitt hinzufügen
+              </Button>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
 
-        <div className="flex justify-end gap-2">
+        <div className="flex gap-4 pt-4">
+          <Button type="submit" className="flex-1">
+            {vehicle ? "Fahrzeug aktualisieren" : "Fahrzeug hinzufügen"}
+          </Button>
           <Button type="button" variant="outline" onClick={onCancel}>
             Abbrechen
-          </Button>
-          <Button type="submit">
-            {vehicle ? "Aktualisieren" : "Erstellen"}
           </Button>
         </div>
       </form>
     </Form>
   );
 };
-
-import React from "react";

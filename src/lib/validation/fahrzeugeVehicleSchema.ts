@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+const ausstattungSectionSchema = z.object({
+  id: z.string(),
+  title: z.string().min(1, "Titel ist erforderlich"),
+  content: z.string().min(1, "Inhalt ist erforderlich"),
+});
+
 export const fahrzeugeVehicleSchema = z.object({
   // Required fields
   brand: z.string().min(1, "Marke ist erforderlich"),
@@ -19,15 +25,8 @@ export const fahrzeugeVehicleSchema = z.object({
   sitze: z.coerce.number().optional().nullable(),
   hubraum: z.string().optional(),
   
-  // Equipment (textareas → will be converted to JSON arrays)
-  garantie: z.string().optional(),
-  highlights: z.string().optional(),
-  assistenzsysteme: z.string().optional(),
-  multimedia: z.string().optional(),
-  technik_sicherheit: z.string().optional(),
-  interieur: z.string().optional(),
-  exterieur: z.string().optional(),
-  sonstiges: z.string().optional(),
+  // Dynamic equipment sections
+  ausstattung_sections: z.array(ausstattungSectionSchema).optional(),
   
   // Branding assignment
   branding_ids: z.array(z.string()).min(1, "Mindestens ein Branding muss ausgewählt werden"),

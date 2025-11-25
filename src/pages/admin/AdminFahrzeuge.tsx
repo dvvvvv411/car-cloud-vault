@@ -27,14 +27,6 @@ export default function AdminFahrzeuge() {
   const [quickAddData, setQuickAddData] = useState<any>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const textareaToJsonArray = (text?: string): string => {
-    if (!text) return '[]';
-    const lines = text.split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0);
-    return JSON.stringify(lines);
-  };
-
   const uploadMultipleImages = async (
     files: File[], 
     vehicleId: string
@@ -87,14 +79,7 @@ export default function AdminFahrzeuge() {
           tueren: data.tueren || null,
           sitze: data.sitze || null,
           hubraum: data.hubraum || null,
-          garantie: data.garantie || null,
-          highlights: textareaToJsonArray(data.highlights),
-          assistenzsysteme: textareaToJsonArray(data.assistenzsysteme),
-          multimedia: textareaToJsonArray(data.multimedia),
-          technik_sicherheit: textareaToJsonArray(data.technik_sicherheit),
-          interieur: textareaToJsonArray(data.interieur),
-          exterieur: textareaToJsonArray(data.exterieur),
-          sonstiges: textareaToJsonArray(data.sonstiges),
+          ausstattung_sections: data.ausstattung_sections || [],
           vehicle_photos: [],
         }])
         .select()
@@ -179,14 +164,7 @@ export default function AdminFahrzeuge() {
           tueren: data.tueren || null,
           sitze: data.sitze || null,
           hubraum: data.hubraum || null,
-          garantie: data.garantie || null,
-          highlights: textareaToJsonArray(data.highlights),
-          assistenzsysteme: textareaToJsonArray(data.assistenzsysteme),
-          multimedia: textareaToJsonArray(data.multimedia),
-          technik_sicherheit: textareaToJsonArray(data.technik_sicherheit),
-          interieur: textareaToJsonArray(data.interieur),
-          exterieur: textareaToJsonArray(data.exterieur),
-          sonstiges: textareaToJsonArray(data.sonstiges),
+          ausstattung_sections: data.ausstattung_sections || [],
           vehicle_photos: JSON.stringify(finalPhotoUrls),
         })
         .eq("id", selectedVehicle.id);
