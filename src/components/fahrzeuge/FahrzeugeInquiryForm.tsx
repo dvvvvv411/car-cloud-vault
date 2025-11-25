@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronLeft, ChevronDown, Loader2 } from "lucide-react";
-import { Vehicle } from "@/hooks/useVehicles";
+import { FahrzeugeVehicle } from "@/hooks/useFahrzeugeVehicles";
 import { inquirySchema, InquiryFormData } from "@/lib/validation/inquirySchema";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -23,10 +23,10 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface InquiryFormProps {
   selectedVehicles: string[];
-  vehicles: Vehicle[];
-  onRemoveVehicle: (chassis: string) => void;
+  vehicles: FahrzeugeVehicle[];
+  onRemoveVehicle: (fin: string) => void;
   onBack: () => void;
-  onSuccess: (data: InquiryFormData, vehicles: Vehicle[], totalPrice: number) => void;
+  onSuccess: (data: InquiryFormData, vehicles: FahrzeugeVehicle[], totalPrice: number) => void;
   brandingId?: string;
 }
 
@@ -62,7 +62,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
   const customerType = form.watch("customerType");
 
   const selectedVehicleData = vehicles.filter((v) =>
-    selectedVehicles.includes(v.chassis)
+    selectedVehicles.includes(v.fin)
   );
 
   const formatPrice = (price: number) => {
@@ -77,18 +77,17 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
     setIsSubmitting(true);
     
     try {
-      const totalPrice = selectedVehicleData.reduce((sum, v) => sum + v.price, 0);
+      const totalPrice = selectedVehicleData.reduce((sum, v) => sum + v.preis, 0);
       
       // Prepare selected vehicles data
-      const vehiclesData = selectedVehicleData.map(v => ({
-        chassis: v.chassis,
-        brand: v.brand,
-        model: v.model,
-        price: v.price,
-        kilometers: v.kilometers,
-        first_registration: v.first_registration,
-        report_nr: v.report_nr,
-      }));
+    const vehiclesData = selectedVehicleData.map(v => ({
+      chassis: v.fin,
+      brand: v.brand,
+      model: v.model,
+      price: v.preis,
+      kilometers: v.laufleistung,
+      first_registration: v.erstzulassung,
+    }));
 
       // Get leadId from localStorage if it exists
       const leadId = localStorage.getItem('leadId');
@@ -176,15 +175,15 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
               <CollapsibleContent className="mt-3">
                 <div className="space-y-3">
                   {selectedVehicleData.map((vehicle) => (
-                    <div key={vehicle.chassis} className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-4">
+                    <div key={vehicle.fin} className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-4">
                       <div className="flex justify-between items-start mb-2">
                         <div>
                           <p className="font-semibold text-foreground text-base">{vehicle.brand}</p>
                           <p className="text-sm text-muted-foreground">{vehicle.model}</p>
                         </div>
-                        <p className="font-bold text-primary text-lg">{formatPrice(vehicle.price)}</p>
+                        <p className="font-bold text-primary text-lg">{formatPrice(vehicle.preis)}</p>
                       </div>
-                      <p className="text-xs text-muted-foreground">FIN: {vehicle.chassis}</p>
+                      <p className="text-xs text-muted-foreground">FIN: {vehicle.fin}</p>
                     </div>
                   ))}
                   
@@ -193,7 +192,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                     <div className="flex justify-between items-center">
                       <p className="font-semibold text-foreground">Gesamtpreis:</p>
                       <p className="font-bold text-primary text-xl">
-                        {formatPrice(selectedVehicleData.reduce((sum, v) => sum + v.price, 0))}
+                        {formatPrice(selectedVehicleData.reduce((sum, v) => sum + v.preis, 0))}
                       </p>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">Alle Preise inkl. MwSt.</p>
@@ -221,11 +220,11 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
               </thead>
               <tbody>
                 {selectedVehicleData.map((vehicle) => (
-                  <tr key={vehicle.chassis} className="border-b hover:bg-white/5 transition-colors" style={{ borderColor: "hsl(var(--divider))" }}>
+                  <tr key={vehicle.fin} className="border-b hover:bg-white/5 transition-colors" style={{ borderColor: "hsl(var(--divider))" }}>
                     <td className="p-2 md:p-4 text-sm md:text-base text-foreground">{vehicle.brand}</td>
                     <td className="p-2 md:p-4 text-sm md:text-base text-foreground">{vehicle.model}</td>
-                    <td className="p-2 md:p-4 text-muted-foreground text-xs md:text-sm">{vehicle.chassis}</td>
-                    <td className="p-2 md:p-4 text-right font-semibold text-primary text-sm md:text-base">{formatPrice(vehicle.price)}</td>
+                    <td className="p-2 md:p-4 text-muted-foreground text-xs md:text-sm">{vehicle.fin}</td>
+                    <td className="p-2 md:p-4 text-right font-semibold text-primary text-sm md:text-base">{formatPrice(vehicle.preis)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -235,7 +234,7 @@ export const InquiryForm: React.FC<InquiryFormProps> = ({
                     Gesamtpreis:
                   </td>
                   <td className="p-2 md:p-4 text-right font-bold text-primary text-base md:text-lg">
-                    {formatPrice(selectedVehicleData.reduce((sum, v) => sum + v.price, 0))}
+                    {formatPrice(selectedVehicleData.reduce((sum, v) => sum + v.preis, 0))}
                   </td>
                 </tr>
                 <tr>
