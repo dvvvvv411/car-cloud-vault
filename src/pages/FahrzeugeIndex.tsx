@@ -426,17 +426,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                           <th className="text-left px-4 py-4 text-sm font-medium uppercase tracking-wider" style={{
                         color: "hsl(var(--text-tertiary))"
                       }}>
-                            Motor/Antrieb
-                          </th>
-                          <th className="text-left px-4 py-4 text-sm font-medium uppercase tracking-wider" style={{
-                        color: "hsl(var(--text-tertiary))"
-                      }}>
                             Farbe
-                          </th>
-                          <th className="text-left px-4 py-4 text-sm font-medium uppercase tracking-wider" style={{
-                        color: "hsl(var(--text-tertiary))"
-                      }}>
-                            Innenausstattung
                           </th>
                           <th className="text-right px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
                         color: "hsl(var(--text-tertiary))"
@@ -490,7 +480,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                             color: "hsl(var(--text-secondary))"
                           }}>
                                   {vehicle.leistung_kw && vehicle.leistung_ps 
-                                    ? `${vehicle.leistung_kw}/${vehicle.leistung_ps}`
+                                    ? `${vehicle.leistung_kw} KW / ${vehicle.leistung_ps} PS`
                                     : "-"
                                   }
                                 </span>
@@ -513,21 +503,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                                 <span className="text-sm" style={{
                             color: "hsl(var(--text-secondary))"
                           }}>
-                                  {vehicle.motor_antrieb || "-"}
-                                </span>
-                              </td>
-                              <td className="px-4 py-0 align-middle">
-                                <span className="text-sm" style={{
-                            color: "hsl(var(--text-secondary))"
-                          }}>
                                   {vehicle.farbe || "-"}
-                                </span>
-                              </td>
-                              <td className="px-4 py-0 align-middle">
-                                <span className="text-sm" style={{
-                            color: "hsl(var(--text-secondary))"
-                          }}>
-                                  {vehicle.innenausstattung || "-"}
                                 </span>
                               </td>
                               <td className={`px-6 py-0 align-middle text-right ${index === 2 ? 'tour-price-row' : ''}`}>
