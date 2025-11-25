@@ -18,7 +18,7 @@ import kbsLogo from "@/assets/kbs_blue.png";
 import demoVehicle from "@/assets/demo-vehicle.png";
 import beschlussImage from "@/assets/beschluss.png";
 import dekraLogoWhite from "@/assets/dekra-logo-white.png";
-import { useVehicles, type Vehicle } from "@/hooks/useVehicles";
+import { useFahrzeugeVehicles, type FahrzeugeVehicle } from "@/hooks/useFahrzeugeVehicles";
 import { useMyReservations } from "@/hooks/useLeadReservations";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
@@ -34,12 +34,18 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
   const navigate = useNavigate();
   const { user, role, signOut } = useAuth();
   const {
-    data: vehicles = [],
+    data: allVehicles = [],
     isLoading
-  } = useVehicles();
+  } = useFahrzeugeVehicles();
+  
+  // Filter vehicles by branding if provided
+  const vehicles = branding 
+    ? allVehicles.filter(v => v.branding_ids?.includes(branding.id))
+    : allVehicles;
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState<{
-    key: keyof Vehicle | null;
+    key: keyof FahrzeugeVehicle | null;
     direction: "asc" | "desc";
   }>({
     key: null,
@@ -49,7 +55,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [submittedInquiry, setSubmittedInquiry] = useState<any>(null);
-  const [submittedVehicles, setSubmittedVehicles] = useState<Vehicle[]>([]);
+  const [submittedVehicles, setSubmittedVehicles] = useState<FahrzeugeVehicle[]>([]);
   const [submittedTotalPrice, setSubmittedTotalPrice] = useState(0);
   const [pdfDialogOpen, setPdfDialogOpen] = useState(false);
   const [currentPdfUrl, setCurrentPdfUrl] = useState<string | null>(null);
@@ -148,7 +154,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
   };
 
   // Helper function to get vehicle thumbnail
-  const getVehicleThumbnail = (vehicle: Vehicle): string => {
+  const getVehicleThumbnail = (vehicle: FahrzeugeVehicle): string => {
     if (vehicle.vehicle_photos && Array.isArray(vehicle.vehicle_photos) && vehicle.vehicle_photos.length > 0) {
       return vehicle.vehicle_photos[0];
     }
@@ -156,24 +162,18 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
     return demoVehicle;
   };
 
-  const toggleVehicleSelection = (chassis: string) => {
-    setSelectedVehicles(current => current.includes(chassis) ? current.filter(c => c !== chassis) : [...current, chassis]);
+  const toggleVehicleSelection = (fin: string) => {
+    setSelectedVehicles(current => current.includes(fin) ? current.filter(c => c !== fin) : [...current, fin]);
   };
   
   // Check if vehicle is reserved for this lead
-  const isVehicleReserved = (chassis: string, reportNr: string) => {
+  const isVehicleReserved = (fin: string) => {
     return myReservations.some(r => 
-      r.vehicle_chassis === chassis || r.vehicle_chassis === reportNr
+      r.vehicle_chassis === fin
     );
   };
-
-  const handleOpenZustandsbericht = (reportNr: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setSelectedReportNr(reportNr);
-    setZustandsberichtDialogOpen(true);
-  };
   
-  const filteredAndSortedVehicles = vehicles.filter(vehicle => vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.chassis.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.report_nr.toLowerCase().includes(searchTerm.toLowerCase())).sort((a, b) => {
+  const filteredAndSortedVehicles = vehicles.filter(vehicle => vehicle.brand.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) || vehicle.fin.toLowerCase().includes(searchTerm.toLowerCase())).sort((a, b) => {
     if (!sortConfig.key) return 0;
     const aValue = a[sortConfig.key];
     const bValue = b[sortConfig.key];
@@ -189,12 +189,12 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
   const paginatedVehicles = filteredAndSortedVehicles.slice(startIndex, endIndex);
 
   const selectAll = () => {
-    setSelectedVehicles(filteredAndSortedVehicles.map(v => v.chassis));
+    setSelectedVehicles(filteredAndSortedVehicles.map(v => v.fin));
   };
   const deselectAll = () => {
     setSelectedVehicles([]);
   };
-  const handleSort = (key: keyof Vehicle) => {
+  const handleSort = (key: keyof FahrzeugeVehicle) => {
     setSortConfig(current => ({
       key,
       direction: current.key === key && current.direction === "asc" ? "desc" : "asc"
@@ -217,11 +217,11 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
   const formatKilometers = (km: number) => {
     return new Intl.NumberFormat("de-DE").format(km);
   };
-  const totalPrice = selectedVehicles.reduce((sum, chassis) => {
-    const vehicle = vehicles.find(v => v.chassis === chassis);
-    return sum + (vehicle?.price || 0);
+  const totalPrice = selectedVehicles.reduce((sum, fin) => {
+    const vehicle = vehicles.find(v => v.fin === fin);
+    return sum + (vehicle?.preis || 0);
   }, 0);
-  const allSelected = filteredAndSortedVehicles.length > 0 && filteredAndSortedVehicles.every(v => selectedVehicles.includes(v.chassis));
+  const allSelected = filteredAndSortedVehicles.length > 0 && filteredAndSortedVehicles.every(v => selectedVehicles.includes(v.fin));
   const someSelected = selectedVehicles.length > 0 && !allSelected;
   return <div className="min-h-screen bg-background relative">
       <div className="max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8 lg:py-12">
@@ -401,12 +401,12 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                           <th className="text-left px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
                         color: "hsl(var(--text-tertiary))"
                       }}>
-                            Bericht-Nr.
+                            FIN
                           </th>
                           <th className="text-left px-3 py-4 text-sm font-medium uppercase tracking-wider" style={{
                         color: "hsl(var(--text-tertiary))"
                       }}>
-                            <Button variant="ghost" onClick={() => handleSort("first_registration")} className="hover:bg-transparent p-0 h-auto font-medium -ml-2" style={{
+                            <Button variant="ghost" onClick={() => handleSort("erstzulassung")} className="hover:bg-transparent p-0 h-auto font-medium -ml-2" style={{
                           color: "hsl(var(--text-tertiary))"
                         }}>
                               Erstzulassung
@@ -416,7 +416,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                           <th className="text-right px-3 py-4 text-sm font-medium uppercase tracking-wider" style={{
                         color: "hsl(var(--text-tertiary))"
                       }}>
-                            <Button variant="ghost" onClick={() => handleSort("kilometers")} className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto" style={{
+                            <Button variant="ghost" onClick={() => handleSort("laufleistung")} className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto" style={{
                           color: "hsl(var(--text-tertiary))"
                         }}>
                               Kilometer
@@ -426,30 +426,25 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                           <th className="text-right px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
                         color: "hsl(var(--text-tertiary))"
                       }}>
-                            <Button variant="ghost" onClick={() => handleSort("price")} className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto" style={{
+                            <Button variant="ghost" onClick={() => handleSort("preis")} className="hover:bg-transparent p-0 h-auto font-medium -mr-2 ml-auto" style={{
                           color: "hsl(var(--text-tertiary))"
                         }}>
                               Einzelpreis
                               <ArrowUpDown className="ml-2 h-3.5 w-3.5" />
                             </Button>
                           </th>
-                          <th className="text-center px-6 py-4 text-sm font-medium uppercase tracking-wider" style={{
-                        color: "hsl(var(--text-tertiary))"
-                      }}>
-                            Bericht
-                          </th>
                         </tr>
                       </thead>
                       <tbody>
                         {paginatedVehicles.map((vehicle, index) => {
-                      const isSelected = selectedVehicles.includes(vehicle.chassis);
-                      const isReserved = isVehicleReserved(vehicle.chassis, vehicle.report_nr);
+                      const isSelected = selectedVehicles.includes(vehicle.fin);
+                      const isReserved = isVehicleReserved(vehicle.fin);
                       return <tr key={index} className={`h-[100px] border-b hover-lift cursor-pointer group transition-colors ${isSelected ? "bg-primary/5" : ""} ${isReserved ? "opacity-50 pointer-events-none" : ""}`} style={{
                         borderColor: "hsl(var(--divider))",
                         animationDelay: `${0.3 + index * 0.05}s`
-                      }} onClick={() => !isReserved && toggleVehicleSelection(vehicle.chassis)}>
+                      }} onClick={() => !isReserved && toggleVehicleSelection(vehicle.fin)}>
                               <td className={`px-6 py-0 align-middle ${index === 2 ? 'tour-selection-row' : ''}`} onClick={e => e.stopPropagation()}>
-                                <Checkbox checked={isSelected} onCheckedChange={() => !isReserved && toggleVehicleSelection(vehicle.chassis)} disabled={isReserved} />
+                                <Checkbox checked={isSelected} onCheckedChange={() => !isReserved && toggleVehicleSelection(vehicle.fin)} disabled={isReserved} />
                               </td>
                               <td 
                                 className="px-6 py-0 align-middle cursor-pointer" 
@@ -486,53 +481,29 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
                                 <span className="text-base font-mono" style={{
                             color: "hsl(var(--text-secondary))"
                           }}>
-                                  {vehicle.chassis}
-                                </span>
-                              </td>
-                              <td className="px-6 py-0 align-middle">
-                                <span className="text-base" style={{
-                            color: "hsl(var(--text-secondary))"
-                          }}>
-                                  {vehicle.report_nr}
+                                  {vehicle.fin}
                                 </span>
                               </td>
                               <td className="px-3 py-0 align-middle">
                                 <span className="text-base" style={{
                             color: "hsl(var(--text-secondary))"
                           }}>
-                                  {vehicle.first_registration}
+                                  {vehicle.erstzulassung}
                                 </span>
                               </td>
                               <td className="px-3 py-0 align-middle text-right">
                                 <span className="text-base font-medium" style={{
                             color: "hsl(var(--text-primary))"
                           }}>
-                                  {formatKilometers(vehicle.kilometers)}
+                                  {formatKilometers(vehicle.laufleistung)}
                                 </span>
                               </td>
                               <td className={`px-6 py-0 align-middle text-right ${index === 2 ? 'tour-price-row' : ''}`}>
                                 <span className="text-lg font-semibold" style={{
                             color: "hsl(var(--text-primary))"
                           }}>
-                                  {formatPrice(vehicle.price)}
+                                  {formatPrice(vehicle.preis)}
                                  </span>
-                              </td>
-                              <td className={`px-6 py-4 text-center align-middle ${index === 2 ? 'tour-report-row' : ''}`}>
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <button
-                                        onClick={(e) => handleOpenZustandsbericht(vehicle.report_nr, e)}
-                                        className="w-10 h-10 rounded-full flex items-center justify-center mx-auto hover:bg-primary/10 transition-colors"
-                                      >
-                                        <FileText className="h-5 w-5 text-primary" />
-                                      </button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>Zustandsbericht anzeigen</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
                               </td>
                             </tr>;
                     })}

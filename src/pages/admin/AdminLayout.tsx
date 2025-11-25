@@ -14,6 +14,7 @@ const ADMIN_EMAIL = 'admin@admin.de';
 const navItems = [
   { title: 'Dashboard', url: '/admin', icon: LayoutDashboard },
   { title: 'Positionen', url: '/admin/positionen', icon: Car },
+  { title: 'Fahrzeuge', url: '/admin/fahrzeuge', icon: Car },
   { title: 'Branding', url: '/admin/branding', icon: Palette },
   { title: 'Emails', url: '/admin/emails', icon: Mail },
   { title: 'Anfragen', url: '/admin/anfragen', icon: MessageSquare },
