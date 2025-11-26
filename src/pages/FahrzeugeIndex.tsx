@@ -85,7 +85,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
     setCurrentPage(1);
   }, [sortConfig.key, sortConfig.direction]);
 
-  // Set page title for Fahrzeuge
+  // Set page title and favicon for Fahrzeuge
   useEffect(() => {
     document.title = "Fahrzeugverkauf - Digitale Verkaufsplattform";
     
@@ -94,8 +94,19 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
       metaDescription.setAttribute('content', 'Digitale Plattform für professionellen Fahrzeugverkauf');
     }
     
+    // Change favicon for Fahrzeuge pages
+    const link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+    const originalFavicon = link?.href;
+    if (link) {
+      link.href = '/favicon-fahrzeuge.png';
+    }
+    
     return () => {
       document.title = "Insolvenzverwaltung - Digitale Plattform";
+      // Restore original favicon
+      if (link && originalFavicon) {
+        link.href = originalFavicon;
+      }
     };
   }, []);
 
