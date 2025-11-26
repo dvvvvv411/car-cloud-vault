@@ -437,7 +437,7 @@ export default function AdminAnfragen() {
                           </td>
                           <td className="text-center">
                             <DekraNumbersDialog 
-                              reportNumbers={inquiry.selected_vehicles.map(v => v.report_nr)}
+                              reportNumbers={inquiry.selected_vehicles.map(v => v.report_nr || v.chassis || '-')}
                               trigger={
                                 <Badge variant="secondary" className="text-xs px-2 py-1 font-semibold cursor-pointer hover:bg-secondary/80 transition-colors">
                                   {inquiry.selected_vehicles.length}
@@ -560,7 +560,7 @@ export default function AdminAnfragen() {
                       {formatDate(inquiry.created_at)}
                     </div>
                     <DekraNumbersDialog 
-                      reportNumbers={inquiry.selected_vehicles.map(v => v.report_nr)}
+                      reportNumbers={inquiry.selected_vehicles.map(v => v.report_nr || v.chassis || '-')}
                       trigger={
                         <div className="flex items-center gap-2 text-muted-foreground cursor-pointer hover:text-primary transition-colors">
                           <Package className="h-4 w-4" />
