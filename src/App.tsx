@@ -48,7 +48,7 @@ const App = () => (
             <Route path="/" element={<DomainBasedRedirect targetPath="root" />} />
             <Route path="/insolvenz" element={<DomainBasedRedirect targetPath="insolvenz" />} />
             <Route path="/insolvenz/:slug" element={<BrandedIndex />} />
-            <Route path="/fahrzeuge" element={<FahrzeugeIndex />} />
+            <Route path="/fahrzeuge" element={<DomainBasedRedirect targetPath="fahrzeuge" />} />
             <Route path="/fahrzeuge/:slug" element={<FahrzeugeBrandedIndex />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/zustandsbericht/:reportNr" element={<Zustandsbericht />} />
