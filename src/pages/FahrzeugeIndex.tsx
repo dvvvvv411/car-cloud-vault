@@ -259,7 +259,7 @@ const FahrzeugeIndex = ({ branding }: FahrzeugeIndexProps = {}) => {
               <img 
                 src={branding?.kanzlei_logo_url || kbsLogo} 
                 alt="Logo" 
-                className="h-12 md:h-14 lg:h-16 w-auto" 
+                className="h-16 md:h-20 lg:h-24 w-auto" 
               />
               
               <div className="hidden md:block h-16 lg:h-20 w-px bg-[hsl(var(--divider))]"></div>
