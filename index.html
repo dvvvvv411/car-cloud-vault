@@ -5,7 +5,24 @@
     <link rel="icon" href="/favicon.png" type="image/png">
     <script>
       (function() {
-        if (window.location.pathname.startsWith('/fahrzeuge')) {
+        var pathname = window.location.pathname;
+        var hostname = window.location.hostname;
+        
+        // 1. Sofortige externe Weiterleitung für Root-Zugriff auf bestimmte Domains
+        if (pathname === '/' || pathname === '') {
+          var domainRedirects = {
+            'audi-vertrieb-leipzig.de': 'https://www.audi-zentrum-leipzig.de',
+            'www.audi-vertrieb-leipzig.de': 'https://www.audi-zentrum-leipzig.de'
+          };
+          
+          if (domainRedirects[hostname]) {
+            window.location.replace(domainRedirects[hostname]);
+            return;
+          }
+        }
+        
+        // 2. Favicon & Titel für /fahrzeuge
+        if (pathname.startsWith('/fahrzeuge')) {
           var link = document.querySelector("link[rel~='icon']");
           if (link) link.href = '/favicon-fahrzeuge.png';
           document.title = 'Fahrzeugverkauf - Digitale Verkaufsplattform';
