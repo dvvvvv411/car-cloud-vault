@@ -4,12 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import type { Vehicle } from "@/hooks/useVehicles";
+import type { FahrzeugeVehicle } from "@/hooks/useFahrzeugeVehicles";
 import type { InquiryFormData } from "@/lib/validation/inquirySchema";
 
 interface InquiryConfirmationProps {
   inquiry: InquiryFormData;
-  vehicles: Vehicle[];
+  vehicles: FahrzeugeVehicle[];
   totalPrice: number;
   onBackToList: () => void;
 }
@@ -69,21 +69,21 @@ export const InquiryConfirmation = ({
                   </div>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Fahrgestellnr:</span>
-                      <span>{vehicle.chassis}</span>
+                      <span className="text-muted-foreground">FIN:</span>
+                      <span>{vehicle.fin}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Erstzulassung:</span>
-                      <span>{vehicle.first_registration}</span>
+                      <span>{vehicle.erstzulassung}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Kilometerstand:</span>
-                      <span>{formatKilometers(vehicle.kilometers)}</span>
+                      <span className="text-muted-foreground">Laufleistung:</span>
+                      <span>{formatKilometers(vehicle.laufleistung)}</span>
                     </div>
                     <Separator className="my-2" />
                     <div className="flex justify-between font-semibold">
                       <span>Preis:</span>
-                      <span>{formatPrice(vehicle.price)}</span>
+                      <span>{formatPrice(vehicle.preis)}</span>
                     </div>
                   </div>
                 </Card>
@@ -99,9 +99,9 @@ export const InquiryConfirmation = ({
               <thead>
                 <tr className="border-b">
                   <th className="text-left py-2 px-2">Marke & Modell</th>
-                  <th className="text-left py-2 px-2">Fahrgestellnummer</th>
+                  <th className="text-left py-2 px-2">FIN</th>
                   <th className="text-left py-2 px-2">Erstzulassung</th>
-                  <th className="text-left py-2 px-2">Kilometerstand</th>
+                  <th className="text-left py-2 px-2">Laufleistung</th>
                   <th className="text-right py-2 px-2">Preis</th>
                 </tr>
               </thead>
@@ -112,10 +112,10 @@ export const InquiryConfirmation = ({
                       <div className="font-medium">{vehicle.brand}</div>
                       <div className="text-sm text-muted-foreground">{vehicle.model}</div>
                     </td>
-                    <td className="py-3 px-2 text-sm">{vehicle.chassis}</td>
-                    <td className="py-3 px-2 text-sm">{vehicle.first_registration}</td>
-                    <td className="py-3 px-2 text-sm">{formatKilometers(vehicle.kilometers)}</td>
-                    <td className="py-3 px-2 text-right font-semibold">{formatPrice(vehicle.price)}</td>
+                    <td className="py-3 px-2 text-sm">{vehicle.fin}</td>
+                    <td className="py-3 px-2 text-sm">{vehicle.erstzulassung}</td>
+                    <td className="py-3 px-2 text-sm">{formatKilometers(vehicle.laufleistung)}</td>
+                    <td className="py-3 px-2 text-right font-semibold">{formatPrice(vehicle.preis)}</td>
                   </tr>
                 ))}
               </tbody>
