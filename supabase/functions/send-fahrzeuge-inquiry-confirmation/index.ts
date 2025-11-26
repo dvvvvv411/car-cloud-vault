@@ -71,22 +71,29 @@ Deno.serve(async (req) => {
       })
     }
     
-    // 4. Convert logo to Base64 if available
-    let logoBase64 = null
+    // 4. Convert logo to Base64 if available (with size limit)
+    let logoBase64: string | null = null
     if (branding.kanzlei_logo_url) {
       try {
         const logoResponse = await fetch(branding.kanzlei_logo_url)
         if (logoResponse.ok) {
           const logoBlob = await logoResponse.arrayBuffer()
-          const base64String = btoa(
-            new Uint8Array(logoBlob).reduce(
-              (data, byte) => data + String.fromCharCode(byte),
-              ''
+          
+          // Skip logo if larger than 100KB to prevent email rendering issues
+          if (logoBlob.byteLength > 100000) {
+            console.log('Logo too large for embedding (' + logoBlob.byteLength + ' bytes), skipping')
+          } else {
+            const base64String = btoa(
+              new Uint8Array(logoBlob).reduce(
+                (data, byte) => data + String.fromCharCode(byte),
+                ''
+              )
             )
-          )
-          // Detect content type from response or default to png
-          const contentType = logoResponse.headers.get('content-type') || 'image/png'
-          logoBase64 = `data:${contentType};base64,${base64String}`
+            // Detect content type from response or default to png
+            const contentType = logoResponse.headers.get('content-type') || 'image/png'
+            logoBase64 = `data:${contentType};base64,${base64String}`
+            console.log('Logo embedded successfully (' + logoBlob.byteLength + ' bytes)')
+          }
         }
       } catch (logoError) {
         console.error('Failed to fetch logo:', logoError)
