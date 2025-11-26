@@ -3,6 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="/favicon.png" type="image/png">
+    <script>
+      (function() {
+        if (window.location.pathname.startsWith('/fahrzeuge')) {
+          var link = document.querySelector("link[rel~='icon']");
+          if (link) link.href = '/favicon-fahrzeuge.png';
+          document.title = 'Fahrzeugverkauf - Digitale Verkaufsplattform';
+        }
+      })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Insolvenzverwaltung - Digitale Plattform</title>
     <meta name="description" content="Digitale Plattform für professionelle Insolvenzverwaltung und Masseverwertung" />
