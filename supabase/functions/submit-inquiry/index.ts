@@ -108,21 +108,39 @@ const handler = async (req: Request): Promise<Response> => {
     // Send confirmation email if branding is configured
     if (requestData.brandingId && inquiryData) {
       try {
-        const { error: emailError } = await supabaseClient.functions.invoke(
-          "send-inquiry-confirmation",
-          {
-            body: {
-              inquiryId: inquiryData.id,
-              brandingId: requestData.brandingId,
-            },
-          }
-        );
+        // Load branding to determine which email function to use
+        const { data: branding, error: brandingError } = await supabaseClient
+          .from("brandings")
+          .select("branding_type")
+          .eq("id", requestData.brandingId)
+          .single();
 
-        if (emailError) {
-          console.error("Error sending confirmation email:", emailError);
-          // Don't throw, email is not critical for inquiry submission
+        if (brandingError) {
+          console.error("Error loading branding for email:", brandingError);
         } else {
-          console.log("Confirmation email sent successfully");
+          // Choose the correct email function based on branding type
+          const emailFunction = branding?.branding_type === 'fahrzeuge' 
+            ? "send-fahrzeuge-inquiry-confirmation" 
+            : "send-inquiry-confirmation";
+
+          console.log("Using email function:", emailFunction, "for branding type:", branding?.branding_type);
+
+          const { error: emailError } = await supabaseClient.functions.invoke(
+            emailFunction,
+            {
+              body: {
+                inquiryId: inquiryData.id,
+                brandingId: requestData.brandingId,
+              },
+            }
+          );
+
+          if (emailError) {
+            console.error("Error sending confirmation email:", emailError);
+            // Don't throw, email is not critical for inquiry submission
+          } else {
+            console.log("Confirmation email sent successfully");
+          }
         }
       } catch (emailError) {
         console.error("Failed to invoke email function:", emailError);
