@@ -2,7 +2,6 @@ import React from 'https://esm.sh/react@18.3.1'
 import { Resend } from 'https://esm.sh/resend@4.0.0'
 import { render } from 'https://esm.sh/@react-email/render@0.0.17'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.58.0'
-import { Image } from 'https://deno.land/x/imagescript@1.3.0/mod.ts'
 import { FahrzeugeInquiryConfirmationEmail } from './_templates/fahrzeuge-inquiry-confirmation.tsx'
 
 const corsHeaders = {
@@ -72,52 +71,32 @@ Deno.serve(async (req) => {
       })
     }
     
-    // 4. Convert logo to Base64 with compression if needed
+    // 4. Convert logo to Base64 if available (with size limit)
     let logoBase64: string | null = null
     if (branding.kanzlei_logo_url) {
       try {
         const logoResponse = await fetch(branding.kanzlei_logo_url)
         if (logoResponse.ok) {
           const logoBlob = await logoResponse.arrayBuffer()
-          const originalSize = logoBlob.byteLength
-          console.log('Original logo size:', originalSize, 'bytes')
           
-          let finalImageData: Uint8Array
-          let contentType: string
-          
-          // Compress if larger than 50KB
-          if (originalSize > 50000) {
-            console.log('Compressing logo...')
-            const image = await Image.decode(new Uint8Array(logoBlob))
-            
-            // Resize to max 400px width if larger
-            if (image.width > 400) {
-              const aspectRatio = image.height / image.width
-              image.resize(400, Math.round(400 * aspectRatio))
-              console.log('Resized to:', image.width, 'x', image.height)
-            }
-            
-            // Encode as JPEG with 80% quality
-            finalImageData = await image.encodeJPEG(80)
-            contentType = 'image/jpeg'
-            console.log('Compressed logo size:', finalImageData.byteLength, 'bytes')
+          // Skip logo if larger than 100KB to prevent email rendering issues
+          if (logoBlob.byteLength > 100000) {
+            console.log('Logo too large for embedding (' + logoBlob.byteLength + ' bytes), skipping')
           } else {
-            // Use original if small enough
-            finalImageData = new Uint8Array(logoBlob)
-            contentType = logoResponse.headers.get('content-type') || 'image/png'
-          }
-          
-          const base64String = btoa(
-            finalImageData.reduce(
-              (data, byte) => data + String.fromCharCode(byte),
-              ''
+            const base64String = btoa(
+              new Uint8Array(logoBlob).reduce(
+                (data, byte) => data + String.fromCharCode(byte),
+                ''
+              )
             )
-          )
-          logoBase64 = `data:${contentType};base64,${base64String}`
-          console.log('Logo embedded successfully')
+            // Detect content type from response or default to png
+            const contentType = logoResponse.headers.get('content-type') || 'image/png'
+            logoBase64 = `data:${contentType};base64,${base64String}`
+            console.log('Logo embedded successfully (' + logoBlob.byteLength + ' bytes)')
+          }
         }
       } catch (logoError) {
-        console.error('Failed to process logo:', logoError)
+        console.error('Failed to fetch logo:', logoError)
         // Continue without logo
       }
     }

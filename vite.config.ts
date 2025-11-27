@@ -19,10 +19,6 @@ export default defineConfig(({ mode }) => ({
       "anwaelte-neiseke-hagedorn.de",
       "merits-partner.de",
       
-      // Fahrzeuge Domains
-      "audi-vertrieb-leipzig.de",
-      "www.audi-vertrieb-leipzig.de",
-      
       // Development
       ".lovable.app",
       "localhost"
