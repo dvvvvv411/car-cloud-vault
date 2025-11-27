@@ -193,11 +193,20 @@ export default function AdminAnfragen() {
     return format(new Date(dateString), "dd.MM.yy HH:mm", { locale: de });
   };
 
-  const calculateFinalPrice = (nettoPrice: number, discountPercentage: number | null) => {
+  // Insolvenz: Netto → Brutto berechnen
+  const calculateBruttoFromNetto = (nettoPrice: number, discountPercentage: number | null) => {
     const priceAfterDiscount = discountPercentage 
       ? nettoPrice * (1 - discountPercentage / 100)
       : nettoPrice;
     return priceAfterDiscount * 1.19;
+  };
+
+  // Fahrzeuge: Brutto → Netto berechnen
+  const calculateNettoFromBrutto = (bruttoPrice: number, discountPercentage: number | null) => {
+    const priceAfterDiscount = discountPercentage 
+      ? bruttoPrice * (1 - discountPercentage / 100)
+      : bruttoPrice;
+    return priceAfterDiscount / 1.19;
   };
 
   const copyToClipboard = async (text: string, type: 'email' | 'phone' | 'name' | 'company') => {
@@ -446,12 +455,29 @@ export default function AdminAnfragen() {
                             />
                           </td>
                           <td className="text-right whitespace-nowrap">
-                            <div className="font-bold text-primary">
-                              {formatPrice(inquiry.total_price * (1 - (inquiry.discount_percentage || 0) / 100))}
-                            </div>
-                            <div className="text-xs text-muted-foreground mt-0.5">
-                              {formatPrice(calculateFinalPrice(inquiry.total_price, inquiry.discount_percentage))}
-                            </div>
+                            {inquiry.brandings?.branding_type === 'fahrzeuge' ? (
+                              <>
+                                {/* Fahrzeuge: Gespeicherter Preis ist Brutto → Netto berechnen */}
+                                <div className="font-bold text-primary">
+                                  {formatPrice(calculateNettoFromBrutto(inquiry.total_price, inquiry.discount_percentage))}
+                                  <span className="text-xs font-normal text-muted-foreground ml-1">netto</span>
+                                </div>
+                                <div className="text-xs text-muted-foreground mt-0.5">
+                                  {formatPrice(inquiry.total_price * (1 - (inquiry.discount_percentage || 0) / 100))} brutto
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                {/* Insolvenz: Gespeicherter Preis ist Netto → Brutto berechnen */}
+                                <div className="font-bold text-primary">
+                                  {formatPrice(inquiry.total_price * (1 - (inquiry.discount_percentage || 0) / 100))}
+                                  <span className="text-xs font-normal text-muted-foreground ml-1">netto</span>
+                                </div>
+                                <div className="text-xs text-muted-foreground mt-0.5">
+                                  {formatPrice(calculateBruttoFromNetto(inquiry.total_price, inquiry.discount_percentage))} brutto
+                                </div>
+                              </>
+                            )}
                             {inquiry.discount_percentage && (
                               <div className="mt-1 flex justify-end">
                                 <Badge variant="secondary" className="text-xs">
@@ -571,12 +597,29 @@ export default function AdminAnfragen() {
                   <div className="flex items-center gap-2">
                     <Euro className="h-4 w-4 text-primary" />
                     <div>
-                      <div className="font-semibold text-primary">
-                        {formatPrice(inquiry.total_price * (1 - (inquiry.discount_percentage || 0) / 100))}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {formatPrice(calculateFinalPrice(inquiry.total_price, inquiry.discount_percentage))}
-                      </div>
+                      {inquiry.brandings?.branding_type === 'fahrzeuge' ? (
+                        <>
+                          {/* Fahrzeuge: Brutto → Netto */}
+                          <div className="font-semibold text-primary">
+                            {formatPrice(calculateNettoFromBrutto(inquiry.total_price, inquiry.discount_percentage))}
+                            <span className="text-xs font-normal text-muted-foreground ml-1">netto</span>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {formatPrice(inquiry.total_price * (1 - (inquiry.discount_percentage || 0) / 100))} brutto
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          {/* Insolvenz: Netto → Brutto */}
+                          <div className="font-semibold text-primary">
+                            {formatPrice(inquiry.total_price * (1 - (inquiry.discount_percentage || 0) / 100))}
+                            <span className="text-xs font-normal text-muted-foreground ml-1">netto</span>
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {formatPrice(calculateBruttoFromNetto(inquiry.total_price, inquiry.discount_percentage))} brutto
+                          </div>
+                        </>
+                      )}
                       {inquiry.discount_percentage && (
                         <Badge variant="secondary" className="text-xs mt-1">
                           -{inquiry.discount_percentage}% Rabatt
