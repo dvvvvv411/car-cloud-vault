@@ -9,7 +9,6 @@ import {
   Preview,
   Section,
   Text,
-  Hr,
 } from 'https://esm.sh/@react-email/components@0.0.17'
 import * as React from 'https://esm.sh/react@18.3.1'
 
@@ -101,18 +100,18 @@ export const FahrzeugeInquiryConfirmationEmail = ({
             </table>
           </Section>
           
-          <Hr style={hr} />
-          
-          {/* Next Steps */}
+          {/* Next Steps - direkt im Content ohne Hr */}
           <Text style={text}>
             Unser Verkäufer <strong>{branding.lawyer_name}</strong> wird sich in Kürze 
             persönlich mit Ihnen in Verbindung setzen, um die weiteren Schritte zu besprechen.
           </Text>
           
-          <Hr style={hr} />
+          {/* Kontaktdaten als Teil des Hauptinhalts */}
+          <Text style={text}>
+            Bei Fragen erreichen Sie uns unter:
+          </Text>
           
-          {/* Footer */}
-          <Text style={footer}>
+          <Text style={text}>
             <strong>{branding.lawyer_firm_name}</strong><br />
             {branding.lawyer_firm_subtitle && <>{branding.lawyer_firm_subtitle}<br /></>}
             {branding.lawyer_address_street}<br />
@@ -125,6 +124,11 @@ export const FahrzeugeInquiryConfirmationEmail = ({
             Web: <Link href={branding.lawyer_website_url} target="_blank" style={link}>
               {branding.lawyer_website_url}
             </Link>
+          </Text>
+          
+          <Text style={text}>
+            Mit freundlichen Grüßen,<br />
+            Ihr {branding.lawyer_firm_name} Team
           </Text>
         </Container>
       </Body>
@@ -228,18 +232,6 @@ const tfootTotal = {
   textAlign: 'right' as const,
   fontSize: '18px',
   color: '#2563eb',
-}
-
-const hr = {
-  borderColor: '#e0e0e0',
-  margin: '24px 0',
-}
-
-const footer = {
-  fontSize: '14px',
-  color: '#666666',
-  lineHeight: '20px',
-  marginTop: '30px',
 }
 
 const link = {
