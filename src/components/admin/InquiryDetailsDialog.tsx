@@ -49,12 +49,23 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
     return format(new Date(dateString), "dd.MM.yyyy HH:mm", { locale: de });
   };
 
-  const calculateFinalPrice = (nettoPrice: number, discountPercentage: number | null) => {
+  // Insolvenz: Netto → Brutto berechnen
+  const calculateBruttoFromNetto = (nettoPrice: number, discountPercentage: number | null) => {
     const priceAfterDiscount = discountPercentage 
       ? nettoPrice * (1 - discountPercentage / 100)
       : nettoPrice;
     return priceAfterDiscount * 1.19;
   };
+
+  // Fahrzeuge: Brutto → Netto berechnen
+  const calculateNettoFromBrutto = (bruttoPrice: number, discountPercentage: number | null) => {
+    const priceAfterDiscount = discountPercentage 
+      ? bruttoPrice * (1 - discountPercentage / 100)
+      : bruttoPrice;
+    return priceAfterDiscount / 1.19;
+  };
+
+  const isFahrzeuge = inquiry.brandings?.branding_type === 'fahrzeuge';
 
   return (
     <Dialog>
@@ -183,7 +194,11 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
                         </div>
                         <div>
                           <span className="text-muted-foreground">Preis:</span>
-                          <p className="font-medium">{formatPrice(vehicle.price)}</p>
+                          <p className="font-medium">
+                            {formatPrice(vehicle.price)}
+                            {isFahrzeuge && <span className="text-xs text-muted-foreground ml-1">brutto</span>}
+                            {!isFahrzeuge && <span className="text-xs text-muted-foreground ml-1">netto</span>}
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -231,25 +246,53 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
               <div>
                 <span className="text-muted-foreground">Gesamtpreis:</span>
                 <div className="mt-2 space-y-1">
-                  <p className="text-2xl font-bold text-primary">
-                    {formatPrice(calculateFinalPrice(inquiry.total_price, inquiry.discount_percentage))}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    inkl. 19% MwSt.
-                    {inquiry.discount_percentage && (
-                      <span className="ml-2 text-green-600 font-medium">
-                        ({inquiry.discount_percentage}% Rabatt gewährt)
-                      </span>
-                    )}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Netto: {formatPrice(inquiry.total_price)}
-                    {inquiry.discount_percentage && (
-                      <span className="ml-2">
-                        · Nach Rabatt: {formatPrice(inquiry.total_price * (1 - inquiry.discount_percentage / 100))}
-                      </span>
-                    )}
-                  </p>
+                  {isFahrzeuge ? (
+                    <>
+                      {/* Fahrzeuge: Gespeicherter Preis ist Brutto */}
+                      <p className="text-2xl font-bold text-primary">
+                        {formatPrice(inquiry.total_price * (1 - (inquiry.discount_percentage || 0) / 100))}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        inkl. 19% MwSt.
+                        {inquiry.discount_percentage && (
+                          <span className="ml-2 text-green-600 font-medium">
+                            ({inquiry.discount_percentage}% Rabatt gewährt)
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Netto: {formatPrice(calculateNettoFromBrutto(inquiry.total_price, inquiry.discount_percentage))}
+                        {inquiry.discount_percentage && (
+                          <span className="ml-2">
+                            · Brutto vor Rabatt: {formatPrice(inquiry.total_price)}
+                          </span>
+                        )}
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      {/* Insolvenz: Gespeicherter Preis ist Netto */}
+                      <p className="text-2xl font-bold text-primary">
+                        {formatPrice(calculateBruttoFromNetto(inquiry.total_price, inquiry.discount_percentage))}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        inkl. 19% MwSt.
+                        {inquiry.discount_percentage && (
+                          <span className="ml-2 text-green-600 font-medium">
+                            ({inquiry.discount_percentage}% Rabatt gewährt)
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Netto: {formatPrice(inquiry.total_price)}
+                        {inquiry.discount_percentage && (
+                          <span className="ml-2">
+                            · Nach Rabatt: {formatPrice(inquiry.total_price * (1 - inquiry.discount_percentage / 100))}
+                          </span>
+                        )}
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
               

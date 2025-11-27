@@ -45,6 +45,7 @@ export interface Inquiry {
     resend_sender_name: string | null;
     admin_email: string | null;
     admin_email_signature: string | null;
+    branding_type: 'insolvenz' | 'fahrzeuge';
   } | null;
 }
 
@@ -56,7 +57,7 @@ export const useInquiries = () => {
         .from("inquiries")
         .select(`
           *,
-          brandings (
+      brandings (
             company_name,
             case_number,
             lawyer_firm_name,
@@ -64,7 +65,8 @@ export const useInquiries = () => {
             resend_api_key,
             resend_sender_email,
             resend_sender_name,
-            admin_email_signature
+            admin_email_signature,
+            branding_type
           )
         `)
         .order("created_at", { ascending: false });
