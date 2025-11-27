@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
@@ -38,61 +37,66 @@ export function ImageLightbox({ images, initialIndex, onClose, isOpen }: ImageLi
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-none">
-        <div className="relative w-full h-[95vh] flex items-center justify-center">
-          {/* Close Button */}
-          <Button
-            onClick={onClose}
-            variant="ghost"
-            size="icon"
-            className="absolute top-4 right-4 z-50 text-white hover:bg-white/20"
-          >
-            <X className="h-6 w-6" />
-          </Button>
-
-          {/* Previous Button */}
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      {/* Container der sich an Bildgröße anpasst */}
+      <div 
+        className="relative"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Bild mit schwarzem Hintergrund nur um das Bild selbst */}
+        <div className="relative bg-black rounded-lg overflow-hidden shadow-2xl">
+          <img
+            src={images[currentIndex]}
+            alt={`Bild ${currentIndex + 1} von ${images.length}`}
+            className="max-w-[90vw] max-h-[85vh] object-contain"
+          />
+          
+          {/* Image Counter - innerhalb des Bild-Containers */}
           {images.length > 1 && (
-            <Button
-              onClick={goPrev}
-              variant="ghost"
-              size="icon"
-              className="absolute left-4 z-50 text-white hover:bg-white/20 h-12 w-12"
-            >
-              <ChevronLeft className="h-8 w-8" />
-            </Button>
-          )}
-
-          {/* Image */}
-          <div className="flex items-center justify-center w-full h-full p-12">
-            <img
-              src={images[currentIndex]}
-              alt={`Bild ${currentIndex + 1} von ${images.length}`}
-              className="max-w-full max-h-full object-contain"
-            />
-          </div>
-
-          {/* Next Button */}
-          {images.length > 1 && (
-            <Button
-              onClick={goNext}
-              variant="ghost"
-              size="icon"
-              className="absolute right-4 z-50 text-white hover:bg-white/20 h-12 w-12"
-            >
-              <ChevronRight className="h-8 w-8" />
-            </Button>
-          )}
-
-          {/* Image Counter */}
-          {images.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/60 text-white px-4 py-2 rounded-full text-sm">
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/60 text-white px-3 py-1.5 rounded-full text-sm">
               {currentIndex + 1} / {images.length}
             </div>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+        
+        {/* Close Button - an der Ecke des Bild-Containers */}
+        <Button
+          onClick={onClose}
+          variant="ghost"
+          size="icon"
+          className="absolute -top-2 -right-2 z-50 bg-black/80 text-white hover:bg-black rounded-full h-8 w-8"
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
+      
+      {/* Navigation Buttons - außerhalb, links und rechts */}
+      {images.length > 1 && (
+        <>
+          <Button
+            onClick={(e) => { e.stopPropagation(); goPrev(); }}
+            variant="ghost"
+            size="icon"
+            className="absolute left-4 z-50 bg-black/60 text-white hover:bg-black/80 h-12 w-12 rounded-full"
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </Button>
+          <Button
+            onClick={(e) => { e.stopPropagation(); goNext(); }}
+            variant="ghost"
+            size="icon"
+            className="absolute right-4 z-50 bg-black/60 text-white hover:bg-black/80 h-12 w-12 rounded-full"
+          >
+            <ChevronRight className="h-6 w-6" />
+          </Button>
+        </>
+      )}
+    </div>
   );
 }
