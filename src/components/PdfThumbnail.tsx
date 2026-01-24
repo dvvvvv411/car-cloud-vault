@@ -9,6 +9,7 @@ interface PdfThumbnailProps {
   fallbackImage: string;
   className?: string;
   height?: number;
+  width?: number;
   onClick?: () => void;
 }
 
@@ -16,7 +17,8 @@ export const PdfThumbnail = ({
   pdfUrl, 
   fallbackImage, 
   className = '',
-  height = 128,
+  height,
+  width,
   onClick
 }: PdfThumbnailProps) => {
   const [loadError, setLoadError] = useState(false);
@@ -33,8 +35,18 @@ export const PdfThumbnail = ({
     );
   }
 
+  // Scale factor for "cover" effect - render larger than container
+  const scaleFactor = 1.5;
+
   return (
-    <div className={`relative overflow-hidden ${className}`} onClick={onClick}>
+    <div 
+      className={`relative overflow-hidden ${className}`} 
+      onClick={onClick}
+      style={{ 
+        height: height ? `${height}px` : undefined,
+        width: width ? `${width}px` : '100%'
+      }}
+    >
       {isLoading && (
         <img 
           src={fallbackImage} 
@@ -42,19 +54,24 @@ export const PdfThumbnail = ({
           className="absolute inset-0 w-full h-full object-cover"
         />
       )}
-      <Document
-        file={pdfUrl}
-        onLoadSuccess={() => setIsLoading(false)}
-        onLoadError={() => setLoadError(true)}
-        loading={null}
-      >
-        <Page 
-          pageNumber={1} 
-          height={height}
-          renderTextLayer={false}
-          renderAnnotationLayer={false}
-        />
-      </Document>
+      {/* Render PDF larger and center for "cover" effect */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <Document
+          file={pdfUrl}
+          onLoadSuccess={() => setIsLoading(false)}
+          onLoadError={() => setLoadError(true)}
+          loading={null}
+          className="min-w-full min-h-full flex items-center justify-center"
+        >
+          <Page 
+            pageNumber={1} 
+            width={width ? width * scaleFactor : undefined}
+            height={height ? height * scaleFactor : undefined}
+            renderTextLayer={false}
+            renderAnnotationLayer={false}
+          />
+        </Document>
+      </div>
     </div>
   );
 };
