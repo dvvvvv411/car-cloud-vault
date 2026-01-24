@@ -141,7 +141,7 @@ const LawyerContactCard = ({
           <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
             <DrawerTrigger asChild>
               <button
-                className="fixed top-4 right-4 z-[70] bg-[#003e7e] text-white rounded-full p-4 shadow-2xl hover:bg-[#002d5c] transition-all hover:scale-110"
+                className="fixed bottom-4 right-4 z-[70] bg-[#003e7e] text-white rounded-full p-4 shadow-2xl hover:bg-[#002d5c] transition-all hover:scale-110"
                 aria-label="Kontakt öffnen"
               >
                 <Phone className="w-6 h-6" />
