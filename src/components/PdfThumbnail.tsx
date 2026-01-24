@@ -35,9 +35,9 @@ export const PdfThumbnail = ({
     );
   }
 
-  // For A4 portrait PDFs in landscape containers: scale by width to fill horizontally
-  // PDF will overflow vertically and get cropped by overflow-hidden
-  const renderWidth = width ? width * 1.2 : 300;
+  // A4 portrait PDF in landscape container: aggressive scaling needed
+  // Container ~180x128, PDF ratio ~1:1.41 - need 2x width to fill height
+  const renderWidth = width ? width * 2 : 400;
 
   return (
     <div 
@@ -55,8 +55,8 @@ export const PdfThumbnail = ({
           className="absolute inset-0 w-full h-full object-cover"
         />
       )}
-      {/* Scale PDF by width only - vertical overflow gets cropped */}
-      <div className="absolute inset-0 flex items-start justify-center overflow-hidden">
+      {/* PDF centered - overflow cropped to simulate object-cover */}
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
         <Document
           file={pdfUrl}
           onLoadSuccess={() => setIsLoading(false)}
