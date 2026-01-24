@@ -302,8 +302,16 @@ const Index = ({ branding }: IndexProps = {}) => {
                             width={180}
                             className="h-[8rem] w-[180px] cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105"
                           />
+                          
+                          {/* Permanente Kennzeichnung - wie auf Mobile */}
+                          <div className="absolute inset-0 rounded bg-black/30 flex flex-col items-center justify-center pointer-events-none">
+                            <FileText className="h-6 w-6 text-white mb-1" />
+                            <span className="text-white text-xs font-medium">Gerichtsbeschluss</span>
+                          </div>
+                          
+                          {/* Hover-Effekt (Eye) zusätzlich */}
                           <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
-                            <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
+                            <Eye className="h-8 w-8 text-white" />
                           </div>
                         </button>
                       </>
@@ -343,8 +351,16 @@ const Index = ({ branding }: IndexProps = {}) => {
                           <DialogTrigger asChild>
                             <div className="relative group hidden lg:block">
                               <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105" />
+                              
+                              {/* Permanente Kennzeichnung - wie auf Mobile */}
+                              <div className="absolute inset-0 rounded bg-black/30 flex flex-col items-center justify-center pointer-events-none">
+                                <FileText className="h-6 w-6 text-white mb-1" />
+                                <span className="text-white text-xs font-medium">Gerichtsbeschluss</span>
+                              </div>
+                              
+                              {/* Hover-Effekt (Eye) zusätzlich */}
                               <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
-                                <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
+                                <Eye className="h-8 w-8 text-white" />
                               </div>
                             </div>
                           </DialogTrigger>
