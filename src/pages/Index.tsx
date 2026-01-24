@@ -47,7 +47,8 @@ const Index = ({ branding }: IndexProps = {}) => {
     direction: "asc"
   });
   const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
-  const [isPasswordVerified, setIsPasswordVerified] = useState(false);
+  // If branding prop exists, password was already verified in BrandedIndex
+  const [isPasswordVerified, setIsPasswordVerified] = useState(() => !!branding);
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [submittedInquiry, setSubmittedInquiry] = useState<any>(null);
