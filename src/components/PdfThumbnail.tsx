@@ -35,8 +35,9 @@ export const PdfThumbnail = ({
     );
   }
 
-  // Scale factor for "cover" effect - render larger than container
-  const scaleFactor = 1.5;
+  // For A4 portrait PDFs in landscape containers: scale by width to fill horizontally
+  // PDF will overflow vertically and get cropped by overflow-hidden
+  const renderWidth = width ? width * 1.2 : 300;
 
   return (
     <div 
@@ -54,19 +55,17 @@ export const PdfThumbnail = ({
           className="absolute inset-0 w-full h-full object-cover"
         />
       )}
-      {/* Render PDF larger and center for "cover" effect */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      {/* Scale PDF by width only - vertical overflow gets cropped */}
+      <div className="absolute inset-0 flex items-start justify-center overflow-hidden">
         <Document
           file={pdfUrl}
           onLoadSuccess={() => setIsLoading(false)}
           onLoadError={() => setLoadError(true)}
           loading={null}
-          className="min-w-full min-h-full flex items-center justify-center"
         >
           <Page 
             pageNumber={1} 
-            width={width ? width * scaleFactor : undefined}
-            height={height ? height * scaleFactor : undefined}
+            width={renderWidth}
             renderTextLayer={false}
             renderAnnotationLayer={false}
           />
