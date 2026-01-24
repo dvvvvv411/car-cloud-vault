@@ -15,6 +15,7 @@ import { Pagination, PaginationContent, PaginationItem, PaginationLink, Paginati
 import LawyerContactCard from "@/components/LawyerContactCard";
 import { InquiryForm } from "@/components/InquiryForm";
 import { InquiryConfirmation } from "@/components/InquiryConfirmation";
+import { PdfThumbnail } from "@/components/PdfThumbnail";
 import kbsLogo from "@/assets/kbs_blue.png";
 import demoVehicle from "@/assets/demo-vehicle.png";
 import beschlussImage from "@/assets/beschluss.png";
@@ -270,7 +271,12 @@ const Index = ({ branding }: IndexProps = {}) => {
                           onClick={() => setBeschlussPdfDialogOpen(true)}
                           className="relative group lg:hidden w-full md:w-auto block"
                         >
-                          <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[6rem] md:h-[7rem] w-full md:w-auto object-cover md:object-none cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all brightness-[0.85] md:brightness-100" />
+                          <PdfThumbnail 
+                            pdfUrl={branding.court_decision_pdf_url}
+                            fallbackImage={beschlussImage}
+                            height={96}
+                            className="h-[6rem] md:h-[7rem] w-full md:w-auto object-cover md:object-none cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all brightness-[0.85] md:brightness-100"
+                          />
                           
                           {/* Permanente Kennzeichnung nur auf Mobile */}
                           <div className="absolute inset-0 rounded bg-black/30 md:bg-transparent flex flex-col items-center justify-center pointer-events-none">
@@ -289,7 +295,12 @@ const Index = ({ branding }: IndexProps = {}) => {
                           onClick={() => setBeschlussPdfDialogOpen(true)}
                           className="relative group hidden lg:block"
                         >
-                          <img src={beschlussImage} alt="Gerichtsbeschluss" className="h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105" />
+                          <PdfThumbnail 
+                            pdfUrl={branding.court_decision_pdf_url}
+                            fallbackImage={beschlussImage}
+                            height={128}
+                            className="h-[8rem] w-auto cursor-pointer rounded border-2 border-border shadow-md hover:shadow-xl transition-all group-hover:scale-105"
+                          />
                           <div className="absolute inset-0 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50 flex items-center justify-center pointer-events-none">
                             <Eye className="h-8 md:h-10 w-8 md:w-10 text-white" />
                           </div>
