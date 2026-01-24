@@ -927,17 +927,35 @@ const Index = ({ branding }: IndexProps = {}) => {
         </DialogContent>
       </Dialog>
 
-      {/* Image Viewer Dialog - Desktop Only */}
+      {/* Image Viewer Dialog - Mobile Fullscreen / Desktop Centered */}
       <Dialog open={imageDialogOpen} onOpenChange={setImageDialogOpen}>
-        <DialogContent className="max-w-[90vw] max-h-[90vh] w-auto h-auto p-2">
+        <DialogContent className="
+          max-w-full max-h-full w-full h-full 
+          lg:max-w-[90vw] lg:max-h-[90vh] lg:w-auto lg:h-auto
+          p-0 lg:p-2
+          bg-black lg:bg-background
+          border-0 lg:border
+          rounded-none lg:rounded-lg
+          [&>button]:hidden lg:[&>button]:flex
+        ">
           <DialogTitle className="sr-only">Fahrzeugbild</DialogTitle>
-          {selectedImageUrl && (
-            <img 
-              src={selectedImageUrl} 
-              alt="Fahrzeug" 
-              className="max-w-full max-h-[85vh] w-auto h-auto object-contain rounded-lg"
-            />
-          )}
+          {/* Mobile Close Button */}
+          <button 
+            onClick={() => setImageDialogOpen(false)}
+            className="lg:hidden absolute top-4 right-4 z-10 rounded-full bg-black/50 p-2.5 text-white hover:bg-black/70 transition-colors"
+          >
+            <X className="h-6 w-6" />
+          </button>
+          {/* Image centered */}
+          <div className="h-full w-full flex items-center justify-center">
+            {selectedImageUrl && (
+              <img 
+                src={selectedImageUrl} 
+                alt="Fahrzeug" 
+                className="max-w-full max-h-full lg:max-h-[85vh] w-auto h-auto object-contain lg:rounded-lg"
+              />
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
@@ -1061,28 +1079,48 @@ const Index = ({ branding }: IndexProps = {}) => {
           </div>
         </div>}
 
-        {/* Zustandsbericht Dialog */}
+        {/* Zustandsbericht Dialog - Mobile Fullscreen */}
         <Dialog open={zustandsberichtDialogOpen} onOpenChange={setZustandsberichtDialogOpen}>
-          <DialogContent className="max-w-7xl max-h-[90vh] p-0">
+          <DialogContent className="
+            max-w-full max-h-full w-full h-full 
+            lg:max-w-7xl lg:max-h-[90vh] lg:h-auto
+            p-0 
+            rounded-none lg:rounded-lg
+            border-0 lg:border
+            [&>button]:hidden lg:[&>button]:flex
+          ">
             <DialogTitle className="sr-only">
               Zustandsbericht - Bericht-Nr. {selectedReportNr}
             </DialogTitle>
-            <div className="flex flex-col h-[85vh]">
-              <div className="flex items-center justify-between p-4 border-b bg-muted/30">
-                <div className="flex items-center gap-2">
-                  <div className="bg-primary p-2 rounded">
-                    <FileText className="h-5 w-5 text-primary-foreground" />
+            <div className="flex flex-col h-full lg:h-[85vh]">
+              {/* Header - Mobile optimized */}
+              <div className="flex items-center justify-between p-3 lg:p-4 border-b bg-muted/30">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className="bg-primary p-1.5 lg:p-2 rounded flex-shrink-0">
+                    <FileText className="h-4 w-4 lg:h-5 lg:w-5 text-primary-foreground" />
                   </div>
-                  <h3 className="font-semibold">Zustandsbericht - Bericht-Nr. {selectedReportNr}</h3>
+                  <h3 className="font-semibold text-sm lg:text-base truncate">
+                    Bericht-Nr. {selectedReportNr}
+                  </h3>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.open(`/zustandsbericht/${selectedReportNr}`, '_blank')}
-                  className="gap-2"
-                >
-                  In neuem Tab öffnen
-                </Button>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.open(`/zustandsbericht/${selectedReportNr}`, '_blank')}
+                    className="gap-2"
+                  >
+                    <span className="hidden sm:inline">In neuem Tab</span>
+                    <span className="sm:hidden">Öffnen</span>
+                  </Button>
+                  {/* Mobile Close Button */}
+                  <button 
+                    onClick={() => setZustandsberichtDialogOpen(false)}
+                    className="lg:hidden rounded-md p-1.5 hover:bg-muted transition-colors"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
               <div className="flex-1 overflow-hidden">
                 {selectedReportNr && (
@@ -1097,26 +1135,44 @@ const Index = ({ branding }: IndexProps = {}) => {
           </DialogContent>
         </Dialog>
 
-        {/* Beschluss PDF Dialog */}
+        {/* Beschluss PDF Dialog - Mobile Fullscreen */}
         <Dialog open={beschlussPdfDialogOpen} onOpenChange={setBeschlussPdfDialogOpen}>
-          <DialogContent className="max-w-7xl max-h-[90vh] p-0">
+          <DialogContent className="
+            max-w-full max-h-full w-full h-full 
+            lg:max-w-7xl lg:max-h-[90vh] lg:h-auto
+            p-0 
+            rounded-none lg:rounded-lg
+            border-0 lg:border
+            [&>button]:hidden lg:[&>button]:flex
+          ">
             <DialogTitle className="sr-only">Gerichtsbeschluss</DialogTitle>
-            <div className="flex flex-col h-[85vh]">
-              <div className="flex items-center justify-between p-4 border-b bg-muted/30">
+            <div className="flex flex-col h-full lg:h-[85vh]">
+              {/* Header - Mobile optimized */}
+              <div className="flex items-center justify-between p-3 lg:p-4 border-b bg-muted/30">
                 <div className="flex items-center gap-2">
-                  <div className="bg-primary p-2 rounded">
-                    <FileText className="h-5 w-5 text-primary-foreground" />
+                  <div className="bg-primary p-1.5 lg:p-2 rounded">
+                    <FileText className="h-4 w-4 lg:h-5 lg:w-5 text-primary-foreground" />
                   </div>
-                  <h3 className="font-semibold">Gerichtsbeschluss</h3>
+                  <h3 className="font-semibold text-sm lg:text-base">Gerichtsbeschluss</h3>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.open(branding?.court_decision_pdf_url || '', '_blank')}
-                  className="gap-2"
-                >
-                  In neuem Tab öffnen
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => window.open(branding?.court_decision_pdf_url || '', '_blank')}
+                    className="gap-2"
+                  >
+                    <FileDown className="h-4 w-4" />
+                    <span className="hidden sm:inline">Herunterladen</span>
+                  </Button>
+                  {/* Mobile Close Button */}
+                  <button 
+                    onClick={() => setBeschlussPdfDialogOpen(false)}
+                    className="lg:hidden rounded-md p-1.5 hover:bg-muted transition-colors"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
               <div className="flex-1 overflow-hidden">
                 {branding?.court_decision_pdf_url && (
