@@ -167,22 +167,33 @@ const LawyerContactCard = ({
       </div>
       )}
 
-      {/* Desktop: Fixed Card at Bottom Right */}
-      <div className={`hidden xl:block fixed bottom-0 right-[max(1rem,calc(((100vw-1400px)/4)-266px))] w-[500px] bg-[#003e7e] text-white rounded-t-full shadow-2xl z-[60] transition-all duration-300 ${isCollapsed ? 'h-12 pt-2 pb-2 px-10' : 'pt-20 pb-8 px-10'}`}>
-      {/* Collapse Button */}
-      <button
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center justify-center transition-all z-10 hover:scale-110"
-        aria-label={isCollapsed ? "Card erweitern" : "Card minimieren"}
-      >
-        {isCollapsed ? <ChevronUp className="w-6 h-6" /> : <ChevronDown className="w-6 h-6" />}
-      </button>
+      {/* Desktop: Runder Button wenn collapsed */}
+      {isCollapsed && (
+        <button
+          onClick={() => setIsCollapsed(false)}
+          className="hidden xl:flex fixed bottom-4 right-4 z-[70] bg-[#003e7e] text-white rounded-full p-4 shadow-2xl hover:bg-[#002d5c] transition-all hover:scale-110 items-center justify-center"
+          aria-label="Kontakt öffnen"
+        >
+          <Phone className="w-6 h-6" />
+        </button>
+      )}
 
-        {/* Content - only visible when not collapsed */}
-        <div className={`transition-opacity duration-300 ${isCollapsed ? 'opacity-0 invisible h-0 overflow-hidden' : 'opacity-100 visible'}`}>
+      {/* Desktop: Volle Card wenn nicht collapsed */}
+      {!isCollapsed && (
+        <div className="hidden xl:block fixed bottom-0 right-[max(1rem,calc(((100vw-1400px)/4)-266px))] w-[500px] bg-[#003e7e] text-white rounded-t-full shadow-2xl z-[60] pt-20 pb-8 px-10">
+          {/* Collapse Button */}
+          <button
+            onClick={() => setIsCollapsed(true)}
+            className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center justify-center transition-all z-10 hover:scale-110"
+            aria-label="Card minimieren"
+          >
+            <ChevronDown className="w-6 h-6" />
+          </button>
+
+          {/* Content */}
           <ContactContent />
         </div>
-      </div>
+      )}
     </>
   );
 };
