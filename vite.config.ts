@@ -13,11 +13,13 @@ export default defineConfig(({ mode }) => ({
       "insolvenz.solle-schniebel.de",
       "insolvenz.anwaelte-neiseke-hagedorn.de",
       "insolvenz.merits-partner.de",
+      "insolvenz.legati-kanzlei.de",
       
       // Hauptdomains
       "solle-schniebel.de",
       "anwaelte-neiseke-hagedorn.de",
       "merits-partner.de",
+      "legati-kanzlei.de",
       
       // Fahrzeuge Domains
       "audi-vertrieb-leipzig.de",
