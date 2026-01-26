@@ -38,6 +38,7 @@ export default function AdminAnfragen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showKeinInteresse, setShowKeinInteresse] = useState(false);
   const [selectedStatuses, setSelectedStatuses] = useState<InquiryStatus[]>([]);
+  const [selectedBrandings, setSelectedBrandings] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
   const [isAssigningSalutations, setIsAssigningSalutations] = useState(false);
@@ -68,6 +69,17 @@ export default function AdminAnfragen() {
     }
   };
 
+  const uniqueBrandings = useMemo(() => {
+    const brandings = inquiries
+      .filter(i => i.brandings?.company_name)
+      .map(i => ({
+        id: i.branding_id!,
+        name: i.brandings!.company_name
+      }));
+    
+    return Array.from(new Map(brandings.map(b => [b.id, b])).values());
+  }, [inquiries]);
+
   const sortedInquiries = useMemo(() => {
     // First: Filter by selected statuses (if any selected)
     let filtered = inquiries;
@@ -79,6 +91,13 @@ export default function AdminAnfragen() {
       filtered = showKeinInteresse 
         ? inquiries.filter((inquiry) => inquiry.status === "Kein Interesse")
         : inquiries.filter((inquiry) => inquiry.status !== "Kein Interesse");
+    }
+
+    // Filter by selected brandings
+    if (selectedBrandings.length > 0) {
+      filtered = filtered.filter((inquiry) => 
+        inquiry.branding_id && selectedBrandings.includes(inquiry.branding_id)
+      );
     }
     
     // Second: Filter by search query
@@ -118,7 +137,7 @@ export default function AdminAnfragen() {
     });
     
     return sorted;
-  }, [inquiries, sortBy, sortOrder, searchQuery, showKeinInteresse, selectedStatuses]);
+  }, [inquiries, sortBy, sortOrder, searchQuery, showKeinInteresse, selectedStatuses, selectedBrandings]);
 
   const paginatedInquiries = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -326,6 +345,53 @@ export default function AdminAnfragen() {
               )}
             </DropdownMenuContent>
           </DropdownMenu>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="whitespace-nowrap w-full sm:w-auto">
+                <Building className="h-4 w-4 mr-2" />
+                Branding Filter
+                {selectedBrandings.length > 0 && (
+                  <Badge variant="secondary" className="ml-2">
+                    {selectedBrandings.length}
+                  </Badge>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56 bg-background z-50">
+              <DropdownMenuLabel>Branding auswählen</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {uniqueBrandings.map((branding) => (
+                <DropdownMenuCheckboxItem
+                  key={branding.id}
+                  checked={selectedBrandings.includes(branding.id)}
+                  onCheckedChange={(checked) => {
+                    setSelectedBrandings(prev =>
+                      checked
+                        ? [...prev, branding.id]
+                        : prev.filter(id => id !== branding.id)
+                    );
+                    setCurrentPage(1);
+                  }}
+                >
+                  {branding.name}
+                </DropdownMenuCheckboxItem>
+              ))}
+              {selectedBrandings.length > 0 && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setSelectedBrandings([]);
+                      setCurrentPage(1);
+                    }}
+                    className="text-destructive"
+                  >
+                    Filter zurücksetzen
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button
             variant="outline"
             size="sm"
@@ -341,7 +407,7 @@ export default function AdminAnfragen() {
             ) : (
               <>
                 <UserCheck className="h-4 w-4 mr-2" />
-                Anreden automatisch zuweisen
+                Anreden zuweisen
               </>
             )}
           </Button>
