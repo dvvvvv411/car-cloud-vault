@@ -39,7 +39,7 @@ export default function AdminAnfragen() {
   const [showKeinInteresse, setShowKeinInteresse] = useState(false);
   const [selectedStatuses, setSelectedStatuses] = useState<InquiryStatus[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 20;
+  const ITEMS_PER_PAGE = 10;
   const [isAssigningSalutations, setIsAssigningSalutations] = useState(false);
   const updateCallPriority = useUpdateInquiryCallPriority();
   const { toast } = useToast();
@@ -701,7 +701,7 @@ export default function AdminAnfragen() {
                 Zeige {((currentPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, sortedInquiries.length)} von {sortedInquiries.length} Anfragen
               </p>
               <Pagination>
-                <PaginationContent>
+                <PaginationContent className="gap-3">
                   <PaginationItem>
                     <PaginationPrevious 
                       onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
@@ -709,30 +709,30 @@ export default function AdminAnfragen() {
                     />
                   </PaginationItem>
                   
-                  {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter(page => {
-                      return page === 1 || 
-                             page === totalPages || 
-                             Math.abs(page - currentPage) <= 1;
-                    })
-                    .map((page, index, array) => (
-                      <React.Fragment key={page}>
-                        {index > 0 && array[index - 1] !== page - 1 && (
-                          <PaginationItem>
+                  <div className="flex items-center gap-1 mx-4">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(page => {
+                        return page === 1 || 
+                               page === totalPages || 
+                               Math.abs(page - currentPage) <= 1;
+                      })
+                      .map((page, index, array) => (
+                        <React.Fragment key={page}>
+                          {index > 0 && array[index - 1] !== page - 1 && (
                             <PaginationEllipsis />
+                          )}
+                          <PaginationItem>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(page)}
+                              isActive={currentPage === page}
+                              className="cursor-pointer"
+                            >
+                              {page}
+                            </PaginationLink>
                           </PaginationItem>
-                        )}
-                        <PaginationItem>
-                          <PaginationLink
-                            onClick={() => setCurrentPage(page)}
-                            isActive={currentPage === page}
-                            className="cursor-pointer"
-                          >
-                            {page}
-                          </PaginationLink>
-                        </PaginationItem>
-                      </React.Fragment>
-                    ))}
+                        </React.Fragment>
+                      ))}
+                  </div>
                   
                   <PaginationItem>
                     <PaginationNext 
