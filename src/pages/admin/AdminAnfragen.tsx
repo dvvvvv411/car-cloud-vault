@@ -1,3 +1,4 @@
+import React, { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -14,9 +15,17 @@ import { DekraNumbersDialog } from "@/components/admin/DekraNumbersDialog";
 import { TransferButton } from "@/components/admin/TransferButton";
 import { GenerateDocumentsDialog } from "@/components/admin/GenerateDocumentsDialog";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext, 
+  PaginationPrevious,
+  PaginationEllipsis 
+} from "@/components/ui/pagination";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
-import { useState, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -29,6 +38,8 @@ export default function AdminAnfragen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showKeinInteresse, setShowKeinInteresse] = useState(false);
   const [selectedStatuses, setSelectedStatuses] = useState<InquiryStatus[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 20;
   const [isAssigningSalutations, setIsAssigningSalutations] = useState(false);
   const updateCallPriority = useUpdateInquiryCallPriority();
   const { toast } = useToast();
@@ -108,6 +119,14 @@ export default function AdminAnfragen() {
     
     return sorted;
   }, [inquiries, sortBy, sortOrder, searchQuery, showKeinInteresse, selectedStatuses]);
+
+  const paginatedInquiries = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return sortedInquiries.slice(startIndex, endIndex);
+  }, [sortedInquiries, currentPage]);
+
+  const totalPages = Math.ceil(sortedInquiries.length / ITEMS_PER_PAGE);
 
   const handleCallPriorityChange = (inquiryId: string, checked: boolean) => {
     updateCallPriority.mutate(
@@ -253,7 +272,10 @@ export default function AdminAnfragen() {
               type="text"
               placeholder="Suche nach Name, E-Mail, Telefon oder Unternehmen..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
               className="w-full h-10 pl-10 pr-4 rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             />
           </div>
@@ -282,6 +304,7 @@ export default function AdminAnfragen() {
                         ? [...prev, status]
                         : prev.filter(s => s !== status)
                     );
+                    setCurrentPage(1);
                   }}
                 >
                   {status}
@@ -291,7 +314,10 @@ export default function AdminAnfragen() {
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    onClick={() => setSelectedStatuses([])}
+                    onClick={() => {
+                      setSelectedStatuses([]);
+                      setCurrentPage(1);
+                    }}
                     className="text-destructive"
                   >
                     Filter zurücksetzen
@@ -322,7 +348,10 @@ export default function AdminAnfragen() {
           <Button
             variant={showKeinInteresse ? "default" : "outline"}
             size="sm"
-            onClick={() => setShowKeinInteresse(!showKeinInteresse)}
+            onClick={() => {
+              setShowKeinInteresse(!showKeinInteresse);
+              setCurrentPage(1);
+            }}
             disabled={selectedStatuses.length > 0}
             className="whitespace-nowrap w-full sm:w-auto"
           >
@@ -392,7 +421,7 @@ export default function AdminAnfragen() {
                       </tr>
                     </thead>
                     <tbody>
-                      {sortedInquiries.map((inquiry) => (
+                      {paginatedInquiries.map((inquiry) => (
                         <tr
                           key={inquiry.id}
                           className={`transition-all duration-200 ${
@@ -529,7 +558,7 @@ export default function AdminAnfragen() {
 
           {/* Mobile Card View */}
           <div className="md:hidden space-y-4">
-            {sortedInquiries.map((inquiry) => (
+            {paginatedInquiries.map((inquiry) => (
               <Card 
                 key={inquiry.id} 
                 className={`modern-hover ${
@@ -664,6 +693,57 @@ export default function AdminAnfragen() {
               </Card>
             ))}
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+              <p className="text-sm text-muted-foreground">
+                Zeige {((currentPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, sortedInquiries.length)} von {sortedInquiries.length} Anfragen
+              </p>
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                  
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter(page => {
+                      return page === 1 || 
+                             page === totalPages || 
+                             Math.abs(page - currentPage) <= 1;
+                    })
+                    .map((page, index, array) => (
+                      <React.Fragment key={page}>
+                        {index > 0 && array[index - 1] !== page - 1 && (
+                          <PaginationItem>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        )}
+                        <PaginationItem>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(page)}
+                            isActive={currentPage === page}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      </React.Fragment>
+                    ))}
+                  
+                  <PaginationItem>
+                    <PaginationNext 
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
         </>
       )}
     </div>
