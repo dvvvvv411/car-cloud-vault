@@ -67,3 +67,38 @@ export const useCreateUser = () => {
     },
   });
 };
+
+export const useUpdateUserPassword = () => {
+  return useMutation({
+    mutationFn: async ({ 
+      userId, 
+      newPassword 
+    }: { 
+      userId: string; 
+      newPassword: string;
+    }) => {
+      const { data, error } = await supabase.functions.invoke('update-user-password', {
+        body: { userId, newPassword },
+      });
+
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+      
+      return data;
+    },
+    onSuccess: () => {
+      toast({
+        title: 'Passwort geändert',
+        description: 'Das Passwort wurde erfolgreich aktualisiert.',
+      });
+    },
+    onError: (error: Error) => {
+      console.error('Error updating password:', error);
+      toast({
+        title: 'Fehler',
+        description: error.message || 'Das Passwort konnte nicht geändert werden.',
+        variant: 'destructive',
+      });
+    },
+  });
+};

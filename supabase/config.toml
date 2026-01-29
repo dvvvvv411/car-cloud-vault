@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.assign-salutations-to-inquiries]
 verify_jwt = false
+
+[functions.update-user-password]
+verify_jwt = false

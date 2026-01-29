@@ -10,14 +10,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { UserPlus, Loader2 } from "lucide-react";
-import { useUsers } from "@/hooks/useUsers";
+import { UserPlus, Loader2, KeyRound } from "lucide-react";
+import { useUsers, User } from "@/hooks/useUsers";
 import { AddUserDialog } from "@/components/admin/AddUserDialog";
+import { AdminChangePasswordDialog } from "@/components/admin/AdminChangePasswordDialog";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
 export default function AdminBenutzer() {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const { data: users, isLoading } = useUsers();
 
   return (
@@ -55,6 +58,7 @@ export default function AdminBenutzer() {
                     <TableHead>Rolle</TableHead>
                     <TableHead>Erstellt am</TableHead>
                     <TableHead>Letzter Login</TableHead>
+                    <TableHead>Aktionen</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -74,6 +78,19 @@ export default function AdminBenutzer() {
                           ? format(new Date(user.last_sign_in_at), 'dd.MM.yyyy HH:mm', { locale: de })
                           : 'Noch nie eingeloggt'}
                       </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedUser(user);
+                            setPasswordDialogOpen(true);
+                          }}
+                        >
+                          <KeyRound className="h-4 w-4 mr-2" />
+                          Passwort
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -84,6 +101,11 @@ export default function AdminBenutzer() {
       </Card>
 
       <AddUserDialog open={addDialogOpen} onOpenChange={setAddDialogOpen} />
+      <AdminChangePasswordDialog
+        open={passwordDialogOpen}
+        onOpenChange={setPasswordDialogOpen}
+        user={selectedUser}
+      />
     </div>
   );
 }
