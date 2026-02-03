@@ -8,29 +8,7 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
-    allowedHosts: [
-      // Insolvenz Subdomains
-      "insolvenz.solle-schniebel.de",
-      "insolvenz.anwaelte-neiseke-hagedorn.de",
-      "insolvenz.merits-partner.de",
-      "insolvenz.legati-kanzlei.de",
-      "insolvenz.frik-maxeiner.de",
-      
-      // Hauptdomains
-      "solle-schniebel.de",
-      "anwaelte-neiseke-hagedorn.de",
-      "merits-partner.de",
-      "legati-kanzlei.de",
-      "frik-maxeiner.de",
-      
-      // Fahrzeuge Domains
-      "audi-vertrieb-leipzig.de",
-      "www.audi-vertrieb-leipzig.de",
-      
-      // Development
-      ".lovable.app",
-      "localhost"
-    ]
+    allowedHosts: true
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
