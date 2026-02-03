@@ -1,45 +1,38 @@
 
 
-## Plan: Domain `frik-maxeiner.de` zur allowedHosts hinzufügen
+## Plan: Vite für alle Domains öffnen
 
 ### Änderung in `vite.config.ts`
 
-Die neue Domain `insolvenz.frik-maxeiner.de` und die Hauptdomain `frik-maxeiner.de` werden zur Liste hinzugefügt:
+Statt einzelne Domains aufzulisten, wird `allowedHosts: true` gesetzt. Das erlaubt **alle Hosts** ohne Einschränkung.
 
-**Zeile 16-17 erweitern:**
-
+**Vorher (Zeilen 10-31):**
 ```typescript
-allowedHosts: [
-  // Insolvenz Subdomains
-  "insolvenz.solle-schniebel.de",
-  "insolvenz.anwaelte-neiseke-hagedorn.de",
-  "insolvenz.merits-partner.de",
-  "insolvenz.legati-kanzlei.de",
-  "insolvenz.frik-maxeiner.de",  // ← NEU
-  
-  // Hauptdomains
-  "solle-schniebel.de",
-  "anwaelte-neiseke-hagedorn.de",
-  "merits-partner.de",
-  "legati-kanzlei.de",
-  "frik-maxeiner.de",  // ← NEU
-  
-  // Fahrzeuge Domains
-  "audi-vertrieb-leipzig.de",
-  "www.audi-vertrieb-leipzig.de",
-  
-  // Development
-  ".lovable.app",
-  "localhost"
-]
+server: {
+  host: "::",
+  port: 8080,
+  allowedHosts: [
+    "insolvenz.solle-schniebel.de",
+    "insolvenz.anwaelte-neiseke-hagedorn.de",
+    // ... viele weitere Domains
+  ]
+}
+```
+
+**Nachher:**
+```typescript
+server: {
+  host: "::",
+  port: 8080,
+  allowedHosts: true
+}
 ```
 
 ### Ergebnis
 
-| Domain | Status |
-|--------|--------|
-| `insolvenz.frik-maxeiner.de` | Erlaubt |
-| `frik-maxeiner.de` | Erlaubt |
-
-Nach dieser Änderung wird die "Blocked request"-Meldung nicht mehr erscheinen.
+| Vorher | Nachher |
+|--------|---------|
+| Nur gelistete Domains erlaubt | Alle Domains erlaubt |
+| Neue Domains müssen manuell hinzugefügt werden | Keine Pflege mehr nötig |
+| "Blocked request" Fehler möglich | Kein "Blocked request" mehr |
 
