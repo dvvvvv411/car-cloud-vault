@@ -49,10 +49,11 @@ export default function AdminAnfragen() {
   const STATUS_PRIORITY: Record<InquiryStatus, number> = {
     "Neu": 1,
     "Möchte RG/KV": 2,
-    "RG/KV gesendet": 3,
-    "Bezahlt": 4,
-    "Exchanged": 5,
-    "Kein Interesse": 6
+    "Amtsgericht": 3,
+    "RG/KV gesendet": 4,
+    "Bezahlt": 5,
+    "Exchanged": 6,
+    "Kein Interesse": 7
   };
 
   const handleSort = (column: string) => {

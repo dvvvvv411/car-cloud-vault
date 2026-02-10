@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export type InquiryStatus = "Neu" | "Möchte RG/KV" | "RG/KV gesendet" | "Bezahlt" | "Exchanged" | "Kein Interesse";
+export type InquiryStatus = "Neu" | "Möchte RG/KV" | "Amtsgericht" | "RG/KV gesendet" | "Bezahlt" | "Exchanged" | "Kein Interesse";
 
 export interface Inquiry {
   id: string;
