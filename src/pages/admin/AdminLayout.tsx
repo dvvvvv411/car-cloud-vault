@@ -9,6 +9,7 @@ import { ChangePasswordDialog } from "@/components/admin/ChangePasswordDialog";
 
 const INQUIRY_ONLY_USER_ID = '8d7a682d-5d5e-43ff-8b73-513464eb16fc';
 const KALTAQUISE_ONLY_USER_ID = 'd173101f-803b-4531-8ff3-722be030b267';
+const AMTSGERICHT_ONLY_USER_ID = '32a4a326-41b8-4dc6-be0d-f3defa261c8d';
 const ADMIN_EMAIL = 'admin@admin.de';
 
 const navItems = [
@@ -33,20 +34,25 @@ export default function AdminLayout() {
   
   const isInquiryOnlyUser = user?.id === INQUIRY_ONLY_USER_ID;
   const isKaltaquiseOnlyUser = user?.id === KALTAQUISE_ONLY_USER_ID;
+  const isAmtsgerichtOnlyUser = user?.id === AMTSGERICHT_ONLY_USER_ID;
   const isAdmin = user?.email === ADMIN_EMAIL;
-  const visibleNavItems = isInquiryOnlyUser 
-    ? navItems.filter(item => item.url === '/admin/anfragen')
+  const visibleNavItems = isAmtsgerichtOnlyUser
+    ? navItems.filter(item => item.url === '/admin/amtsgericht')
+    : isInquiryOnlyUser 
+    ? navItems.filter(item => item.url === '/admin/anfragen' || item.url === '/admin/amtsgericht')
     : isKaltaquiseOnlyUser
     ? navItems.filter(item => item.url === '/admin/kaltaquise')
     : navItems;
 
   useEffect(() => {
-    if (isInquiryOnlyUser && location.pathname === '/admin') {
+    if (isAmtsgerichtOnlyUser && location.pathname === '/admin') {
+      navigate('/admin/amtsgericht', { replace: true });
+    } else if (isInquiryOnlyUser && location.pathname === '/admin') {
       navigate('/admin/anfragen', { replace: true });
     } else if (isKaltaquiseOnlyUser && location.pathname === '/admin') {
       navigate('/admin/kaltaquise', { replace: true });
     }
-  }, [isInquiryOnlyUser, isKaltaquiseOnlyUser, location.pathname, navigate]);
+  }, [isAmtsgerichtOnlyUser, isInquiryOnlyUser, isKaltaquiseOnlyUser, location.pathname, navigate]);
 
   const handleLogout = async () => {
     await signOut();
@@ -89,7 +95,7 @@ export default function AdminLayout() {
         <div className="mb-3 px-2 py-1.5 rounded-lg bg-background/60 text-xs text-muted-foreground truncate">
           {user?.email}
         </div>
-        {(isAdmin || isKaltaquiseOnlyUser) && (
+        {(isAdmin || isKaltaquiseOnlyUser || isAmtsgerichtOnlyUser) && (
           <Button 
             onClick={() => setPasswordDialogOpen(true)}
             variant="outline" 
