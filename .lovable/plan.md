@@ -1,46 +1,46 @@
 
 
-## Mailbox-Button in der Notizen-Spalte
+## Neuer Status "Amtsgericht" hinzufuegen
 
 ### Was wird gemacht
 
-Neben dem "Notiz hinzufuegen" Button im Notizen-Dialog kommt ein neuer "Mailbox" Button. Wenn man darauf klickt, wird ein spezieller Eintrag vom Typ "mailbox" erstellt. In der Notizen-Spalte der Tabelle werden diese dann als "MB 1", "MB 2" etc. Badges angezeigt (analog zu "Notiz 1", "Notiz 2").
+Ein neuer Status "Amtsgericht" wird zum Inquiry-Status-Dropdown hinzugefuegt. Er erscheint zwischen "Moechte RG/KV" und "RG/KV gesendet" und bekommt eine eigene Farbe (Lime/Gelb-Gruen), die bisher nicht verwendet wird.
 
 ### Technische Umsetzung
 
-#### 1. Datenbank: Neue Spalte `note_type`
+#### 1. Datenbank-Migration
 
-Eine neue Spalte `note_type` (TEXT, default `'note'`) wird zur Tabelle `inquiry_notes` hinzugefuegt. Moegliche Werte: `'note'` (Standard) und `'mailbox'`.
+Neuer Enum-Wert fuer den `inquiry_status` Typ:
 
 ```sql
-ALTER TABLE inquiry_notes ADD COLUMN note_type text NOT NULL DEFAULT 'note';
+ALTER TYPE inquiry_status ADD VALUE IF NOT EXISTS 'Amtsgericht' AFTER 'Möchte RG/KV';
 ```
 
-#### 2. Hook: `useInquiryNotes.ts`
+#### 2. TypeScript-Typ (`src/hooks/useInquiries.ts`)
 
-- Das `InquiryNote` Interface bekommt ein neues Feld `note_type: 'note' | 'mailbox'`
-- Die `useCreateInquiryNote` Mutation bekommt einen optionalen Parameter `noteType` (default `'note'`)
-- Beim Insert wird `note_type` mitgeschickt
+`InquiryStatus` um "Amtsgericht" erweitern:
 
-#### 3. Dialog: `InquiryNotesDialog.tsx`
+```typescript
+export type InquiryStatus = "Neu" | "Möchte RG/KV" | "Amtsgericht" | "RG/KV gesendet" | "Bezahlt" | "Exchanged" | "Kein Interesse";
+```
 
-- Neben dem "Notiz hinzufuegen" Button kommt ein "Mailbox" Button (z.B. mit Mail-Icon)
-- Klick auf "Mailbox" erstellt sofort einen Eintrag mit `note_type: 'mailbox'` und einem leeren oder automatischen Text (z.B. "Mailbox-Eintrag")
-- In der ScrollArea werden Mailbox-Eintraege mit "MB X" Label statt "Notiz X" angezeigt
+#### 3. Status-Dropdown (`src/components/admin/InquiryStatusDropdown.tsx`)
 
-#### 4. Badges in der Tabellen-Spalte (DialogTrigger)
+- "Amtsgericht" in die `STATUS_OPTIONS` Liste einfuegen (nach "Moechte RG/KV")
+- Neue Farbe in `getStatusColor`: **Lime** (`bg-lime-100 text-lime-800 border-lime-300 hover:bg-lime-200`)
 
-- Die Badges werden nach Typ getrennt angezeigt:
-  - Regulaere Notizen: "Notiz 1", "Notiz 2" (wie bisher)
-  - Mailbox-Eintraege: "MB 1", "MB 2" (eigene Farbe, z.B. orange/gelb)
-- Die Nummerierung laeuft pro Typ separat
+Bisherige Farben: Blau, Orange, Lila, Gruen, Grau, Rot - Lime ist neu.
+
+#### 4. Supabase Types (`src/integrations/supabase/types.ts`)
+
+Enum-Definition aktualisieren, damit "Amtsgericht" als gueltiger Wert erkannt wird.
 
 ### Dateien die geaendert werden
 
 | Datei | Aenderung |
 |-------|-----------|
-| `supabase/migrations/` | Neue Migration fuer `note_type` Spalte |
-| `src/integrations/supabase/types.ts` | Wird automatisch aktualisiert |
-| `src/hooks/useInquiryNotes.ts` | `note_type` zum Interface und zur Mutation hinzufuegen |
-| `src/components/admin/InquiryNotesDialog.tsx` | Mailbox-Button, getrennte Badge-Anzeige, MB-Labels im Dialog |
+| `supabase/migrations/` | Neue Migration: `ALTER TYPE inquiry_status ADD VALUE` |
+| `src/integrations/supabase/types.ts` | Enum um "Amtsgericht" erweitern |
+| `src/hooks/useInquiries.ts` | `InquiryStatus` Typ erweitern |
+| `src/components/admin/InquiryStatusDropdown.tsx` | Status-Option und Farbe hinzufuegen |
 
