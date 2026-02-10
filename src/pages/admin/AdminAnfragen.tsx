@@ -607,7 +607,7 @@ export default function AdminAnfragen() {
                           </td>
                           <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center justify-center gap-2">
-                              {isTransferAdmin && inquiry.status === "Möchte RG/KV" && (
+{isTransferAdmin && (inquiry.status === "Möchte RG/KV" || inquiry.status === "Amtsgericht Ready") && (
                                 <>
                                   <GenerateDocumentsDialog inquiry={inquiry} />
                                   <TransferButton inquiryId={inquiry.id} />
@@ -748,7 +748,7 @@ export default function AdminAnfragen() {
                   <div className="flex gap-2">
                     <InquiryNotesDialog inquiryId={inquiry.id} />
                     <InquiryDetailsDialog inquiry={inquiry} />
-                    {isTransferAdmin && inquiry.status === "Möchte RG/KV" && (
+                    {isTransferAdmin && (inquiry.status === "Möchte RG/KV" || inquiry.status === "Amtsgericht Ready") && (
                       <>
                         <GenerateDocumentsDialog inquiry={inquiry} />
                         <TransferButton inquiryId={inquiry.id} />
