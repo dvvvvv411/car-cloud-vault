@@ -10,12 +10,14 @@ interface InquiryStatusDropdownProps {
   currentStatus: InquiryStatus;
   statusUpdatedAt?: string;
   allowedStatuses?: InquiryStatus[];
+  onStatusChange?: (oldStatus: InquiryStatus, newStatus: InquiryStatus) => void;
 }
 
 const STATUS_OPTIONS: InquiryStatus[] = [
   "Neu",
   "Möchte RG/KV",
   "Amtsgericht",
+  "Amtsgericht Ready",
   "RG/KV gesendet",
   "Bezahlt",
   "Exchanged",
@@ -30,6 +32,8 @@ const getStatusColor = (status: InquiryStatus) => {
       return "bg-orange-100 text-orange-800 border-orange-300 hover:bg-orange-200";
     case "Amtsgericht":
       return "bg-lime-100 text-lime-800 border-lime-300 hover:bg-lime-200";
+    case "Amtsgericht Ready":
+      return "bg-emerald-200 text-emerald-900 border-emerald-400 hover:bg-emerald-300";
     case "RG/KV gesendet":
       return "bg-purple-100 text-purple-800 border-purple-300 hover:bg-purple-200";
     case "Bezahlt":
@@ -43,11 +47,15 @@ const getStatusColor = (status: InquiryStatus) => {
   }
 };
 
-export const InquiryStatusDropdown = ({ inquiryId, currentStatus, statusUpdatedAt, allowedStatuses }: InquiryStatusDropdownProps) => {
+export const InquiryStatusDropdown = ({ inquiryId, currentStatus, statusUpdatedAt, allowedStatuses, onStatusChange }: InquiryStatusDropdownProps) => {
   const updateStatus = useUpdateInquiryStatus();
 
   const handleStatusChange = (newStatus: string) => {
-    updateStatus.mutate({ inquiryId, status: newStatus as InquiryStatus });
+    const typedNew = newStatus as InquiryStatus;
+    if (onStatusChange) {
+      onStatusChange(currentStatus, typedNew);
+    }
+    updateStatus.mutate({ inquiryId, status: typedNew });
   };
 
   const displayOptions = allowedStatuses || STATUS_OPTIONS;

@@ -50,10 +50,11 @@ export default function AdminAnfragen() {
     "Neu": 1,
     "Möchte RG/KV": 2,
     "Amtsgericht": 3,
-    "RG/KV gesendet": 4,
-    "Bezahlt": 5,
-    "Exchanged": 6,
-    "Kein Interesse": 7
+    "Amtsgericht Ready": 4,
+    "RG/KV gesendet": 5,
+    "Bezahlt": 6,
+    "Exchanged": 7,
+    "Kein Interesse": 8
   };
 
   const handleSort = (column: string) => {
