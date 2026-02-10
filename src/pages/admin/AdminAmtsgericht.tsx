@@ -1,13 +1,15 @@
 import React, { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, Calendar, Package, Euro, MessageSquare, Loader2, ArrowUpDown, ArrowUp, ArrowDown, Search, Building } from "lucide-react";
+import { Mail, Phone, Calendar, Package, Euro, MessageSquare, Loader2, Search, Building } from "lucide-react";
 import { useInquiries, InquiryStatus } from "@/hooks/useInquiries";
+import { useLogAmtsgerichtStatusChange } from "@/hooks/useAmtsgerichtHistory";
 import { useToast } from "@/hooks/use-toast";
 import { getBrandingColor } from "@/lib/utils";
 import { InquiryStatusDropdown } from "@/components/admin/InquiryStatusDropdown";
 import { InquiryNotesDialog } from "@/components/admin/InquiryNotesDialog";
 import { InquiryDetailsDialog } from "@/components/admin/InquiryDetailsDialog";
+import { AmtsgerichtHistoryDialog } from "@/components/admin/AmtsgerichtHistoryDialog";
 import { 
   Pagination, PaginationContent, PaginationItem, PaginationLink, 
   PaginationNext, PaginationPrevious, PaginationEllipsis 
@@ -15,14 +17,24 @@ import {
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
-const ALLOWED_STATUSES: InquiryStatus[] = ["Amtsgericht", "Möchte RG/KV", "Kein Interesse"];
+const ALLOWED_STATUSES: InquiryStatus[] = ["Amtsgericht", "Amtsgericht Ready", "Kein Interesse"];
 
 export default function AdminAmtsgericht() {
   const { data: inquiries = [], isLoading } = useInquiries();
+  const logStatusChange = useLogAmtsgerichtStatusChange();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
   const { toast } = useToast();
+
+  const handleStatusChangeLog = (inquiry: any, oldStatus: InquiryStatus, newStatus: InquiryStatus) => {
+    logStatusChange.mutate({
+      inquiryId: inquiry.id,
+      oldStatus,
+      newStatus,
+      inquiryName: `${inquiry.first_name} ${inquiry.last_name}`,
+    });
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("de-DE", {
@@ -63,7 +75,7 @@ export default function AdminAmtsgericht() {
   };
 
   const filteredInquiries = useMemo(() => {
-    let filtered = inquiries.filter(i => i.status === "Amtsgericht");
+    let filtered = inquiries.filter(i => i.status === "Amtsgericht" || i.status === "Amtsgericht Ready");
 
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
@@ -97,8 +109,11 @@ export default function AdminAmtsgericht() {
   return (
     <div className="space-y-8 animate-fade-in">
       <div>
+      <div className="flex items-center gap-3">
         <h1 className="text-4xl font-bold text-foreground tracking-tight">Amtsgericht</h1>
-        <p className="text-muted-foreground mt-2 text-base">Anfragen mit Status "Amtsgericht"</p>
+        <AmtsgerichtHistoryDialog />
+      </div>
+      <p className="text-muted-foreground mt-2 text-base">Anfragen mit Status "Amtsgericht"</p>
       </div>
 
       {filteredInquiries.length > 0 || searchQuery ? (
@@ -241,6 +256,7 @@ export default function AdminAmtsgericht() {
                               currentStatus={inquiry.status}
                               statusUpdatedAt={inquiry.status_updated_at}
                               allowedStatuses={ALLOWED_STATUSES}
+                              onStatusChange={(oldS, newS) => handleStatusChangeLog(inquiry, oldS, newS)}
                             />
                           </td>
                           <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
@@ -346,6 +362,7 @@ export default function AdminAmtsgericht() {
                         currentStatus={inquiry.status}
                         statusUpdatedAt={inquiry.status_updated_at}
                         allowedStatuses={ALLOWED_STATUSES}
+                        onStatusChange={(oldS, newS) => handleStatusChangeLog(inquiry, oldS, newS)}
                       />
                       <div className="flex gap-2">
                         <InquiryNotesDialog inquiryId={inquiry.id} />

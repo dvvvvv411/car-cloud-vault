@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      amtsgericht_status_history: {
+        Row: {
+          changed_at: string
+          changed_by: string | null
+          id: string
+          inquiry_id: string
+          inquiry_name: string | null
+          new_status: string
+          old_status: string
+        }
+        Insert: {
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          inquiry_id: string
+          inquiry_name?: string | null
+          new_status: string
+          old_status: string
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          inquiry_id?: string
+          inquiry_name?: string | null
+          new_status?: string
+          old_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "amtsgericht_status_history_inquiry_id_fkey"
+            columns: ["inquiry_id"]
+            isOneToOne: false
+            referencedRelation: "inquiries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brandings: {
         Row: {
           admin_email: string | null
@@ -803,6 +841,7 @@ export type Database = {
         | "Neu"
         | "Möchte RG/KV"
         | "Amtsgericht"
+        | "Amtsgericht Ready"
         | "RG/KV gesendet"
         | "Bezahlt"
         | "Exchanged"
@@ -947,6 +986,7 @@ export const Constants = {
         "Neu",
         "Möchte RG/KV",
         "Amtsgericht",
+        "Amtsgericht Ready",
         "RG/KV gesendet",
         "Bezahlt",
         "Exchanged",
