@@ -1,46 +1,60 @@
 
 
-## Neuer Status "Amtsgericht" hinzufuegen
+## Neuer Admin-Reiter "Amtsgericht"
 
 ### Was wird gemacht
 
-Ein neuer Status "Amtsgericht" wird zum Inquiry-Status-Dropdown hinzugefuegt. Er erscheint zwischen "Moechte RG/KV" und "RG/KV gesendet" und bekommt eine eigene Farbe (Lime/Gelb-Gruen), die bisher nicht verwendet wird.
+Ein neuer Navigationspunkt "Amtsgericht" wird im Admin-Panel unterhalb von "Anfragen" hinzugefuegt. Diese Seite zeigt nur Anfragen mit dem Status "Amtsgericht" an. Der Nutzer kann dort:
+- Alle Informationen einsehen (read-only)
+- Den Status nur auf "Moechte RG/KV" oder "Kein Interesse" aendern
+- Notizen hinzufuegen (wie gewohnt)
+
+Alles andere (Fahrzeuge editieren, DEKRA kopieren, Kundeninfos bearbeiten, Rabatt) ist gesperrt.
 
 ### Technische Umsetzung
 
-#### 1. Datenbank-Migration
+#### 1. Neue Seite: `src/pages/admin/AdminAmtsgericht.tsx`
 
-Neuer Enum-Wert fuer den `inquiry_status` Typ:
+Eine neue Seite, die den gleichen `useInquiries` Hook nutzt, aber:
+- Nur Anfragen mit `status === "Amtsgericht"` anzeigt
+- Eine eingeschraenkte Version der Tabelle rendert
+- Statt `InquiryStatusDropdown` ein eigenes Dropdown mit nur 3 Optionen: "Amtsgericht", "Moechte RG/KV", "Kein Interesse"
+- Kein Call-Priority Checkbox, kein Transfer-Button, kein GenerateDocuments
+- Statt `InquiryDetailsDialog` eine read-only Version (ohne Edit-Buttons)
 
-```sql
-ALTER TYPE inquiry_status ADD VALUE IF NOT EXISTS 'Amtsgericht' AFTER 'Möchte RG/KV';
-```
+#### 2. Read-Only Details Dialog
 
-#### 2. TypeScript-Typ (`src/hooks/useInquiries.ts`)
+`InquiryDetailsDialog` bekommt eine optionale Prop `readOnly?: boolean`. Wenn `readOnly={true}`:
+- `EditCustomerInfoDialog` wird ausgeblendet
+- `EditInquiryVehiclesDialog` wird ausgeblendet
+- `DekraNumbersDialog` (Kopier-Button) wird ausgeblendet
+- `DiscountButton` wird ausgeblendet
+- Status-Dropdown wird auf die 3 erlaubten Status beschraenkt
+- Notizen bleiben voll funktionsfaehig (hinzufuegen + ansehen)
 
-`InquiryStatus` um "Amtsgericht" erweitern:
+#### 3. Eingeschraenktes Status-Dropdown
 
-```typescript
-export type InquiryStatus = "Neu" | "Möchte RG/KV" | "Amtsgericht" | "RG/KV gesendet" | "Bezahlt" | "Exchanged" | "Kein Interesse";
-```
+`InquiryStatusDropdown` bekommt eine optionale Prop `allowedStatuses?: InquiryStatus[]`. Wenn gesetzt, werden nur diese Status-Optionen im Dropdown angezeigt.
 
-#### 3. Status-Dropdown (`src/components/admin/InquiryStatusDropdown.tsx`)
+#### 4. Routing: `src/App.tsx`
 
-- "Amtsgericht" in die `STATUS_OPTIONS` Liste einfuegen (nach "Moechte RG/KV")
-- Neue Farbe in `getStatusColor`: **Lime** (`bg-lime-100 text-lime-800 border-lime-300 hover:bg-lime-200`)
+Neue Route: `/admin/amtsgericht` -> `AdminAmtsgericht`
 
-Bisherige Farben: Blau, Orange, Lila, Gruen, Grau, Rot - Lime ist neu.
+#### 5. Navigation: `src/pages/admin/AdminLayout.tsx`
 
-#### 4. Supabase Types (`src/integrations/supabase/types.ts`)
+Neuer Navigationspunkt "Amtsgericht" mit einem passenden Icon (z.B. `Landmark` von lucide), direkt unter "Anfragen".
 
-Enum-Definition aktualisieren, damit "Amtsgericht" als gueltiger Wert erkannt wird.
-
-### Dateien die geaendert werden
+### Dateien die geaendert/erstellt werden
 
 | Datei | Aenderung |
 |-------|-----------|
-| `supabase/migrations/` | Neue Migration: `ALTER TYPE inquiry_status ADD VALUE` |
-| `src/integrations/supabase/types.ts` | Enum um "Amtsgericht" erweitern |
-| `src/hooks/useInquiries.ts` | `InquiryStatus` Typ erweitern |
-| `src/components/admin/InquiryStatusDropdown.tsx` | Status-Option und Farbe hinzufuegen |
+| `src/pages/admin/AdminAmtsgericht.tsx` | **Neu** - Amtsgericht-Seite mit gefilterter Anfragenliste |
+| `src/components/admin/InquiryDetailsDialog.tsx` | `readOnly` Prop hinzufuegen, bedingt Edit-Buttons ausblenden |
+| `src/components/admin/InquiryStatusDropdown.tsx` | `allowedStatuses` Prop hinzufuegen |
+| `src/pages/admin/AdminLayout.tsx` | Neuer Nav-Eintrag "Amtsgericht" |
+| `src/App.tsx` | Neue Route `/admin/amtsgericht` |
+
+### Keine Datenbank-Aenderungen noetig
+
+Die Statusaenderung nutzt den bestehenden `useUpdateInquiryStatus` Hook und den bereits vorhandenen "Amtsgericht" Enum-Wert. Aenderungen auf der Amtsgericht-Seite sind sofort auch unter /admin/anfragen sichtbar, da beide den gleichen `inquiries` Query-Key verwenden.
 
