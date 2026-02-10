@@ -75,7 +75,7 @@ export default function AdminAmtsgericht() {
   };
 
   const filteredInquiries = useMemo(() => {
-    let filtered = inquiries.filter(i => i.status === "Amtsgericht" || i.status === "Amtsgericht Ready");
+    let filtered = inquiries.filter(i => i.status === "Amtsgericht");
 
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
