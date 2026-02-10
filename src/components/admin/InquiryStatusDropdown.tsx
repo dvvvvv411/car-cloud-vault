@@ -9,6 +9,7 @@ interface InquiryStatusDropdownProps {
   inquiryId: string;
   currentStatus: InquiryStatus;
   statusUpdatedAt?: string;
+  allowedStatuses?: InquiryStatus[];
 }
 
 const STATUS_OPTIONS: InquiryStatus[] = [
@@ -42,12 +43,14 @@ const getStatusColor = (status: InquiryStatus) => {
   }
 };
 
-export const InquiryStatusDropdown = ({ inquiryId, currentStatus, statusUpdatedAt }: InquiryStatusDropdownProps) => {
+export const InquiryStatusDropdown = ({ inquiryId, currentStatus, statusUpdatedAt, allowedStatuses }: InquiryStatusDropdownProps) => {
   const updateStatus = useUpdateInquiryStatus();
 
   const handleStatusChange = (newStatus: string) => {
     updateStatus.mutate({ inquiryId, status: newStatus as InquiryStatus });
   };
+
+  const displayOptions = allowedStatuses || STATUS_OPTIONS;
 
   return (
     <div className="flex flex-col gap-1">
@@ -56,7 +59,7 @@ export const InquiryStatusDropdown = ({ inquiryId, currentStatus, statusUpdatedA
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {STATUS_OPTIONS.map((status) => (
+          {displayOptions.map((status) => (
             <SelectItem 
               key={status} 
               value={status} 
