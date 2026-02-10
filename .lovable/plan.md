@@ -1,34 +1,30 @@
 
 
-## Benutzer-Zugriff anpassen
+## TransferButton auch bei "Amtsgericht Ready" anzeigen
 
 ### Was wird geaendert
 
-In `src/pages/admin/AdminLayout.tsx` werden die Zugriffsregeln fuer zwei Benutzer angepasst:
-
-1. **amtsgericht@caller.de** (ID: `32a4a326-41b8-4dc6-be0d-f3defa261c8d`) — sieht ausschliesslich den Reiter "Amtsgericht" und wird sofort dorthin weitergeleitet
-2. **x959@caller.de** (ID: `8d7a682d-5d5e-43ff-8b73-513464eb16fc`) — sieht "Anfragen" UND "Amtsgericht" (bisher nur "Anfragen"), wird bei `/admin` auf `/admin/anfragen` weitergeleitet
+In `src/pages/admin/AdminAnfragen.tsx` wird die Bedingung fuer die Anzeige des TransferButtons und GenerateDocumentsDialog erweitert, sodass diese nicht nur bei Status "Moechte RG/KV" sondern auch bei "Amtsgericht Ready" erscheinen.
 
 ### Technische Umsetzung
 
-In `src/pages/admin/AdminLayout.tsx`:
+Zwei Stellen in `AdminAnfragen.tsx` muessen angepasst werden:
 
-- Neue Konstante `AMTSGERICHT_ONLY_USER_ID = '32a4a326-41b8-4dc6-be0d-f3defa261c8d'`
-- `isAmtsgerichtOnlyUser` Flag hinzufuegen
-- `INQUIRY_ONLY_USER_ID` (`x959@caller.de`) bekommt jetzt Zugriff auf `/admin/anfragen` **und** `/admin/amtsgericht`
-- Die `visibleNavItems` Logik wird angepasst:
-  - `amtsgericht@caller.de` → nur `['/admin/amtsgericht']`
-  - `x959@caller.de` → `['/admin/anfragen', '/admin/amtsgericht']`
-  - `kaltaquise`-User → wie bisher nur `['/admin/kaltaquise']`
-  - Alle anderen → alle Reiter
-- Redirect-Logik im `useEffect`:
-  - `amtsgericht@caller.de` bei `/admin` → redirect zu `/admin/amtsgericht`
-  - `x959@caller.de` bei `/admin` → redirect zu `/admin/anfragen` (wie bisher)
-- Passwort-aendern Button: auch fuer `amtsgericht@caller.de` sichtbar machen
+**Zeile 610 (Desktop-Ansicht):**
+```
+Vorher:  inquiry.status === "Möchte RG/KV"
+Nachher: (inquiry.status === "Möchte RG/KV" || inquiry.status === "Amtsgericht Ready")
+```
+
+**Zeile 751 (Mobile-Ansicht):**
+```
+Vorher:  inquiry.status === "Möchte RG/KV"
+Nachher: (inquiry.status === "Möchte RG/KV" || inquiry.status === "Amtsgericht Ready")
+```
 
 ### Dateien
 
 | Datei | Aenderung |
 |-------|-----------|
-| `src/pages/admin/AdminLayout.tsx` | Neue User-ID Konstante, angepasste Filter- und Redirect-Logik |
+| `src/pages/admin/AdminAnfragen.tsx` | Bedingung an 2 Stellen erweitern (Zeile 610 + 751) |
 
