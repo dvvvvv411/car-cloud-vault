@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Eye, ChevronDown, StickyNote, Car } from "lucide-react";
-import { Inquiry } from "@/hooks/useInquiries";
+import { Inquiry, InquiryStatus } from "@/hooks/useInquiries";
 import { useInquiryNotes } from "@/hooks/useInquiryNotes";
 import { useVehicles } from "@/hooks/useVehicles";
 import { format } from "date-fns";
@@ -21,9 +21,11 @@ import { DiscountButton } from "./DiscountButton";
 
 interface InquiryDetailsDialogProps {
   inquiry: Inquiry;
+  readOnly?: boolean;
+  allowedStatuses?: InquiryStatus[];
 }
 
-export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => {
+export const InquiryDetailsDialog = ({ inquiry, readOnly = false, allowedStatuses }: InquiryDetailsDialogProps) => {
   const { data: notes = [], isLoading: notesLoading } = useInquiryNotes(inquiry.id);
   const { data: vehicles = [] } = useVehicles();
 
@@ -86,7 +88,7 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
             <div className="flex justify-between items-center mb-3">
               <h3 className="font-semibold">Kundeninformationen</h3>
               <div className="flex gap-2">
-                <EditCustomerInfoDialog inquiry={inquiry} />
+                {!readOnly && <EditCustomerInfoDialog inquiry={inquiry} />}
                 <CustomerInfoDialog inquiry={inquiry} />
               </div>
             </div>
@@ -150,10 +152,10 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
                 <h3 className="font-semibold">Ausgewählte Fahrzeuge</h3>
               </div>
               <div className="flex gap-2">
-                <EditInquiryVehiclesDialog inquiry={inquiry} />
-                <DekraNumbersDialog 
+                {!readOnly && <EditInquiryVehiclesDialog inquiry={inquiry} />}
+                {!readOnly && <DekraNumbersDialog 
                   reportNumbers={reportNumbers} 
-                />
+                />}
                 <Badge variant="outline" className="text-sm">
                   {inquiry.selected_vehicles.length} {inquiry.selected_vehicles.length === 1 ? 'Fahrzeug' : 'Fahrzeuge'}
                 </Badge>
@@ -237,6 +239,7 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
                       inquiryId={inquiry.id}
                       currentStatus={inquiry.status}
                       statusUpdatedAt={inquiry.status_updated_at}
+                      allowedStatuses={allowedStatuses}
                     />
                   </div>
                 </div>
@@ -297,17 +300,19 @@ export const InquiryDetailsDialog = ({ inquiry }: InquiryDetailsDialogProps) => 
               </div>
               
               {/* Rabatt Section */}
-              <div className="flex items-center gap-3">
-                <DiscountButton 
-                  inquiryId={inquiry.id}
-                  currentDiscount={inquiry.discount_percentage}
-                />
-                {inquiry.discount_granted_at && (
-                  <p className="text-xs text-muted-foreground">
-                    Gewährt am: {formatDate(inquiry.discount_granted_at)}
-                  </p>
-                )}
-              </div>
+              {!readOnly && (
+                <div className="flex items-center gap-3">
+                  <DiscountButton 
+                    inquiryId={inquiry.id}
+                    currentDiscount={inquiry.discount_percentage}
+                  />
+                  {inquiry.discount_granted_at && (
+                    <p className="text-xs text-muted-foreground">
+                      Gewährt am: {formatDate(inquiry.discount_granted_at)}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

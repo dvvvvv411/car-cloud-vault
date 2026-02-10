@@ -26,6 +26,7 @@ import AdminLeads from "./pages/admin/AdminLeads";
 import AdminKaltaquise from "./pages/admin/AdminKaltaquise";
 import AdminKaltaquiseCallerDetails from "./pages/admin/AdminKaltaquiseCallerDetails";
 import AdminKaltaquiseLeads from "./pages/admin/AdminKaltaquiseLeads";
+import AdminAmtsgericht from "./pages/admin/AdminAmtsgericht";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -65,6 +66,7 @@ const App = () => (
               <Route path="positionen" element={<AdminPositionen />} />
               <Route path="fahrzeuge" element={<AdminFahrzeuge />} />
               <Route path="anfragen" element={<AdminAnfragen />} />
+              <Route path="amtsgericht" element={<AdminAmtsgericht />} />
               <Route path="leads" element={<AdminLeads />} />
               <Route path="kaltaquise" element={<AdminKaltaquise />} />
               <Route path="kaltaquise/:callerId" element={<AdminKaltaquiseCallerDetails />} />
