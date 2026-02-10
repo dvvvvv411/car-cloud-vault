@@ -472,6 +472,7 @@ export type Database = {
           id: string
           inquiry_id: string
           note_text: string
+          note_type: string
           updated_at: string
         }
         Insert: {
@@ -480,6 +481,7 @@ export type Database = {
           id?: string
           inquiry_id: string
           note_text: string
+          note_type?: string
           updated_at?: string
         }
         Update: {
@@ -488,6 +490,7 @@ export type Database = {
           id?: string
           inquiry_id?: string
           note_text?: string
+          note_type?: string
           updated_at?: string
         }
         Relationships: [

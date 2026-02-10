@@ -1,0 +1,1 @@
+ALTER TABLE inquiry_notes ADD COLUMN note_type text NOT NULL DEFAULT 'note';

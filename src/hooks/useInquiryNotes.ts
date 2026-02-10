@@ -7,6 +7,7 @@ export interface InquiryNote {
   id: string;
   inquiry_id: string;
   note_text: string;
+  note_type: 'note' | 'mailbox';
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -49,7 +50,7 @@ export const useCreateInquiryNote = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ inquiryId, noteText }: { inquiryId: string; noteText: string }) => {
+    mutationFn: async ({ inquiryId, noteText, noteType = 'note' }: { inquiryId: string; noteText: string; noteType?: 'note' | 'mailbox' }) => {
       const { data: { user } } = await supabase.auth.getUser();
       
       const { data, error } = await supabase
@@ -57,8 +58,9 @@ export const useCreateInquiryNote = () => {
         .insert({
           inquiry_id: inquiryId,
           note_text: noteText,
+          note_type: noteType,
           created_by: user?.id,
-        })
+        } as any)
         .select()
         .single();
 
