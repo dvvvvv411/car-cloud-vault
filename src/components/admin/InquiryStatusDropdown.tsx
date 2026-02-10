@@ -14,6 +14,7 @@ interface InquiryStatusDropdownProps {
 const STATUS_OPTIONS: InquiryStatus[] = [
   "Neu",
   "Möchte RG/KV",
+  "Amtsgericht",
   "RG/KV gesendet",
   "Bezahlt",
   "Exchanged",
@@ -26,6 +27,8 @@ const getStatusColor = (status: InquiryStatus) => {
       return "bg-blue-100 text-blue-800 border-blue-300 hover:bg-blue-200";
     case "Möchte RG/KV":
       return "bg-orange-100 text-orange-800 border-orange-300 hover:bg-orange-200";
+    case "Amtsgericht":
+      return "bg-lime-100 text-lime-800 border-lime-300 hover:bg-lime-200";
     case "RG/KV gesendet":
       return "bg-purple-100 text-purple-800 border-purple-300 hover:bg-purple-200";
     case "Bezahlt":

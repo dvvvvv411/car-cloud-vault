@@ -802,6 +802,7 @@ export type Database = {
       inquiry_status:
         | "Neu"
         | "Möchte RG/KV"
+        | "Amtsgericht"
         | "RG/KV gesendet"
         | "Bezahlt"
         | "Exchanged"
@@ -945,6 +946,7 @@ export const Constants = {
       inquiry_status: [
         "Neu",
         "Möchte RG/KV",
+        "Amtsgericht",
         "RG/KV gesendet",
         "Bezahlt",
         "Exchanged",
