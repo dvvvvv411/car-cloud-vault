@@ -1,38 +1,46 @@
 
 
-## Plan: Vite für alle Domains öffnen
+## Mailbox-Button in der Notizen-Spalte
 
-### Änderung in `vite.config.ts`
+### Was wird gemacht
 
-Statt einzelne Domains aufzulisten, wird `allowedHosts: true` gesetzt. Das erlaubt **alle Hosts** ohne Einschränkung.
+Neben dem "Notiz hinzufuegen" Button im Notizen-Dialog kommt ein neuer "Mailbox" Button. Wenn man darauf klickt, wird ein spezieller Eintrag vom Typ "mailbox" erstellt. In der Notizen-Spalte der Tabelle werden diese dann als "MB 1", "MB 2" etc. Badges angezeigt (analog zu "Notiz 1", "Notiz 2").
 
-**Vorher (Zeilen 10-31):**
-```typescript
-server: {
-  host: "::",
-  port: 8080,
-  allowedHosts: [
-    "insolvenz.solle-schniebel.de",
-    "insolvenz.anwaelte-neiseke-hagedorn.de",
-    // ... viele weitere Domains
-  ]
-}
+### Technische Umsetzung
+
+#### 1. Datenbank: Neue Spalte `note_type`
+
+Eine neue Spalte `note_type` (TEXT, default `'note'`) wird zur Tabelle `inquiry_notes` hinzugefuegt. Moegliche Werte: `'note'` (Standard) und `'mailbox'`.
+
+```sql
+ALTER TABLE inquiry_notes ADD COLUMN note_type text NOT NULL DEFAULT 'note';
 ```
 
-**Nachher:**
-```typescript
-server: {
-  host: "::",
-  port: 8080,
-  allowedHosts: true
-}
-```
+#### 2. Hook: `useInquiryNotes.ts`
 
-### Ergebnis
+- Das `InquiryNote` Interface bekommt ein neues Feld `note_type: 'note' | 'mailbox'`
+- Die `useCreateInquiryNote` Mutation bekommt einen optionalen Parameter `noteType` (default `'note'`)
+- Beim Insert wird `note_type` mitgeschickt
 
-| Vorher | Nachher |
-|--------|---------|
-| Nur gelistete Domains erlaubt | Alle Domains erlaubt |
-| Neue Domains müssen manuell hinzugefügt werden | Keine Pflege mehr nötig |
-| "Blocked request" Fehler möglich | Kein "Blocked request" mehr |
+#### 3. Dialog: `InquiryNotesDialog.tsx`
+
+- Neben dem "Notiz hinzufuegen" Button kommt ein "Mailbox" Button (z.B. mit Mail-Icon)
+- Klick auf "Mailbox" erstellt sofort einen Eintrag mit `note_type: 'mailbox'` und einem leeren oder automatischen Text (z.B. "Mailbox-Eintrag")
+- In der ScrollArea werden Mailbox-Eintraege mit "MB X" Label statt "Notiz X" angezeigt
+
+#### 4. Badges in der Tabellen-Spalte (DialogTrigger)
+
+- Die Badges werden nach Typ getrennt angezeigt:
+  - Regulaere Notizen: "Notiz 1", "Notiz 2" (wie bisher)
+  - Mailbox-Eintraege: "MB 1", "MB 2" (eigene Farbe, z.B. orange/gelb)
+- Die Nummerierung laeuft pro Typ separat
+
+### Dateien die geaendert werden
+
+| Datei | Aenderung |
+|-------|-----------|
+| `supabase/migrations/` | Neue Migration fuer `note_type` Spalte |
+| `src/integrations/supabase/types.ts` | Wird automatisch aktualisiert |
+| `src/hooks/useInquiryNotes.ts` | `note_type` zum Interface und zur Mutation hinzufuegen |
+| `src/components/admin/InquiryNotesDialog.tsx` | Mailbox-Button, getrennte Badge-Anzeige, MB-Labels im Dialog |
 
