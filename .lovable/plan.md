@@ -1,36 +1,44 @@
-## 1. Disclaimer-Text ersetzen
+## Email Signatur überarbeiten
 
-In `src/components/admin/EmailSignaturePreview.tsx` den aktuellen Disclaimer-Satz austauschen gegen die in deutschen Kanzleien gängigere Standard-Vertraulichkeitsklausel:
+Anpassungen an `src/components/admin/EmailSignaturePreview.tsx` in der Funktion `buildSignatureHtml`:
 
-> Diese E-Mail und etwaige Anhänge enthalten vertrauliche und/oder rechtlich geschützte Informationen. Sollten Sie nicht der richtige Adressat sein oder diese E-Mail irrtümlich erhalten haben, informieren Sie bitte sofort den Absender und löschen Sie diese E-Mail. Das unbefugte Kopieren, Weitergeben oder Verwenden dieser E-Mail ist nicht gestattet.
+**Neue Reihenfolge der Signatur (von oben nach unten):**
 
-## 2. Neue Card: Live HTML Editor
+1. **Grußformel**: "Mit freundlichen Grüßen," (kursiv/normal, etwas Abstand nach unten)
+2. **Name**: "Philip Neiseke" (fett, 16px, dunkles Marineblau `#0a1f3d`)
+3. **Untertitel**: "Rechtsanwalt" (12px, grau `#4b5563`)
+4. **Goldener Divider**: horizontale Linie (1-2px, ~180px breit) in der gleichen Goldfarbe wie das `&` im Logo (geschätzt `#c9a961` / warmes Gold — wird beim Build per Auge anhand des Logos verifiziert und ggf. auf den exakten Hex-Wert angepasst)
+5. **Logo**: `neiseke-hagedorn-logo.png` (Breite 200px, Block-Element, leichter Top-Padding)
+6. **Kanzleiname**: "Neiseke & Hagedorn Rechtsanwälte in Partnerschaft PartG mbB" (12px, grau `#4b5563`, gleicher Style wie "Rechtsanwalt")
+7. **Adresse**: "Kanzlerstr. 1, 40472 Düsseldorf"
+8. **Kontaktblock**: Tel / E-Mail / Web (unverändert, dunkles Marineblau für Links)
+9. **Disclaimer**: unverändert
 
-Unter der bestehenden Signatur-Card im Tab "Email Signatur" eine zweite Card hinzufügen mit einem **Live-HTML-Editor**:
+**ASCII-Skizze der neuen Struktur:**
 
-- **Layout:** zwei Spalten (auf Mobile gestapelt)
-  - links: `<Textarea>` (monospaced, ~480px hoch) — Eingabe von HTML
-  - rechts: weißer Vorschau-Container, rendert das HTML live via `dangerouslySetInnerHTML`
-- **State:** `useState` für den HTML-Code, jede Eingabe aktualisiert sofort die Vorschau (kein "Apply"-Button nötig)
-- **Vorbefüllung:** leerer String oder ein kurzes Beispiel-Snippet
-- **Buttons in der Card-Header:**
-  - "Leeren" (setzt State auf leer)
-  - "Aus Signatur laden" (kopiert die generierte Signatur in den Editor — praktisch zum Anpassen)
+```text
+Mit freundlichen Grüßen,
 
-### Implementierung
+Philip Neiseke
+Rechtsanwalt
+━━━━━━━━━━━━━━━━━━  (gold)
+[ Logo Neiseke & Hagedorn ]
+Neiseke & Hagedorn Rechtsanwälte in Partnerschaft PartG mbB
+Kanzlerstr. 1, 40472 Düsseldorf
+Tel: 0211 87971650
+E-Mail: p.neiseke@anwaelte-neiseke-hagedorn.de
+Web: anwaelte-neiseke-hagedorn.de
+─────────────────────
+Diese E-Mail und etwaige Anhänge…
+```
 
-In `EmailSignaturePreview.tsx` wird unterhalb der bestehenden `<Card>` eine zweite Komponente gerendert. Da beide thematisch zusammengehören und im selben Tab stehen, kann die zweite Card direkt in derselben Datei als interne Komponente `LiveHtmlEditor` ergänzt werden, oder als kleine Wrapper-Anpassung am Tab-Inhalt.
+**Technische Details:**
 
-Vorgehen:
-- `EmailSignaturePreview.tsx` exportiert weiterhin `EmailSignaturePreview` als Haupt-Card.
-- Zusätzlich wird eine neue Komponente `LiveHtmlEditor` im selben File definiert und ebenfalls exportiert.
-- In `src/pages/admin/AdminEmails.tsx` werden im `<TabsContent value="signature">` nun beide Komponenten untereinander gerendert (mit `space-y-6`).
-- Alternativ kann `EmailSignaturePreview` selbst beide Cards umschließen — sauberer für die Tab-Datei. Ich gehe diesen Weg: `EmailSignaturePreview` rendert ein Fragment mit beiden Cards und `space-y-6`.
+- Tabelle bleibt als Layout-Container (E-Mail-kompatibel).
+- Goldener Divider als `<div style="width:180px; height:2px; background:#c9a961; margin:6px 0 12px 0;"></div>` (Hex-Wert wird beim Editieren am tatsächlichen Logo abgeglichen).
+- Logo-Breite von 220px → 200px reduzieren, damit es unter dem Divider proportional sitzt.
+- "Mit freundlichen Grüßen," in eigener `<tr>` mit `padding-bottom: 14px`.
+- `previewHtml` und `exportHtml` in `SignatureCard` nutzen weiterhin dieselbe `buildSignatureHtml`-Funktion → Änderung wirkt automatisch in Vorschau, HTML-Code und „Aus Signatur laden" im Live-Editor.
 
-## Geänderte Dateien
-
-- **edit:** `src/components/admin/EmailSignaturePreview.tsx`
-  - Disclaimer ersetzen
-  - Neue interne Komponente `LiveHtmlEditor` (Card mit Textarea links + Live-Preview rechts)
-  - `EmailSignaturePreview` umbauen: rendert beide Cards in einem `<div className="space-y-6">`
-- Keine weiteren Dateiänderungen nötig (AdminEmails.tsx bleibt wie ist).
+**Geänderte Datei:**
+- `src/components/admin/EmailSignaturePreview.tsx`
