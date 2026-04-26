@@ -81,10 +81,10 @@ export const useCreateInquiryNote = () => {
       await logActivity({
         inquiryId,
         activityType: "note_added",
-        new_value: noteText.length > 100 ? noteText.slice(0, 100) + "…" : noteText,
+        newValue: noteText.length > 100 ? noteText.slice(0, 100) + "…" : noteText,
         oldValue: noteType === 'mailbox' ? 'mailbox' : 'note',
         inquiryName,
-      } as any);
+      });
 
       return data;
     },
