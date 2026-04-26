@@ -19,10 +19,10 @@ const EVENT_HEADER: Record<EventType, string> = {
 }
 
 const EVENT_FLAG_COL: Record<EventType, string> = {
-  new_inquiry: 'telegram_notify_new_inquiry',
-  moechte_rgkv: 'telegram_notify_moechte_rgkv',
-  rgkv_sent: 'telegram_notify_rgkv_sent',
-  amtsgericht_ready: 'telegram_notify_amtsgericht_ready',
+  new_inquiry: 'notify_new_inquiry',
+  moechte_rgkv: 'notify_moechte_rgkv',
+  rgkv_sent: 'notify_rgkv_sent',
+  amtsgericht_ready: 'notify_amtsgericht_ready',
 }
 
 function escapeHtml(s: string): string {
