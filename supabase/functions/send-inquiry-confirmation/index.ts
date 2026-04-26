@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
     const { data: emailData, error: emailError } = await resend.emails.send({
       from: `${senderName} <${branding.resend_sender_email}>`,
       to: [inquiry.email],
-      subject: `Bestätigung Ihrer Anfrage - ${branding.company_name}`,
+      subject: `Bestätigung Ihrer Fahrzeuganfrage - ${branding.lawyer_firm_name}`,
       html,
     })
     

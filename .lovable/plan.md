@@ -1,45 +1,54 @@
-Ja, beim Eingang einer Anfrage wird automatisch eine Bestätigungs-E-Mail an den Kunden verschickt — über zwei Edge Functions:
-- `send-inquiry-confirmation` (Insolvenz, nutzt Template `inquiry-confirmation.tsx`)
-- `send-fahrzeuge-inquiry-confirmation` (Fahrzeuge, nutzt Template `fahrzeuge-inquiry-confirmation.tsx`)
-
 ## Ziel
 
-Auf `/admin/emails` einen neuen Reiter „Anfrage-Bestätigung (Vorschau)" einfügen, der eine 1:1-Live-Vorschau dieser automatisch versendeten Bestätigungs-E-Mails zeigt.
+Das Insolvenz-Bestätigungsemail (`send-inquiry-confirmation`) komplett modernisieren, dynamische Singular/Plural-Texte einbauen, Netto-Kennzeichnung beim Preis, neuer Betreff mit Anwaltskanzlei statt insolventem Unternehmen, und Preview entsprechend aktualisieren.
 
-## UI-Aufbau
+## Änderungen
 
-Die Seite `/admin/emails` wird auf eine Tab-Struktur umgestellt:
-- Tab 1: „Vertragsunterlagen-Templates" — bestehende Tabelle und Dialoge bleiben unverändert.
-- Tab 2: „Anfrage-Bestätigung (Vorschau)" — neuer Vorschau-Bereich.
+### 1. Email-Template modernisieren
+Datei: `supabase/functions/send-inquiry-confirmation/_templates/inquiry-confirmation.tsx`
 
-Im neuen Tab:
-- Auswahl „System": Insolvenz oder Fahrzeuge (wechselt zwischen den zwei Templates).
-- Auswahl „Branding": Dropdown mit allen aktiven Brandings — bestimmt Logo, Farben, Kanzlei-/Verkäufer-Daten in der Vorschau.
-- Auswahl „Beispiel-Anfrage": optionale Auswahl einer echten Anfrage des gewählten Brandings; wenn keine vorhanden, werden Demo-Daten verwendet (Musterkunde, 1–2 Beispiel-Fahrzeuge).
-- Anzeige: gerenderte HTML-Vorschau in einem `<iframe srcDoc=...>` mit fester Breite (~640 px), genau so wie die Mail im Postfach erscheint.
-- Hinweis-Banner: „So sieht die automatisch versendete Bestätigungs-E-Mail aus. Änderungen am Template erfolgen im Code."
+Neues, modernes Design:
+- Sauberer Header-Bereich mit Logo zentriert + dezente Akzentfarbe (aus `branding.primary_color` falls vorhanden, sonst Standard `#1a365d`)
+- Großzügige Whitespaces, weichere Card-Optik (subtile Schatten via `border` statt `box-shadow` für Email-Kompatibilität)
+- Moderne Sans-Serif-Font-Stack (`-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial`)
+- Farbpalette: Hintergrund `#f4f6f8`, Card `#ffffff`, Text `#1a202c`, Sekundärtext `#4a5568`, Akzent aus Branding
+- Status-Badge "Anfrage eingegangen" oben
+- Fahrzeug-Darstellung als Cards (statt klassischer Tabelle), pro Fahrzeug ein abgesetzter Block mit Marke + Modell groß und Preis rechts
+- Preis-Block mit deutlichem Hinweis **"Alle Preise verstehen sich netto zzgl. gesetzlicher MwSt."** unter der Gesamtsumme
+- "Nächste Schritte"-Sektion mit nummerierten Punkten
+- Footer modernisiert mit klarer Trennung Kontakt / Kanzlei
 
-## Technische Umsetzung
+Dynamische Texte (Singular vs. Plural) basierend auf `vehicles.length`:
+- Preview-Text: "folgendes Fahrzeug" / "folgende Fahrzeuge"
+- Hauptsatz: "wir haben Ihre Anfrage zu folgendem Fahrzeug erhalten:" / "... zu folgenden Fahrzeugen erhalten:"
+- Überschrift Fahrzeugblock: "Ihr angefragtes Fahrzeug" / "Ihre angefragten Fahrzeuge"
+- Gesamtsumme nur anzeigen, wenn mehr als 1 Fahrzeug (bei Einzelfahrzeug entfällt sie, da redundant)
 
-Neue Edge Function `preview-inquiry-confirmation`:
-- Nimmt `brandingId`, `system` (`insolvenz` | `fahrzeuge`) und optional `inquiryId` entgegen.
-- Lädt Branding (und Inquiry, falls `inquiryId` gesetzt) aus der Datenbank — sonst Demo-Daten.
-- Verwendet exakt dieselben React-Email-Templates wie die echten Send-Funktionen (`inquiry-confirmation.tsx` bzw. `fahrzeuge-inquiry-confirmation.tsx`) und gibt das gerenderte HTML zurück.
-- Verschickt nichts — reine Render-Funktion. Damit bleibt die Vorschau garantiert identisch zur echten Mail, da exakt dieselben Templates verwendet werden.
-- Auth: prüft im Code, dass der Aufrufer ein eingeloggter Admin ist (über `has_role`).
+### 2. Email-Betreff ändern
+Datei: `supabase/functions/send-inquiry-confirmation/index.ts`
 
-Frontend:
-- `src/pages/admin/AdminEmails.tsx`: Tabs-Wrapper hinzufügen; bestehende Inhalte in den ersten Tab verschieben; neuen Tab „Anfrage-Bestätigung" anlegen.
-- Neue Komponente `src/components/admin/InquiryConfirmationPreview.tsx`:
-  - Lädt Brandings (`useBrandings`) und Inquiries pro gewähltem Branding.
-  - Ruft die neue Edge Function via `supabase.functions.invoke('preview-inquiry-confirmation', { body: { ... } })` auf.
-  - Rendert die Antwort in einem `<iframe>`.
-- Neuer Hook `useInquiryConfirmationPreview` für die Mutation/Query.
+Aktuell:
+```
+Bestätigung Ihrer Anfrage - {branding.company_name}
+```
+Neu:
+```
+Bestätigung Ihrer Fahrzeuganfrage - {branding.lawyer_firm_name}
+```
+(Anwaltskanzlei statt insolventem Unternehmen)
 
-Keine Datenbankänderungen nötig.
+### 3. Preview-Synchronisierung
+Datei: `supabase/functions/preview-inquiry-confirmation/_templates/inquiry-confirmation.tsx`
 
-## Was nicht passiert
+Identisch zu (1) überschreiben, damit Preview unter `/admin/emails` → "Anfrage-Bestätigung (Vorschau)" exakt das neue Design zeigt.
 
-- Es wird keine zusätzliche Mail verschickt.
-- Bestehende Send-Funktionen und Templates werden nicht angefasst.
-- Keine neuen Tabellen oder Migrations.
+Zusätzlich in `supabase/functions/preview-inquiry-confirmation/index.ts` prüfen, ob der Betreff im Preview-Header mit angezeigt wird – falls ja, ebenfalls auf neuen Betreff umstellen, damit die Vorschau realistisch ist.
+
+### 4. Edge Functions deployen
+Beide Functions neu deployen:
+- `send-inquiry-confirmation`
+- `preview-inquiry-confirmation`
+
+## Nicht betroffen
+- Fahrzeuge-System-Email (`send-fahrzeuge-inquiry-confirmation`) bleibt unverändert (separates System gemäß Architektur).
+- Datenstruktur, RLS, andere Templates bleiben unverändert.
