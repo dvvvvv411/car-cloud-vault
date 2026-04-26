@@ -13,6 +13,7 @@ import { InquiryNotesDialog } from "@/components/admin/InquiryNotesDialog";
 import { InquiryDetailsDialog } from "@/components/admin/InquiryDetailsDialog";
 import { DekraNumbersDialog } from "@/components/admin/DekraNumbersDialog";
 import { TransferButton } from "@/components/admin/TransferButton";
+import { ActivityLogPanel } from "@/components/admin/ActivityLogPanel";
 import { GenerateDocumentsDialog } from "@/components/admin/GenerateDocumentsDialog";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { 
