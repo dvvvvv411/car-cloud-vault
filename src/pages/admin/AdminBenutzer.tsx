@@ -14,6 +14,7 @@ import { UserPlus, Loader2, KeyRound } from "lucide-react";
 import { useUsers, User } from "@/hooks/useUsers";
 import { AddUserDialog } from "@/components/admin/AddUserDialog";
 import { AdminChangePasswordDialog } from "@/components/admin/AdminChangePasswordDialog";
+import { UserVisibleFromPicker } from "@/components/admin/UserVisibleFromPicker";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
