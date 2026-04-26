@@ -73,7 +73,8 @@ const App = () => (
               <Route path="kaltaquise/:callerId/:campaignId" element={<AdminKaltaquiseLeads />} />
               <Route path="benutzer" element={<AdminBenutzer />} />
               <Route path="branding" element={<AdminBranding />} />
-              <Route path="emails" element={<AdminEmails />} />
+              <Route path="preview" element={<AdminEmails />} />
+              <Route path="emails" element={<Navigate to="/admin/preview" replace />} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
