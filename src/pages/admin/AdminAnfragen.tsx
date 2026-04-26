@@ -486,7 +486,6 @@ export default function AdminAnfragen() {
                             )}
                           </div>
                         </th>
-                        <th className="text-center">Call</th>
                         <th className="text-center">Details</th>
                         <th className="text-center rounded-tr-lg">Aktion</th>
                       </tr>
