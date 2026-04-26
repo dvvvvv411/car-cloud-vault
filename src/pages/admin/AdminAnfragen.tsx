@@ -739,10 +739,7 @@ export default function AdminAnfragen() {
                     <InquiryNotesDialog inquiryId={inquiry.id} />
                     <InquiryDetailsDialog inquiry={inquiry} />
                     {isTransferAdmin && (inquiry.status === "Möchte RG/KV" || inquiry.status === "Amtsgericht Ready") && (
-                      <>
-                        <GenerateDocumentsDialog inquiry={inquiry} />
-                        <TransferButton inquiryId={inquiry.id} />
-                      </>
+                      <TransferButton inquiryId={inquiry.id} />
                     )}
                   </div>
                     </div>
