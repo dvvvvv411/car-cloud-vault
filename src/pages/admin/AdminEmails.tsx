@@ -37,11 +37,19 @@ export default function AdminEmails() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Email Templates</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Emails</h2>
         <p className="text-muted-foreground">
-          Verwalten Sie die Email-Vorlagen für Vertragsunterlagen
+          Vertragsunterlagen-Vorlagen verwalten und automatische Anfrage-Bestätigung vorschauen
         </p>
       </div>
+
+      <Tabs defaultValue="templates" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="templates">Vertragsunterlagen-Templates</TabsTrigger>
+          <TabsTrigger value="preview">Anfrage-Bestätigung (Vorschau)</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="templates" className="space-y-6">
 
       <Card>
         <CardHeader>
