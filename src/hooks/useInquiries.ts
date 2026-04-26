@@ -53,29 +53,46 @@ export const useInquiries = () => {
   return useQuery({
     queryKey: ["inquiries"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("inquiries")
-        .select(`
-          *,
-      brandings (
-            company_name,
-            case_number,
-            lawyer_firm_name,
-            lawyer_name,
-            resend_api_key,
-            resend_sender_email,
-            resend_sender_name,
-            admin_email_signature,
-            branding_type
-          )
-        `)
-        .order("created_at", { ascending: false });
+      const PAGE_SIZE = 1000;
+      let allRows: any[] = [];
+      let from = 0;
 
-      if (error) throw error;
-      return (data || []).map(item => ({
+      // Supabase limitiert standardmäßig auf 1000 Zeilen pro Query.
+      // Wir paginieren in 1000er-Schritten, bis alle Anfragen geladen sind.
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const { data, error } = await supabase
+          .from("inquiries")
+          .select(`
+            *,
+            brandings (
+              company_name,
+              case_number,
+              lawyer_firm_name,
+              lawyer_name,
+              resend_api_key,
+              resend_sender_email,
+              resend_sender_name,
+              admin_email_signature,
+              branding_type
+            )
+          `)
+          .order("created_at", { ascending: false })
+          .range(from, from + PAGE_SIZE - 1);
+
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+
+        allRows = allRows.concat(data);
+
+        if (data.length < PAGE_SIZE) break;
+        from += PAGE_SIZE;
+      }
+
+      return allRows.map(item => ({
         ...item,
-        selected_vehicles: Array.isArray(item.selected_vehicles) 
-          ? item.selected_vehicles 
+        selected_vehicles: Array.isArray(item.selected_vehicles)
+          ? item.selected_vehicles
           : [],
         call_priority: item.call_priority ?? false
       })) as Inquiry[];
