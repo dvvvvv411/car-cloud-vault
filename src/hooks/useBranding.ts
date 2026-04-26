@@ -24,6 +24,9 @@ export interface Branding {
   resend_sender_name: string | null;
   admin_email: string | null;
   admin_email_signature: string | null;
+  seven_api_key: string | null;
+  sms_sender_name: string | null;
+  sms_confirmation_template: string | null;
   created_at: string;
   updated_at: string;
 }

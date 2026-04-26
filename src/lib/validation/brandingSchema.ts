@@ -18,6 +18,9 @@ export const brandingSchema = z.object({
   resend_sender_name: z.string().optional(),
   admin_email: z.string().email('Ungültige E-Mail-Adresse').optional().or(z.literal('')),
   admin_email_signature: z.string().optional(),
+  seven_api_key: z.string().optional(),
+  sms_sender_name: z.string().max(11, 'Maximal 11 Zeichen').optional().or(z.literal('')),
+  sms_confirmation_template: z.string().max(160, 'Max. 160 Zeichen').optional(),
 });
 
 export type BrandingFormData = z.infer<typeof brandingSchema>;

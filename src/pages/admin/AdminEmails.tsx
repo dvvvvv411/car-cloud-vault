@@ -8,6 +8,7 @@ import { useEmailTemplates } from "@/hooks/useEmailTemplates";
 import { EditEmailTemplateDialog } from "@/components/admin/EditEmailTemplateDialog";
 import { PreviewEmailTemplateDialog } from "@/components/admin/PreviewEmailTemplateDialog";
 import { InquiryConfirmationPreview } from "@/components/admin/InquiryConfirmationPreview";
+import { SmsConfirmationPreview } from "@/components/admin/SmsConfirmationPreview";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminEmails() {
@@ -37,16 +38,17 @@ export default function AdminEmails() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Emails</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Preview</h2>
         <p className="text-muted-foreground">
-          Vertragsunterlagen-Vorlagen verwalten und automatische Anfrage-Bestätigung vorschauen
+          Vorschau aller automatischen Kunden-Kommunikation: Templates, Bestätigungs-Email und SMS
         </p>
       </div>
 
       <Tabs defaultValue="templates" className="space-y-6">
         <TabsList>
           <TabsTrigger value="templates">Vertragsunterlagen-Templates</TabsTrigger>
-          <TabsTrigger value="preview">Anfrage-Bestätigung (Vorschau)</TabsTrigger>
+          <TabsTrigger value="preview">Anfrage-Bestätigung Email</TabsTrigger>
+          <TabsTrigger value="sms">SMS Templates</TabsTrigger>
         </TabsList>
 
         <TabsContent value="templates" className="space-y-6">
@@ -120,6 +122,10 @@ export default function AdminEmails() {
 
         <TabsContent value="preview">
           <InquiryConfirmationPreview />
+        </TabsContent>
+
+        <TabsContent value="sms">
+          <SmsConfirmationPreview />
         </TabsContent>
       </Tabs>
     </div>
