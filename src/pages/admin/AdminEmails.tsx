@@ -50,6 +50,7 @@ export default function AdminEmails() {
           <TabsTrigger value="templates">Vertragsunterlagen-Templates</TabsTrigger>
           <TabsTrigger value="preview">Anfrage-Bestätigung Email</TabsTrigger>
           <TabsTrigger value="sms">SMS Templates</TabsTrigger>
+          <TabsTrigger value="signature">Email Signatur</TabsTrigger>
         </TabsList>
 
         <TabsContent value="templates" className="space-y-6">
