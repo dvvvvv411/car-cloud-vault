@@ -92,42 +92,42 @@ export const InquiryConfirmationEmail = ({
             <Text style={paragraph}>{introSentence}</Text>
 
             {/* Vehicles section */}
-            <Section style={{ margin: '28px 0 8px' }}>
+            <Section style={{ margin: '28px 0 12px' }}>
               <Text style={sectionLabel}>{sectionHeading}</Text>
             </Section>
 
-            {vehicles.map((vehicle: any, i: number) => (
-              <Section key={i} style={vehicleCard}>
-                <Row>
-                  <Column>
-                    <Text style={vehicleBrand}>{vehicle.brand}</Text>
-                    <Text style={vehicleModel}>{vehicle.model}</Text>
-                  </Column>
-                  <Column align="right" style={{ verticalAlign: 'top' }}>
-                    <Text style={{ ...vehiclePrice, color: accent }}>
-                      {formatPrice(parseFloat(vehicle.price || 0))}
-                    </Text>
-                    <Text style={vehiclePriceNote}>netto</Text>
-                  </Column>
-                </Row>
-              </Section>
-            ))}
-
-            {/* Totals (only if more than 1) */}
-            {!isSingle && (
-              <Section style={totalsBox}>
-                <Row>
-                  <Column>
-                    <Text style={totalsLabel}>Gesamtsumme (netto)</Text>
-                  </Column>
-                  <Column align="right">
-                    <Text style={{ ...totalsValue, color: accent }}>
-                      {formatPrice(totalPrice)}
-                    </Text>
-                  </Column>
-                </Row>
-              </Section>
-            )}
+            <Section style={tableWrapper}>
+              <table style={table} cellPadding={0} cellSpacing={0}>
+                <thead>
+                  <tr>
+                    <th style={{ ...th, borderBottom: `2px solid ${accent}` }}>Marke</th>
+                    <th style={{ ...th, borderBottom: `2px solid ${accent}` }}>Modell</th>
+                    <th style={{ ...thRight, borderBottom: `2px solid ${accent}` }}>Preis (netto)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {vehicles.map((vehicle: any, i: number) => (
+                    <tr key={i}>
+                      <td style={td}>{vehicle.brand}</td>
+                      <td style={td}>{vehicle.model}</td>
+                      <td style={tdRight}>
+                        {formatPrice(parseFloat(vehicle.price || 0))}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                {!isSingle && (
+                  <tfoot>
+                    <tr>
+                      <td colSpan={2} style={tfootLabel}>Gesamtsumme (netto)</td>
+                      <td style={{ ...tfootTotal, color: accent }}>
+                        {formatPrice(totalPrice)}
+                      </td>
+                    </tr>
+                  </tfoot>
+                )}
+              </table>
+            </Section>
 
             <Text style={netNotice}>
               Alle Preise verstehen sich <strong>netto</strong> zzgl. der
@@ -184,34 +184,28 @@ export const InquiryConfirmationEmail = ({
 
             <Hr style={hr} />
 
-            {/* Footer */}
+            {/* Footer — kompakt 2 Zeilen */}
             <Section>
-              <Text style={footerFirm}>{branding.lawyer_firm_name}</Text>
-              {branding.lawyer_firm_subtitle && (
-                <Text style={footerSubtitle}>{branding.lawyer_firm_subtitle}</Text>
-              )}
-              <Text style={footerLine}>
-                {branding.lawyer_address_street}
-                <br />
-                {branding.lawyer_address_city}
+              <Text style={footerCompact}>
+                <strong style={{ color: '#1a202c' }}>{branding.lawyer_firm_name}</strong>
+                {' · '}
+                {branding.lawyer_address_street}, {branding.lawyer_address_city}
               </Text>
-              <Text style={footerLine}>
-                Telefon: {branding.lawyer_phone}
-                <br />
-                E-Mail:{' '}
+              <Text style={footerCompact}>
+                Tel: {branding.lawyer_phone}
+                {' · '}
                 <Link href={`mailto:${branding.lawyer_email}`} style={{ ...link, color: accent }}>
                   {branding.lawyer_email}
                 </Link>
                 {branding.lawyer_website_url && (
                   <>
-                    <br />
-                    Web:{' '}
+                    {' · '}
                     <Link
                       href={branding.lawyer_website_url}
                       target="_blank"
                       style={{ ...link, color: accent }}
                     >
-                      {branding.lawyer_website_url}
+                      {branding.lawyer_website_url.replace(/^https?:\/\//, '')}
                     </Link>
                   </>
                 )}
