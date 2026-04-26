@@ -551,6 +551,44 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
         </div>
       </div>
 
+      {/* SMS Configuration (Seven.io) */}
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold">SMS Konfiguration (Seven.io)</h3>
+          <p className="text-sm text-muted-foreground">
+            Optional: SMS-Bestätigung an Kunden bei Anfrage senden
+          </p>
+        </div>
+
+        <div>
+          <Label htmlFor="seven_api_key">Seven.io API Key</Label>
+          <Input
+            id="seven_api_key"
+            type="password"
+            {...register('seven_api_key')}
+            placeholder="z.B. ABCDEF1234..."
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="sms_sender_name">
+            SMS-Absendername{' '}
+            <span className="text-xs text-muted-foreground">
+              (max. 11 Zeichen, inkl. Leerzeichen) — {(watch('sms_sender_name') || '').length}/11
+            </span>
+          </Label>
+          <Input
+            id="sms_sender_name"
+            maxLength={11}
+            {...register('sms_sender_name')}
+            placeholder="Kanzlei XY"
+          />
+          {errors.sms_sender_name && (
+            <p className="text-sm text-destructive mt-1">{errors.sms_sender_name.message}</p>
+          )}
+        </div>
+      </div>
+
       {/* Status */}
       <div className="flex items-center space-x-2">
         <Switch
