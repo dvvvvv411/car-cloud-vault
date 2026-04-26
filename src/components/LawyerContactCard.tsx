@@ -48,10 +48,18 @@ const LawyerContactCard = ({
     <>
       {/* Profile Image & Name - Side by Side Layout */}
       <div className="flex items-center justify-center gap-6 mb-6">
-        <img 
-          src={lawyerPhotoUrl} 
-          alt={`Rechtsanwalt ${lawyerName}`}
-          className="w-32 h-32 rounded-full object-cover shadow-lg"
+        <div
+          role="img"
+          aria-label={`Rechtsanwalt ${lawyerName}`}
+          onContextMenu={(e) => e.preventDefault()}
+          onDragStart={(e) => e.preventDefault()}
+          draggable={false}
+          className="w-32 h-32 rounded-full shadow-lg bg-center bg-cover select-none"
+          style={{
+            backgroundImage: `url("${lawyerPhotoUrl}")`,
+            WebkitUserSelect: 'none',
+            WebkitTouchCallout: 'none',
+          }}
         />
         <div>
           <p className="text-base text-white/80 mb-1">Rechtsanwalt</p>
