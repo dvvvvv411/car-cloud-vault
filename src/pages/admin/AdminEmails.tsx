@@ -9,6 +9,7 @@ import { EditEmailTemplateDialog } from "@/components/admin/EditEmailTemplateDia
 import { PreviewEmailTemplateDialog } from "@/components/admin/PreviewEmailTemplateDialog";
 import { InquiryConfirmationPreview } from "@/components/admin/InquiryConfirmationPreview";
 import { SmsConfirmationPreview } from "@/components/admin/SmsConfirmationPreview";
+import { EmailSignaturePreview } from "@/components/admin/EmailSignaturePreview";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminEmails() {
