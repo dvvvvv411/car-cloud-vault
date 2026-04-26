@@ -57,6 +57,9 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
       resend_sender_name: branding.resend_sender_name || '',
       admin_email: branding.admin_email || '',
       admin_email_signature: branding.admin_email_signature || '',
+      seven_api_key: branding.seven_api_key || '',
+      sms_sender_name: branding.sms_sender_name || '',
+      sms_confirmation_template: branding.sms_confirmation_template || '',
     } : {
       is_active: true,
       case_number: '',
@@ -190,6 +193,9 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
         resend_sender_name: data.resend_sender_name || null,
         admin_email: data.admin_email || null,
         admin_email_signature: data.admin_email_signature || null,
+        seven_api_key: data.seven_api_key || null,
+        sms_sender_name: data.sms_sender_name || null,
+        sms_confirmation_template: data.sms_confirmation_template || null,
       };
 
       if (branding) {
