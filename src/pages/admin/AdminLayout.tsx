@@ -135,13 +135,20 @@ export default function AdminLayout() {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-background to-muted/20">
+      <div className="min-h-screen flex w-full admin-bg">
         {/* Desktop Sidebar */}
-        <Sidebar className="hidden md:flex border-r border-border/40 bg-card/50 backdrop-blur-sm">
+        <Sidebar className="hidden md:flex border-r border-border/40 bg-card/80 backdrop-blur-xl">
           <SidebarContent>
-            <div className="p-6 border-b border-border/40">
-              <h1 className="text-xl font-bold text-foreground tracking-tight">Admin Panel</h1>
-              <p className="text-xs text-muted-foreground mt-1">Verwaltungszentrale</p>
+            <div className="px-6 py-5 border-b border-border/40">
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground flex items-center justify-center shadow-[0_4px_12px_-2px_hsl(var(--primary)/0.4)]">
+                  <LayoutDashboard className="h-[18px] w-[18px]" />
+                </div>
+                <div>
+                  <h1 className="text-base font-bold text-foreground tracking-tight leading-tight">Admin Panel</h1>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-0.5">Verwaltungszentrale</p>
+                </div>
+              </div>
             </div>
             <SidebarNav />
           </SidebarContent>
@@ -150,35 +157,45 @@ export default function AdminLayout() {
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
           {/* Header */}
-          <header className="h-16 border-b border-border/40 bg-card/50 backdrop-blur-sm flex items-center justify-between px-6 shadow-sm">
+          <header className="h-16 border-b border-border/40 bg-card/70 backdrop-blur-xl flex items-center justify-between px-6 sticky top-0 z-30">
             {/* Mobile Menu */}
             <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
               <SheetTrigger asChild className="md:hidden">
-                <Button variant="ghost" size="icon" className="hover:bg-muted/50">
+                <Button variant="ghost" size="icon" className="rounded-xl hover:bg-muted/50">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-64 p-0">
-                <div className="p-6 border-b border-border/40">
-                  <h1 className="text-xl font-bold text-foreground tracking-tight">Admin Panel</h1>
-                  <p className="text-xs text-muted-foreground mt-1">Verwaltungszentrale</p>
+                <div className="px-6 py-5 border-b border-border/40">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary/70 text-primary-foreground flex items-center justify-center shadow-[0_4px_12px_-2px_hsl(var(--primary)/0.4)]">
+                      <LayoutDashboard className="h-[18px] w-[18px]" />
+                    </div>
+                    <div>
+                      <h1 className="text-base font-bold text-foreground tracking-tight leading-tight">Admin Panel</h1>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-0.5">Verwaltungszentrale</p>
+                    </div>
+                  </div>
                 </div>
                 <SidebarNav />
               </SheetContent>
             </Sheet>
 
-            <SidebarTrigger className="hidden md:flex hover:bg-muted/50 transition-colors" />
+            <SidebarTrigger className="hidden md:flex rounded-xl hover:bg-muted/50 transition-colors" />
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <span className="text-sm text-muted-foreground hidden sm:inline font-medium">
                 {user?.email}
               </span>
+              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground flex items-center justify-center text-xs font-semibold shadow-[0_2px_8px_-2px_hsl(var(--primary)/0.4)]">
+                {(user?.email || '?').charAt(0).toUpperCase()}
+              </div>
             </div>
           </header>
 
           {/* Page Content */}
-          <main className="flex-1 p-8 bg-transparent overflow-auto">
-            <div className="max-w-[2000px] mx-auto">
+          <main className="flex-1 p-6 md:p-8 bg-transparent overflow-auto">
+            <div className="max-w-[2000px] mx-auto animate-fade-in">
               <Outlet />
             </div>
           </main>
