@@ -4,26 +4,26 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Eye, Code, Copy, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import logoUrl from "@/assets/neiseke-hagedorn-logo-white.png";
+import logoUrl from "@/assets/neiseke-hagedorn-logo.png";
 
 const buildSignatureHtml = (logoSrc: string) => `
-<table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, Helvetica, sans-serif; color: #1f2937; font-size: 14px; line-height: 1.5;">
+<table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, Helvetica, sans-serif; color: #0a1f3d; font-size: 14px; line-height: 1.5;">
   <tr>
-    <td valign="top" bgcolor="#0f3b5b" style="background-color:#0f3b5b; padding: 16px; border-radius: 6px;">
-      <img src="${logoSrc}" alt="Neiseke & Hagedorn" width="140" style="display:block; width:140px; height:auto;" />
+    <td style="padding-bottom: 10px;">
+      <img src="${logoSrc}" alt="Neiseke & Hagedorn" width="220" style="display:block; width:220px; height:auto;" />
     </td>
-    <td valign="top" style="padding-left: 20px;">
-      <div style="font-size: 16px; font-weight: bold; color: #0f3b5b; margin-bottom: 2px;">Philip Neiseke</div>
-      <div style="font-size: 13px; color: #4b5563; margin-bottom: 10px;">Rechtsanwalt</div>
-      <div style="font-size: 14px; font-weight: bold; color: #111827;">Neiseke &amp; Hagedorn</div>
-      <div style="font-size: 12px; color: #6b7280; margin-bottom: 10px;">Rechtsanwälte in Partnerschaft PartG mbB</div>
-      <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #374151;">
+  </tr>
+  <tr>
+    <td>
+      <div style="font-size: 15px; font-weight: bold; color: #0a1f3d; margin-bottom: 1px;">Philip Neiseke</div>
+      <div style="font-size: 12px; color: #4b5563; margin-bottom: 8px;">Rechtsanwalt &middot; Neiseke &amp; Hagedorn Rechtsanwälte in Partnerschaft PartG mbB</div>
+      <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #1f2a44;">
         <tr><td style="padding: 1px 0;">Kanzlerstr. 1, 40472 Düsseldorf</td></tr>
-        <tr><td style="padding: 1px 0;">Tel: <a href="tel:+4921187971650" style="color:#0f3b5b; text-decoration:none;">0211 87971650</a></td></tr>
-        <tr><td style="padding: 1px 0;">E-Mail: <a href="mailto:p.neiseke@anwaelte-neiseke-hagedorn.de" style="color:#0f3b5b; text-decoration:none;">p.neiseke@anwaelte-neiseke-hagedorn.de</a></td></tr>
-        <tr><td style="padding: 1px 0;">Web: <a href="https://anwaelte-neiseke-hagedorn.de" style="color:#0f3b5b; text-decoration:none;">anwaelte-neiseke-hagedorn.de</a></td></tr>
+        <tr><td style="padding: 1px 0;">Tel: <a href="tel:+4921187971650" style="color:#0a1f3d; text-decoration:none;">0211 87971650</a></td></tr>
+        <tr><td style="padding: 1px 0;">E-Mail: <a href="mailto:p.neiseke@anwaelte-neiseke-hagedorn.de" style="color:#0a1f3d; text-decoration:none;">p.neiseke@anwaelte-neiseke-hagedorn.de</a></td></tr>
+        <tr><td style="padding: 1px 0;">Web: <a href="https://anwaelte-neiseke-hagedorn.de" style="color:#0a1f3d; text-decoration:none;">anwaelte-neiseke-hagedorn.de</a></td></tr>
       </table>
-      <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9ca3af; max-width: 420px;">
+      <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9ca3af; max-width: 480px;">
         Diese E-Mail kann vertrauliche und/oder rechtlich geschützte Informationen enthalten. Wenn Sie nicht der richtige Adressat sind, informieren Sie bitte den Absender und vernichten Sie diese E-Mail.
       </div>
     </td>
