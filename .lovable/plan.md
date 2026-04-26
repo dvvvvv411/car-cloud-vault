@@ -1,59 +1,51 @@
-# Telegram-Integration vollständig globalisieren
+# Admin-Panel modernisieren — rein visuell, ohne Funktionsänderungen
 
-Aktuell ist die Telegram-Konfiguration noch pro Branding gespeichert (`telegram_chat_id`, `telegram_notify_*` auf der `brandings`-Tabelle), obwohl wir nur EINEN globalen Bot haben. Das ergibt keinen Sinn — eine Chat-Gruppe für alle Notifications. Branding wird nur noch als **Info im Text** der Nachricht erwähnt.
+Ziel: Dem `/admin`-Bereich einen frischeren, moderneren Look geben. **Keine** Inhalte, Felder, Spalten, Buttons oder Logik werden entfernt oder umgebaut. Es geht nur um Optik / Polish.
 
 ## Was sich ändert
 
-### 1. Neue globale Settings-Tabelle
-Neue Tabelle `telegram_settings` (Singleton, eine Zeile):
-- `id` (fixed = 1)
-- `chat_id` (text, nullable)
-- `notify_new_inquiry` (bool, default true)
-- `notify_moechte_rgkv` (bool, default true)
-- `notify_rgkv_sent` (bool, default true)
-- `notify_amtsgericht_ready` (bool, default true)
-- `updated_at`
+### 1. AdminLayout (`src/pages/admin/AdminLayout.tsx`)
+- **Sidebar**: Leichter Glass-Effekt, dezenter Verlauf, größerer Abstand, runderes Logo-Header mit kleinem Icon-Badge neben „Admin Panel"
+- **Aktiver Nav-Eintrag**: Linke Akzentleiste (3px) + sanftere `bg-primary/8` statt nur `bg-primary/10`, kleines Scale-Hover
+- **Hover-States**: Smoothere Transition, Icon bekommt subtilen Color-Shift
+- **Footer (User + Buttons)**: Feinere Trennung, bessere Typo, Buttons mit `rounded-xl` und subtilen Schatten
+- **Header-Bar**: Höher gewichteter Schatten, Breadcrumb-artiger Page-Title-Slot (rein deko, leer wenn nichts gesetzt), User-Avatar-Initiale als Kreis rechts
+- **Hintergrund** des Main-Bereichs: Sehr dezenter Radial-Gradient + leichtes Grid-Pattern (über Tailwind utility), damit es nicht so flach wirkt
 
-RLS: Nur Admins lesen/schreiben.
+### 2. Design-Tokens (`src/index.css`)
+- Neuer Schatten-Token `--shadow-elegant` und `--shadow-card`
+- Neue Gradient-Tokens `--gradient-subtle`, `--gradient-card`
+- Neue Utility-Klassen: `.admin-card` (refined Card-Look mit Border + Hover-Lift), `.admin-section-title`, `.admin-bg-pattern`
+- Bestehende `--primary`, `--background` etc. bleiben **unverändert**
 
-### 2. Migration: alte Spalten entfernen
-Drop auf `brandings`:
-- `telegram_chat_id`
-- `telegram_notify_new_inquiry`
-- `telegram_notify_moechte_rgkv`
-- `telegram_notify_rgkv_sent`
-- `telegram_notify_amtsgericht_ready`
+### 3. Tailwind-Config (`tailwind.config.ts`)
+- Animation-Keyframes ergänzen (`slide-in-left`, `scale-in`) für Sidebar/Cards
+- Boxshadow-Erweiterung um die neuen Tokens
+- **Keine** bestehenden Farben überschrieben
 
-### 3. Edge Function `send-telegram-notification`
-- Liest Chat-ID + Event-Toggles aus `telegram_settings` statt aus `brandings`
-- Branding-Name kommt weiterhin als Feld in den Nachrichtentext (über die `branding_id` der Anfrage joinen)
-- Token bleibt aus `TELEGRAM_BOT_TOKEN` Secret
+### 4. AdminDashboard (`src/pages/admin/AdminDashboard.tsx`) — nur Cards/Layout
+- Stat-Cards: Größere Zahl, Icon in farbigem Soft-Badge oben rechts, dezenter Verlauf-Hintergrund pro Karte (Akzentfarbe sehr leicht), `rounded-2xl`, Hover lift
+- Section-Titel mit kleinem Akzent-Strich davor
+- Charts-Container bekommen einheitliche `admin-card`-Optik
+- **Keine** Daten, Charts oder Werte werden geändert
 
-### 4. Edge Function `telegram-get-updates`
-- Bleibt fast identisch (nutzt schon den globalen Token)
-- Test-Nachricht bekommt Chat-ID direkt mitgegeben (wie jetzt)
+### 5. Restliche Admin-Seiten
+- Wenden die neue `.admin-card` / Section-Title-Optik **nur dort an, wo aktuell `Card`-Wrapper genutzt werden** — über die bereits vorhandene Card-Komponente (klassen-Update am Wrapper)
+- Tabellen erhalten `admin-table`-Klasse für konsistenten Header-Look (verwendet bereits `modern-table`-Pattern aus `index.css`)
+- Falls eine Seite kein einheitliches Layout hat, bekommt sie einen Page-Header-Block (Titel + dezenter Subtitle), aber nur falls sie **schon** einen Titel hat — keine Inhalts-Erfindung
 
-### 5. UI `/admin/telegram` (`AdminTelegram.tsx`)
-**Komplett neu, ohne Branding-Auswahl:**
-- Hinweis-Karte: Bot-Token wird als Supabase Secret verwaltet
-- Setup-Anleitung (1× Bot erstellen, 1× in Gruppe einladen, Chat-ID erkennen)
-- **Eine** Chat-ID-Eingabe + „Chat-ID automatisch erkennen"-Button
-- **Eine** Liste der 4 Event-Checkboxes (gilt global)
-- „Speichern" + „Test-Nachricht senden"
-- Beispiel-Vorschau
-
-## Technische Details
-
-- Migration legt `telegram_settings` an, seedet Zeile mit `id=1` und übernimmt — falls vorhanden — die erste nicht-leere `telegram_chat_id` aus `brandings` als Default, dann werden die Spalten gedroppt.
-- `send-telegram-notification` Aufrufe in `submit-inquiry` und `useInquiryNotes`/`GenerateDocumentsDialog` ändern sich nicht in der Signatur (nehmen weiter `inquiry_id` + `event_type`); nur die Function intern liest aus der neuen Tabelle.
-- `src/integrations/supabase/types.ts` wird automatisch von der Migration aktualisiert.
+## Was definitiv NICHT geändert wird
+- Keine Funktionalität, keine Hooks, keine Routen, keine API-Aufrufe
+- Keine Felder hinzugefügt/entfernt
+- Keine Texte umformuliert (nur Typo/Größe)
+- Keine Farbpalette gewechselt — wir bleiben beim aktuellen Blau-Primary
 
 ## Dateien
 
-- **Neu:** `supabase/migrations/<timestamp>_telegram_global_settings.sql`
-- **Bearbeitet:** `src/pages/admin/AdminTelegram.tsx` (Branding-Auswahl raus)
-- **Bearbeitet:** `supabase/functions/send-telegram-notification/index.ts`
-- **Bearbeitet (minor):** `supabase/functions/telegram-get-updates/index.ts` (nur Cleanup falls nötig)
-- **Auto-aktualisiert:** `src/integrations/supabase/types.ts`
+- `src/index.css` — neue Tokens & Utilities
+- `tailwind.config.ts` — Animation/Shadow-Erweiterung
+- `src/pages/admin/AdminLayout.tsx` — Sidebar/Header/Background Polish
+- `src/pages/admin/AdminDashboard.tsx` — Stat-Cards & Section-Polish
+- Sanfte Class-Updates in: `AdminAnfragen.tsx`, `AdminBranding.tsx`, `AdminEmails.tsx`, `AdminBenutzer.tsx`, `AdminFahrzeuge.tsx`, `AdminPositionen.tsx`, `AdminLeads.tsx`, `AdminKaltaquise.tsx`, `AdminAmtsgericht.tsx`, `AdminTelegram.tsx` (jeweils nur Wrapper-/Card-Klassen)
 
-Nach Approval setze ich das direkt um.
+Nach Approval setze ich das in einem Rutsch um.
