@@ -1,6 +1,5 @@
-// Helper to discover chat IDs the bot has seen.
-// Calls Telegram getUpdates with the provided bot token, then returns
-// a deduplicated list of chats. Also supports sending a test message.
+// Helper to discover chat IDs the bot has seen, and to send test messages.
+// The bot token is read from the Supabase secret TELEGRAM_BOT_TOKEN.
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -23,16 +22,20 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json().catch(() => ({}))
-    const { botToken, action, chatId, text } = body as {
-      botToken?: string
+    const { action, chatId, text } = body as {
       action?: 'get_updates' | 'send_test'
       chatId?: string
       text?: string
     }
 
-    if (!botToken || typeof botToken !== 'string' || botToken.length < 20) {
+    const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN')
+    if (!botToken) {
       return new Response(
-        JSON.stringify({ success: false, error: 'missing_or_invalid_bot_token' }),
+        JSON.stringify({
+          success: false,
+          error:
+            'TELEGRAM_BOT_TOKEN ist nicht konfiguriert. Bitte in den Supabase Edge Function Secrets hinterlegen.',
+        }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
