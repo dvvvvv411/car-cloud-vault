@@ -103,3 +103,57 @@ export const useUpdateUserPassword = () => {
     },
   });
 };
+
+export const useUpdateUserVisibleFrom = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      userId,
+      visibleFrom,
+    }: {
+      userId: string;
+      visibleFrom: string | null;
+    }) => {
+      // Stelle sicher, dass eine user_roles-Zeile existiert (Trigger handle_new_user
+      // erzeugt diese normalerweise schon bei Registrierung).
+      const { data: existing, error: selectError } = await supabase
+        .from("user_roles")
+        .select("id")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (selectError) throw selectError;
+
+      if (existing) {
+        const { error } = await supabase
+          .from("user_roles")
+          .update({ inquiries_visible_from: visibleFrom })
+          .eq("user_id", userId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("user_roles")
+          .insert({ user_id: userId, role: "user", inquiries_visible_from: visibleFrom });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["inquiries"] });
+      queryClient.invalidateQueries({ queryKey: ["current-user-visible-from"] });
+      toast({
+        title: "Sichtbarkeit aktualisiert",
+        description: "Das Datum für sichtbare Anfragen wurde gespeichert.",
+      });
+    },
+    onError: (error: Error) => {
+      console.error("Error updating visible_from:", error);
+      toast({
+        title: "Fehler",
+        description: error.message || "Die Sichtbarkeit konnte nicht aktualisiert werden.",
+        variant: "destructive",
+      });
+    },
+  });
+};
