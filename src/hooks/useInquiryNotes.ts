@@ -144,6 +144,16 @@ export const useUpdateInquiryStatus = () => {
         });
       }
 
+      // Trigger SMS when status changes TO "RG/KV gesendet" (only on transition)
+      if (status === "RG/KV gesendet" && previousStatus !== "RG/KV gesendet") {
+        supabase.functions
+          .invoke("send-documents-sent-sms", { body: { inquiryId } })
+          .then(({ error: smsError }) => {
+            if (smsError) console.error("[docs-sms] invoke error:", smsError);
+          })
+          .catch((e) => console.error("[docs-sms] invoke threw:", e));
+      }
+
       return data;
     },
     onSuccess: () => {
