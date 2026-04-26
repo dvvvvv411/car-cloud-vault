@@ -2,6 +2,17 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { InquiryStatus } from "./useInquiries";
+import { logActivity } from "./useInquiryActivityLog";
+
+const fetchInquiryName = async (inquiryId: string): Promise<string | null> => {
+  const { data } = await supabase
+    .from("inquiries")
+    .select("first_name, last_name")
+    .eq("id", inquiryId)
+    .maybeSingle();
+  if (!data) return null;
+  return `${data.first_name ?? ""} ${data.last_name ?? ""}`.trim() || null;
+};
 
 export interface InquiryNote {
   id: string;
