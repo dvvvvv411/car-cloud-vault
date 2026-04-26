@@ -596,15 +596,6 @@ export default function AdminAnfragen() {
                             />
                           </td>
                           <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
-                            <Checkbox
-                              checked={inquiry.call_priority}
-                              onCheckedChange={(checked) => 
-                                handleCallPriorityChange(inquiry.id, checked as boolean)
-                              }
-                              aria-label="Als Anruf markieren"
-                            />
-                          </td>
-                          <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
                             <InquiryDetailsDialog inquiry={inquiry} />
                           </td>
                           <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
