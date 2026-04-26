@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Edit, Eye } from "lucide-react";
 import { useEmailTemplates } from "@/hooks/useEmailTemplates";
 import { EditEmailTemplateDialog } from "@/components/admin/EditEmailTemplateDialog";
 import { PreviewEmailTemplateDialog } from "@/components/admin/PreviewEmailTemplateDialog";
+import { InquiryConfirmationPreview } from "@/components/admin/InquiryConfirmationPreview";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminEmails() {
@@ -35,11 +37,19 @@ export default function AdminEmails() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Email Templates</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Emails</h2>
         <p className="text-muted-foreground">
-          Verwalten Sie die Email-Vorlagen für Vertragsunterlagen
+          Vertragsunterlagen-Vorlagen verwalten und automatische Anfrage-Bestätigung vorschauen
         </p>
       </div>
+
+      <Tabs defaultValue="templates" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="templates">Vertragsunterlagen-Templates</TabsTrigger>
+          <TabsTrigger value="preview">Anfrage-Bestätigung (Vorschau)</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="templates" className="space-y-6">
 
       <Card>
         <CardHeader>
@@ -106,6 +116,12 @@ export default function AdminEmails() {
         open={!!previewingTemplate}
         onOpenChange={(open) => !open && setPreviewingTemplate(null)}
       />
+        </TabsContent>
+
+        <TabsContent value="preview">
+          <InquiryConfirmationPreview />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
