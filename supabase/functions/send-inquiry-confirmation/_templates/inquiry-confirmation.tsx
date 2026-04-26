@@ -185,32 +185,51 @@ export const InquiryConfirmationEmail = ({
             <Hr style={hr} />
 
             {/* Footer — kompakt 2 Zeilen */}
-            <Section>
-              <Text style={footerCompact}>
-                <strong style={{ color: '#1a202c' }}>{branding.lawyer_firm_name}</strong>
-                {' · '}
-                {branding.lawyer_address_street}, {branding.lawyer_address_city}
-              </Text>
-              <Text style={footerCompact}>
-                Tel: {branding.lawyer_phone}
-                {' · '}
-                <Link href={`mailto:${branding.lawyer_email}`} style={{ ...link, color: accent }}>
-                  {branding.lawyer_email}
-                </Link>
-                {branding.lawyer_website_url && (
-                  <>
+            {(() => {
+              // Domain aus Website-URL extrahieren -> info@<domain>
+              let domainEmail: string | null = null;
+              if (branding.lawyer_website_url) {
+                try {
+                  const url = new URL(branding.lawyer_website_url);
+                  const host = url.hostname.replace(/^www\./, '');
+                  if (host) domainEmail = `info@${host}`;
+                } catch {
+                  // ignore parse errors
+                }
+              }
+              const displayEmail = domainEmail || branding.lawyer_email;
+              return (
+                <Section>
+                  <Text style={footerCompact}>
+                    <strong style={{ color: '#1a202c' }}>
+                      {branding.lawyer_firm_name}
+                      {branding.lawyer_firm_subtitle ? ` ${branding.lawyer_firm_subtitle}` : ''}
+                    </strong>
                     {' · '}
-                    <Link
-                      href={branding.lawyer_website_url}
-                      target="_blank"
-                      style={{ ...link, color: accent }}
-                    >
-                      {branding.lawyer_website_url.replace(/^https?:\/\//, '')}
+                    {branding.lawyer_address_street}, {branding.lawyer_address_city}
+                  </Text>
+                  <Text style={footerCompact}>
+                    Tel: {branding.lawyer_phone}
+                    {' · '}
+                    <Link href={`mailto:${displayEmail}`} style={{ ...link, color: accent }}>
+                      {displayEmail}
                     </Link>
-                  </>
-                )}
-              </Text>
-            </Section>
+                    {branding.lawyer_website_url && (
+                      <>
+                        {' · '}
+                        <Link
+                          href={branding.lawyer_website_url}
+                          target="_blank"
+                          style={{ ...link, color: accent }}
+                        >
+                          {branding.lawyer_website_url.replace(/^https?:\/\//, '')}
+                        </Link>
+                      </>
+                    )}
+                  </Text>
+                </Section>
+              );
+            })()}
           </Section>
 
           <Text style={legalFooter}>
