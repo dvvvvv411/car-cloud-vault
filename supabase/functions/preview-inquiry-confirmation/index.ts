@@ -1,8 +1,8 @@
 import React from 'https://esm.sh/react@18.3.1'
 import { render } from 'https://esm.sh/@react-email/render@0.0.17'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.58.0'
-import { InquiryConfirmationEmail } from '../send-inquiry-confirmation/_templates/inquiry-confirmation.tsx'
-import { FahrzeugeInquiryConfirmationEmail } from '../send-fahrzeuge-inquiry-confirmation/_templates/fahrzeuge-inquiry-confirmation.tsx'
+import { InquiryConfirmationEmail } from './_templates/inquiry-confirmation.tsx'
+import { FahrzeugeInquiryConfirmationEmail } from './_templates/fahrzeuge-inquiry-confirmation.tsx'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
