@@ -154,6 +154,26 @@ export const useUpdateInquiryStatus = () => {
           .catch((e) => console.error("[docs-sms] invoke threw:", e));
       }
 
+      // Trigger Telegram notifications on status transitions
+      if (previousStatus !== status) {
+        const tgEventMap: Record<string, string> = {
+          "Möchte RG/KV": "moechte_rgkv",
+          "RG/KV gesendet": "rgkv_sent",
+          "Amtsgericht Ready": "amtsgericht_ready",
+        };
+        const eventType = tgEventMap[status as string];
+        if (eventType) {
+          supabase.functions
+            .invoke("send-telegram-notification", {
+              body: { inquiryId, eventType },
+            })
+            .then(({ error: tgError }) => {
+              if (tgError) console.error("[telegram] invoke error:", tgError);
+            })
+            .catch((e) => console.error("[telegram] invoke threw:", e));
+        }
+      }
+
       return data;
     },
     onSuccess: () => {

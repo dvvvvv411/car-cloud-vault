@@ -163,6 +163,26 @@ const handler = async (req: Request): Promise<Response> => {
               console.error("Failed to invoke SMS function:", smsInvokeError);
             }
           }
+
+          // Send Telegram notification (fire-and-forget)
+          try {
+            const { error: tgError } = await supabaseClient.functions.invoke(
+              "send-telegram-notification",
+              {
+                body: {
+                  inquiryId: inquiryData.id,
+                  eventType: "new_inquiry",
+                },
+              }
+            );
+            if (tgError) {
+              console.error("Error sending Telegram notification:", tgError);
+            } else {
+              console.log("Telegram notification dispatched");
+            }
+          } catch (tgInvokeError) {
+            console.error("Failed to invoke Telegram function:", tgInvokeError);
+          }
         }
       } catch (emailError) {
         console.error("Failed to invoke email function:", emailError);
