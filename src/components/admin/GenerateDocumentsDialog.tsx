@@ -343,6 +343,16 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
         })
         .catch((e) => console.error("[docs-sms] invoke threw:", e));
 
+      // Trigger Telegram notification (fire-and-forget)
+      supabase.functions
+        .invoke("send-telegram-notification", {
+          body: { inquiryId: inquiry.id, eventType: "rgkv_sent" },
+        })
+        .then(({ error: tgError }) => {
+          if (tgError) console.error("[telegram] invoke error:", tgError);
+        })
+        .catch((e) => console.error("[telegram] invoke threw:", e));
+
       // Query Cache invalidieren, damit die Liste aktualisiert wird
       queryClient.invalidateQueries({ queryKey: ["inquiries"] });
 

@@ -27,6 +27,7 @@ import AdminKaltaquise from "./pages/admin/AdminKaltaquise";
 import AdminKaltaquiseCallerDetails from "./pages/admin/AdminKaltaquiseCallerDetails";
 import AdminKaltaquiseLeads from "./pages/admin/AdminKaltaquiseLeads";
 import AdminAmtsgericht from "./pages/admin/AdminAmtsgericht";
+import AdminTelegram from "./pages/admin/AdminTelegram";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -75,6 +76,7 @@ const App = () => (
               <Route path="branding" element={<AdminBranding />} />
               <Route path="preview" element={<AdminEmails />} />
               <Route path="emails" element={<Navigate to="/admin/preview" replace />} />
+              <Route path="telegram" element={<AdminTelegram />} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
