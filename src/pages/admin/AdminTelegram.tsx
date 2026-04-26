@@ -32,19 +32,17 @@ import {
 import {
   Loader2,
   Send,
-  Eye,
-  EyeOff,
   Search,
   CheckCircle2,
   AlertCircle,
   Bot,
+  KeyRound,
 } from "lucide-react";
 
 interface BrandingRow {
   id: string;
   company_name: string;
   lawyer_firm_name: string;
-  telegram_bot_token: string | null;
   telegram_chat_id: string | null;
   telegram_notify_new_inquiry: boolean;
   telegram_notify_moechte_rgkv: boolean;
@@ -65,9 +63,7 @@ export default function AdminTelegram() {
   const { toast } = useToast();
   const qc = useQueryClient();
   const [selectedId, setSelectedId] = useState<string>("");
-  const [botToken, setBotToken] = useState("");
   const [chatId, setChatId] = useState("");
-  const [showToken, setShowToken] = useState(false);
   const [notifyNew, setNotifyNew] = useState(true);
   const [notifyMoechte, setNotifyMoechte] = useState(true);
   const [notifyRgkvSent, setNotifyRgkvSent] = useState(true);
@@ -84,11 +80,11 @@ export default function AdminTelegram() {
       const { data, error } = await supabase
         .from("brandings")
         .select(
-          "id, company_name, lawyer_firm_name, telegram_bot_token, telegram_chat_id, telegram_notify_new_inquiry, telegram_notify_moechte_rgkv, telegram_notify_rgkv_sent, telegram_notify_amtsgericht_ready"
+          "id, company_name, lawyer_firm_name, telegram_chat_id, telegram_notify_new_inquiry, telegram_notify_moechte_rgkv, telegram_notify_rgkv_sent, telegram_notify_amtsgericht_ready"
         )
         .order("company_name");
       if (error) throw error;
-      return data as BrandingRow[];
+      return (data as unknown) as BrandingRow[];
     },
   });
 
@@ -105,7 +101,6 @@ export default function AdminTelegram() {
 
   useEffect(() => {
     if (branding) {
-      setBotToken(branding.telegram_bot_token || "");
       setChatId(branding.telegram_chat_id || "");
       setNotifyNew(branding.telegram_notify_new_inquiry);
       setNotifyMoechte(branding.telegram_notify_moechte_rgkv);
@@ -121,7 +116,6 @@ export default function AdminTelegram() {
       const { error } = await supabase
         .from("brandings")
         .update({
-          telegram_bot_token: botToken.trim() || null,
           telegram_chat_id: chatId.trim() || null,
           telegram_notify_new_inquiry: notifyNew,
           telegram_notify_moechte_rgkv: notifyMoechte,
@@ -144,19 +138,11 @@ export default function AdminTelegram() {
   };
 
   const handleDiscover = async () => {
-    if (!botToken.trim()) {
-      toast({
-        title: "Bot-Token fehlt",
-        description: "Bitte zuerst den Bot-Token eintragen.",
-        variant: "destructive",
-      });
-      return;
-    }
     setDiscovering(true);
     try {
       const { data, error } = await supabase.functions.invoke(
         "telegram-get-updates",
-        { body: { botToken: botToken.trim(), action: "get_updates" } }
+        { body: { action: "get_updates" } }
       );
       if (error) throw error;
       if (!data?.success) throw new Error(data?.error || "Unbekannter Fehler");
@@ -181,10 +167,10 @@ export default function AdminTelegram() {
   };
 
   const handleTest = async () => {
-    if (!botToken.trim() || !chatId.trim()) {
+    if (!chatId.trim()) {
       toast({
-        title: "Konfiguration unvollständig",
-        description: "Bot-Token und Chat-ID sind erforderlich.",
+        title: "Chat-ID fehlt",
+        description: "Bitte zuerst eine Chat-ID eintragen.",
         variant: "destructive",
       });
       return;
@@ -195,7 +181,6 @@ export default function AdminTelegram() {
         "telegram-get-updates",
         {
           body: {
-            botToken: botToken.trim(),
             chatId: chatId.trim(),
             action: "send_test",
             text: `✅ <b>Test-Nachricht</b>\n\nDie Telegram-Integration für <b>${
@@ -221,7 +206,7 @@ export default function AdminTelegram() {
     }
   };
 
-  const isConfigured = !!branding?.telegram_bot_token && !!branding?.telegram_chat_id;
+  const isConfigured = !!branding?.telegram_chat_id;
 
   if (isLoading) {
     return (
@@ -237,9 +222,28 @@ export default function AdminTelegram() {
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Telegram</h2>
         <p className="text-muted-foreground">
-          Konfiguriere Bot-Notifications pro Branding für neue Anfragen und Status-Wechsel.
+          Ein zentraler Bot, pro Branding eigene Chat-Gruppe und Event-Auswahl.
         </p>
       </div>
+
+      {/* Bot-Token Hinweis */}
+      <Card className="border-primary/30 bg-primary/5">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <KeyRound className="h-4 w-4" />
+            Bot-Token
+          </CardTitle>
+          <CardDescription>
+            Der Bot-Token wird zentral als Supabase Secret{" "}
+            <code className="bg-muted px-1.5 py-0.5 rounded text-foreground">
+              TELEGRAM_BOT_TOKEN
+            </code>{" "}
+            verwaltet — gilt für <strong>alle Brandings</strong>. Es gibt nur
+            einen Bot, aber jede Branding kann in einer eigenen Gruppe
+            benachrichtigt werden.
+          </CardDescription>
+        </CardHeader>
+      </Card>
 
       {/* Setup Anleitung */}
       <Card>
@@ -249,25 +253,25 @@ export default function AdminTelegram() {
             Setup-Anleitung
           </CardTitle>
           <CardDescription>
-            So richtest du den Telegram-Bot ein (einmalig):
+            So richtest du den Telegram-Bot ein (einmalig pro Branding):
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="rounded-lg border p-4 space-y-2">
-            <p className="font-semibold">1. Bot bei BotFather erstellen</p>
+            <p className="font-semibold">1. Bot bei BotFather erstellen (nur einmal nötig)</p>
             <ol className="list-decimal pl-5 space-y-1 text-muted-foreground">
               <li>Öffne Telegram und suche nach <code className="bg-muted px-1 rounded">@BotFather</code></li>
               <li>Sende <code className="bg-muted px-1 rounded">/newbot</code></li>
               <li>Wähle einen Namen (z. B. „Kanzlei Notifications")</li>
               <li>Wähle einen Username, der auf <code className="bg-muted px-1 rounded">bot</code> endet</li>
-              <li>Kopiere den <strong>Bot-Token</strong> (Format: <code className="bg-muted px-1 rounded">123456:ABC-DEF...</code>) und füge ihn unten ein</li>
+              <li>Kopiere den <strong>Bot-Token</strong> und hinterlege ihn als Supabase Secret <code className="bg-muted px-1 rounded">TELEGRAM_BOT_TOKEN</code> (ist bereits gesetzt, falls du den Token schon einmal eingegeben hast)</li>
             </ol>
           </div>
 
           <div className="rounded-lg border p-4 space-y-2">
-            <p className="font-semibold">2. Bot in Gruppe einladen</p>
+            <p className="font-semibold">2. Bot in deine Gruppe einladen</p>
             <ol className="list-decimal pl-5 space-y-1 text-muted-foreground">
-              <li>Erstelle eine Telegram-Gruppe (oder nutze eine bestehende)</li>
+              <li>Erstelle eine Telegram-Gruppe (oder nutze eine bestehende) — pro Branding eine eigene Gruppe</li>
               <li>Tippe oben auf den Gruppennamen → <strong>Mitglieder hinzufügen</strong> → suche deinen Bot per Username → hinzufügen</li>
               <li><strong>Wichtig:</strong> Sende mindestens <strong>eine Nachricht</strong> in die Gruppe (z. B. „test"), sonst kann der Bot die Chat-ID nicht ermitteln</li>
             </ol>
@@ -276,7 +280,8 @@ export default function AdminTelegram() {
           <div className="rounded-lg border p-4 space-y-2">
             <p className="font-semibold">3. Chat-ID eintragen & testen</p>
             <ol className="list-decimal pl-5 space-y-1 text-muted-foreground">
-              <li>Klick unten auf <strong>„Chat-ID automatisch erkennen"</strong> — das System ruft <code className="bg-muted px-1 rounded">getUpdates</code> auf und zeigt alle Gruppen, in denen der Bot aktiv ist</li>
+              <li>Branding unten auswählen</li>
+              <li>Klick <strong>„Chat-ID automatisch erkennen"</strong> — das System zeigt alle Gruppen, in denen der Bot aktiv ist</li>
               <li>Wähle die richtige Gruppe — die Chat-ID wird automatisch eingetragen</li>
               <li>Klick <strong>„Test-Nachricht senden"</strong> — sollte sofort in der Gruppe ankommen</li>
               <li>Speichern nicht vergessen!</li>
@@ -290,7 +295,7 @@ export default function AdminTelegram() {
         <CardHeader>
           <CardTitle>Branding-Konfiguration</CardTitle>
           <CardDescription>
-            Jedes Branding hat seinen eigenen Bot und seine eigene Gruppe.
+            Pro Branding eigene Chat-Gruppe und Event-Auswahl.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -305,7 +310,7 @@ export default function AdminTelegram() {
                   <SelectItem key={b.id} value={b.id}>
                     <div className="flex items-center gap-2">
                       {b.company_name}
-                      {b.telegram_bot_token && b.telegram_chat_id && (
+                      {b.telegram_chat_id && (
                         <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
                       )}
                     </div>
@@ -319,34 +324,10 @@ export default function AdminTelegram() {
             <div className="flex items-start gap-2 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
               <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
               <div>
-                Diese Branding versendet aktuell <strong>keine Telegram-Notifications</strong>. Bitte Bot-Token und Chat-ID eintragen.
+                Diese Branding versendet aktuell <strong>keine Telegram-Notifications</strong>. Bitte Chat-ID eintragen.
               </div>
             </div>
           )}
-
-          <div>
-            <Label>Bot-Token</Label>
-            <div className="flex gap-2">
-              <Input
-                type={showToken ? "text" : "password"}
-                value={botToken}
-                onChange={(e) => setBotToken(e.target.value)}
-                placeholder="123456789:ABC-DEF1234ghIkl-zyx57W2v1u123ew11"
-                className="font-mono text-sm"
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={() => setShowToken((v) => !v)}
-              >
-                {showToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Bekommst du von <strong>@BotFather</strong> in Telegram
-            </p>
-          </div>
 
           <div>
             <Label>Chat-ID (Gruppen-ID)</Label>
@@ -361,7 +342,7 @@ export default function AdminTelegram() {
                 type="button"
                 variant="outline"
                 onClick={handleDiscover}
-                disabled={discovering || !botToken.trim()}
+                disabled={discovering}
               >
                 {discovering ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -406,7 +387,7 @@ export default function AdminTelegram() {
             <Button
               variant="outline"
               onClick={handleTest}
-              disabled={testing || !botToken.trim() || !chatId.trim()}
+              disabled={testing || !chatId.trim()}
             >
               {testing ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />

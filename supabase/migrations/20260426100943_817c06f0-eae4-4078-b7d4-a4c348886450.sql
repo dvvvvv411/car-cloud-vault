@@ -1,0 +1,1 @@
+ALTER TABLE public.brandings DROP COLUMN IF EXISTS telegram_bot_token;

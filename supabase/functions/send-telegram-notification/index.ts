@@ -60,6 +60,15 @@ Deno.serve(async (req) => {
       )
     }
 
+    const botToken = Deno.env.get('TELEGRAM_BOT_TOKEN')
+    if (!botToken) {
+      console.warn('[telegram] TELEGRAM_BOT_TOKEN not configured, skip')
+      return new Response(
+        JSON.stringify({ success: false, skipped: true, reason: 'bot_token_missing' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -91,7 +100,7 @@ Deno.serve(async (req) => {
     const { data: branding, error: brErr } = await supabase
       .from('brandings')
       .select(
-        'id, company_name, lawyer_firm_name, telegram_bot_token, telegram_chat_id, telegram_notify_new_inquiry, telegram_notify_moechte_rgkv, telegram_notify_rgkv_sent, telegram_notify_amtsgericht_ready'
+        'id, company_name, lawyer_firm_name, telegram_chat_id, telegram_notify_new_inquiry, telegram_notify_moechte_rgkv, telegram_notify_rgkv_sent, telegram_notify_amtsgericht_ready'
       )
       .eq('id', inquiry.branding_id)
       .single()
@@ -104,10 +113,10 @@ Deno.serve(async (req) => {
       )
     }
 
-    if (!branding.telegram_bot_token || !branding.telegram_chat_id) {
-      console.log('[telegram] not configured for branding, skip')
+    if (!branding.telegram_chat_id) {
+      console.log('[telegram] no chat_id for branding, skip')
       return new Response(
-        JSON.stringify({ success: false, skipped: true, reason: 'not_configured' }),
+        JSON.stringify({ success: false, skipped: true, reason: 'no_chat_id' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -139,7 +148,7 @@ Deno.serve(async (req) => {
 
     const text = lines.join('\n')
 
-    const tgUrl = `https://api.telegram.org/bot${branding.telegram_bot_token}/sendMessage`
+    const tgUrl = `https://api.telegram.org/bot${botToken}/sendMessage`
     const resp = await fetch(tgUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
