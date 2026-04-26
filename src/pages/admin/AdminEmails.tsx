@@ -129,6 +129,10 @@ export default function AdminEmails() {
         <TabsContent value="sms">
           <SmsConfirmationPreview />
         </TabsContent>
+
+        <TabsContent value="signature">
+          <EmailSignaturePreview />
+        </TabsContent>
       </Tabs>
     </div>
   );
