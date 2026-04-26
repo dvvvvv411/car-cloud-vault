@@ -92,42 +92,42 @@ export const InquiryConfirmationEmail = ({
             <Text style={paragraph}>{introSentence}</Text>
 
             {/* Vehicles section */}
-            <Section style={{ margin: '28px 0 8px' }}>
+            <Section style={{ margin: '28px 0 12px' }}>
               <Text style={sectionLabel}>{sectionHeading}</Text>
             </Section>
 
-            {vehicles.map((vehicle: any, i: number) => (
-              <Section key={i} style={vehicleCard}>
-                <Row>
-                  <Column>
-                    <Text style={vehicleBrand}>{vehicle.brand}</Text>
-                    <Text style={vehicleModel}>{vehicle.model}</Text>
-                  </Column>
-                  <Column align="right" style={{ verticalAlign: 'top' }}>
-                    <Text style={{ ...vehiclePrice, color: accent }}>
-                      {formatPrice(parseFloat(vehicle.price || 0))}
-                    </Text>
-                    <Text style={vehiclePriceNote}>netto</Text>
-                  </Column>
-                </Row>
-              </Section>
-            ))}
-
-            {/* Totals (only if more than 1) */}
-            {!isSingle && (
-              <Section style={totalsBox}>
-                <Row>
-                  <Column>
-                    <Text style={totalsLabel}>Gesamtsumme (netto)</Text>
-                  </Column>
-                  <Column align="right">
-                    <Text style={{ ...totalsValue, color: accent }}>
-                      {formatPrice(totalPrice)}
-                    </Text>
-                  </Column>
-                </Row>
-              </Section>
-            )}
+            <Section style={tableWrapper}>
+              <table style={table} cellPadding={0} cellSpacing={0}>
+                <thead>
+                  <tr>
+                    <th style={{ ...th, borderBottom: `2px solid ${accent}` }}>Marke</th>
+                    <th style={{ ...th, borderBottom: `2px solid ${accent}` }}>Modell</th>
+                    <th style={{ ...thRight, borderBottom: `2px solid ${accent}` }}>Preis (netto)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {vehicles.map((vehicle: any, i: number) => (
+                    <tr key={i}>
+                      <td style={td}>{vehicle.brand}</td>
+                      <td style={td}>{vehicle.model}</td>
+                      <td style={tdRight}>
+                        {formatPrice(parseFloat(vehicle.price || 0))}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+                {!isSingle && (
+                  <tfoot>
+                    <tr>
+                      <td colSpan={2} style={tfootLabel}>Gesamtsumme (netto)</td>
+                      <td style={{ ...tfootTotal, color: accent }}>
+                        {formatPrice(totalPrice)}
+                      </td>
+                    </tr>
+                  </tfoot>
+                )}
+              </table>
+            </Section>
 
             <Text style={netNotice}>
               Alle Preise verstehen sich <strong>netto</strong> zzgl. der
@@ -184,34 +184,28 @@ export const InquiryConfirmationEmail = ({
 
             <Hr style={hr} />
 
-            {/* Footer */}
+            {/* Footer — kompakt 2 Zeilen */}
             <Section>
-              <Text style={footerFirm}>{branding.lawyer_firm_name}</Text>
-              {branding.lawyer_firm_subtitle && (
-                <Text style={footerSubtitle}>{branding.lawyer_firm_subtitle}</Text>
-              )}
-              <Text style={footerLine}>
-                {branding.lawyer_address_street}
-                <br />
-                {branding.lawyer_address_city}
+              <Text style={footerCompact}>
+                <strong style={{ color: '#1a202c' }}>{branding.lawyer_firm_name}</strong>
+                {' · '}
+                {branding.lawyer_address_street}, {branding.lawyer_address_city}
               </Text>
-              <Text style={footerLine}>
-                Telefon: {branding.lawyer_phone}
-                <br />
-                E-Mail:{' '}
+              <Text style={footerCompact}>
+                Tel: {branding.lawyer_phone}
+                {' · '}
                 <Link href={`mailto:${branding.lawyer_email}`} style={{ ...link, color: accent }}>
                   {branding.lawyer_email}
                 </Link>
                 {branding.lawyer_website_url && (
                   <>
-                    <br />
-                    Web:{' '}
+                    {' · '}
                     <Link
                       href={branding.lawyer_website_url}
                       target="_blank"
                       style={{ ...link, color: accent }}
                     >
-                      {branding.lawyer_website_url}
+                      {branding.lawyer_website_url.replace(/^https?:\/\//, '')}
                     </Link>
                   </>
                 )}
@@ -318,68 +312,75 @@ const sectionLabel = {
   margin: 0,
 };
 
-const vehicleCard = {
+const tableWrapper = {
+  margin: '0 0 12px',
+};
+
+const table = {
+  width: '100%',
+  borderCollapse: 'collapse' as const,
+  borderRadius: '8px',
+  overflow: 'hidden',
+};
+
+const th = {
+  textAlign: 'left' as const,
+  padding: '12px 14px',
   backgroundColor: '#f8fafc',
-  border: '1px solid #e2e8f0',
-  borderRadius: '10px',
-  padding: '18px 20px',
-  marginTop: '12px',
-};
-
-const vehicleBrand = {
-  color: '#718096',
-  fontSize: '12px',
-  fontWeight: 600,
-  textTransform: 'uppercase' as const,
-  letterSpacing: '0.8px',
-  margin: '0 0 4px',
-};
-
-const vehicleModel = {
-  color: '#1a202c',
-  fontSize: '17px',
-  fontWeight: 600,
-  lineHeight: '22px',
-  margin: 0,
-};
-
-const vehiclePrice = {
-  fontSize: '18px',
-  fontWeight: 700,
-  margin: '0',
-  lineHeight: '22px',
-};
-
-const vehiclePriceNote = {
-  color: '#718096',
+  color: '#4a5568',
   fontSize: '11px',
-  fontWeight: 500,
-  textTransform: 'uppercase' as const,
-  letterSpacing: '0.5px',
-  margin: '2px 0 0',
-};
-
-const totalsBox = {
-  marginTop: '16px',
-  padding: '16px 20px',
-  backgroundColor: '#1a202c',
-  borderRadius: '10px',
-};
-
-const totalsLabel = {
-  color: '#cbd5e0',
-  fontSize: '13px',
-  fontWeight: 500,
-  margin: 0,
-  lineHeight: '24px',
-};
-
-const totalsValue = {
-  fontSize: '20px',
   fontWeight: 700,
-  margin: 0,
-  color: '#ffffff',
-  lineHeight: '24px',
+  textTransform: 'uppercase' as const,
+  letterSpacing: '0.6px',
+};
+
+const thRight = {
+  ...{
+    textAlign: 'right' as const,
+    padding: '12px 14px',
+    backgroundColor: '#f8fafc',
+    color: '#4a5568',
+    fontSize: '11px',
+    fontWeight: 700,
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.6px',
+  },
+};
+
+const td = {
+  padding: '14px',
+  borderBottom: '1px solid #e2e8f0',
+  color: '#1a202c',
+  fontSize: '14px',
+  verticalAlign: 'top' as const,
+};
+
+const tdRight = {
+  padding: '14px',
+  borderBottom: '1px solid #e2e8f0',
+  color: '#1a202c',
+  fontSize: '14px',
+  textAlign: 'right' as const,
+  fontWeight: 600,
+  whiteSpace: 'nowrap' as const,
+};
+
+const tfootLabel = {
+  padding: '14px',
+  textAlign: 'right' as const,
+  color: '#4a5568',
+  fontSize: '13px',
+  fontWeight: 600,
+  backgroundColor: '#f8fafc',
+};
+
+const tfootTotal = {
+  padding: '14px',
+  textAlign: 'right' as const,
+  fontSize: '17px',
+  fontWeight: 700,
+  backgroundColor: '#f8fafc',
+  whiteSpace: 'nowrap' as const,
 };
 
 const netNotice = {
@@ -426,24 +427,12 @@ const hr = {
   margin: '32px 0',
 };
 
-const footerFirm = {
-  color: '#1a202c',
-  fontSize: '14px',
-  fontWeight: 700,
-  margin: '0 0 2px',
-};
-
-const footerSubtitle = {
-  color: '#4a5568',
-  fontSize: '13px',
-  margin: '0 0 12px',
-};
-
-const footerLine = {
-  color: '#4a5568',
-  fontSize: '13px',
-  lineHeight: '20px',
-  margin: '0 0 10px',
+const footerCompact = {
+  color: '#718096',
+  fontSize: '12px',
+  lineHeight: '18px',
+  textAlign: 'center' as const,
+  margin: '0 0 4px',
 };
 
 const link = {
