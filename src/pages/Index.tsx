@@ -253,7 +253,7 @@ const Index = ({ branding }: IndexProps = {}) => {
             
             <div className="hidden md:block h-16 lg:h-20 w-px bg-[hsl(var(--divider))]"></div>
             
-            <div className="flex-1 relative min-h-[6rem] md:min-h-[8rem] w-full">
+            <div className="flex-1 relative min-h-[6rem] md:min-h-[8rem] w-full sm:pr-[9rem] lg:pr-[340px]">
               {/* Beschluss image - rechts oben auf Desktop */}
               <div className="sm:absolute sm:top-0 sm:right-0 mb-4 sm:mb-0">
                 <div className="flex flex-col lg:flex-row lg:items-start lg:gap-3">
