@@ -1,10 +1,9 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Eye, ChevronDown, StickyNote, Car } from "lucide-react";
+import { Eye, ChevronDown, StickyNote, Car, User, MessageSquare, Wallet, Calendar, Building2 } from "lucide-react";
 import { Inquiry, InquiryStatus } from "@/hooks/useInquiries";
 import { useInquiryNotes } from "@/hooks/useInquiryNotes";
 import { useVehicles } from "@/hooks/useVehicles";
@@ -25,18 +24,33 @@ interface InquiryDetailsDialogProps {
   allowedStatuses?: InquiryStatus[];
 }
 
+const SectionLabel = ({ icon: Icon, children, actions }: { icon: React.ElementType; children: React.ReactNode; actions?: React.ReactNode }) => (
+  <div className="flex items-center justify-between mb-2">
+    <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">
+      <Icon className="h-3 w-3" />
+      {children}
+    </div>
+    {actions && <div className="flex items-center gap-1">{actions}</div>}
+  </div>
+);
+
+const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div className="flex gap-2 items-baseline min-w-0">
+    <span className="text-[10px] uppercase tracking-wide text-muted-foreground w-16 flex-shrink-0">{label}</span>
+    <span className="text-xs font-medium truncate" title={typeof children === 'string' ? children : undefined}>{children}</span>
+  </div>
+);
+
 export const InquiryDetailsDialog = ({ inquiry, readOnly = false, allowedStatuses }: InquiryDetailsDialogProps) => {
   const { data: notes = [], isLoading: notesLoading } = useInquiryNotes(inquiry.id);
   const { data: vehicles = [] } = useVehicles();
 
-  // Create a lookup map from chassis to report_nr
   const getReportNumber = (chassis: string) => {
     const vehicle = vehicles.find(v => v.chassis === chassis);
     return vehicle?.report_nr || chassis;
   };
 
-  // Get report numbers by looking up chassis in vehicles table
-  const reportNumbers = inquiry.selected_vehicles.map(v => 
+  const reportNumbers = inquiry.selected_vehicles.map(v =>
     v.report_nr || getReportNumber(v.chassis)
   );
 
@@ -51,23 +65,32 @@ export const InquiryDetailsDialog = ({ inquiry, readOnly = false, allowedStatuse
     return format(new Date(dateString), "dd.MM.yyyy HH:mm", { locale: de });
   };
 
-  // Insolvenz: Netto → Brutto berechnen
+  const formatDateShort = (dateString: string) => {
+    return format(new Date(dateString), "dd.MM. HH:mm", { locale: de });
+  };
+
   const calculateBruttoFromNetto = (nettoPrice: number, discountPercentage: number | null) => {
-    const priceAfterDiscount = discountPercentage 
+    const priceAfterDiscount = discountPercentage
       ? nettoPrice * (1 - discountPercentage / 100)
       : nettoPrice;
     return priceAfterDiscount * 1.19;
   };
 
-  // Fahrzeuge: Brutto → Netto berechnen
   const calculateNettoFromBrutto = (bruttoPrice: number, discountPercentage: number | null) => {
-    const priceAfterDiscount = discountPercentage 
+    const priceAfterDiscount = discountPercentage
       ? bruttoPrice * (1 - discountPercentage / 100)
       : bruttoPrice;
     return priceAfterDiscount / 1.19;
   };
 
   const isFahrzeuge = inquiry.brandings?.branding_type === 'fahrzeuge';
+
+  const finalPrice = isFahrzeuge
+    ? inquiry.total_price * (1 - (inquiry.discount_percentage || 0) / 100)
+    : calculateBruttoFromNetto(inquiry.total_price, inquiry.discount_percentage);
+  const nettoPrice = isFahrzeuge
+    ? calculateNettoFromBrutto(inquiry.total_price, inquiry.discount_percentage)
+    : inquiry.total_price;
 
   return (
     <Dialog>
@@ -77,278 +100,227 @@ export const InquiryDetailsDialog = ({ inquiry, readOnly = false, allowedStatuse
           Details
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Anfragedetails</DialogTitle>
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto p-5">
+        <DialogHeader className="mb-2">
+          <DialogTitle className="text-base">Anfragedetails</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Customer Information */}
-          <div>
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="font-semibold">Kundeninformationen</h3>
-              <div className="flex gap-2">
-                {!readOnly && <EditCustomerInfoDialog inquiry={inquiry} />}
-                <CustomerInfoDialog inquiry={inquiry} />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <span className="text-muted-foreground">Kundentyp:</span>
-                <p className="font-medium">{inquiry.customer_type === "private" ? "Privatkunde" : "Geschäftskunde"}</p>
-              </div>
-              {inquiry.company_name && (
-                <div>
-                  <span className="text-muted-foreground">Firma:</span>
-                  <p className="font-medium">{inquiry.company_name}</p>
-                </div>
+        {/* Toolbar */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-3 py-2 rounded-lg border bg-card/50 text-xs mb-3">
+          <InquiryStatusDropdown
+            inquiryId={inquiry.id}
+            currentStatus={inquiry.status}
+            statusUpdatedAt={inquiry.status_updated_at}
+            allowedStatuses={allowedStatuses}
+          />
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <Calendar className="h-3 w-3" />
+            <span>{formatDate(inquiry.created_at)}</span>
+          </div>
+          {inquiry.brandings && (
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              <Building2 className="h-3 w-3" />
+              <span className="font-medium text-foreground">{inquiry.brandings.company_name}</span>
+              {inquiry.brandings.case_number && (
+                <span>· AZ {inquiry.brandings.case_number}</span>
               )}
-              <div>
-                <span className="text-muted-foreground">Name:</span>
-                <p className="font-medium">{inquiry.first_name} {inquiry.last_name}</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">E-Mail:</span>
-                <p className="font-medium">{inquiry.email}</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Telefon:</span>
-                <p className="font-medium">{inquiry.phone}</p>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Adresse:</span>
-                <p className="font-medium">{inquiry.street}, {inquiry.zip_code} {inquiry.city}</p>
-              </div>
+            </div>
+          )}
+          {!readOnly && (
+            <div className="ml-auto flex items-center gap-2">
+              {inquiry.discount_granted_at && (
+                <span className="text-[10px] text-muted-foreground">
+                  Rabatt: {formatDate(inquiry.discount_granted_at)}
+                </span>
+              )}
+              <DiscountButton
+                inquiryId={inquiry.id}
+                currentDiscount={inquiry.discount_percentage}
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          {/* Customer Information */}
+          <div className="rounded-lg border bg-card/50 p-3">
+            <SectionLabel
+              icon={User}
+              actions={
+                <>
+                  {!readOnly && <EditCustomerInfoDialog inquiry={inquiry} />}
+                  <CustomerInfoDialog inquiry={inquiry} />
+                </>
+              }
+            >
+              Kunde
+            </SectionLabel>
+            <div className="space-y-1">
+              <Field label="Typ">{inquiry.customer_type === "private" ? "Privatkunde" : "Geschäftskunde"}</Field>
+              {inquiry.company_name && <Field label="Firma">{inquiry.company_name}</Field>}
+              <Field label="Name">{`${inquiry.first_name} ${inquiry.last_name}`}</Field>
+              <Field label="E-Mail">{inquiry.email}</Field>
+              <Field label="Telefon">{inquiry.phone}</Field>
+              <Field label="Adresse">{`${inquiry.street}, ${inquiry.zip_code} ${inquiry.city}`}</Field>
             </div>
           </div>
 
-          <Separator />
-
-          {/* Branding Information */}
-          {inquiry.brandings && (
-            <>
-              <div>
-                <h3 className="font-semibold mb-3">Branding-Informationen</h3>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Firma:</span>
-                    <p className="font-medium">{inquiry.brandings.company_name}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Fallnummer:</span>
-                    <p className="font-medium">{inquiry.brandings.case_number}</p>
-                  </div>
-                </div>
-              </div>
-              <Separator />
-            </>
-          )}
-
           {/* Selected Vehicles */}
-          <div>
-            <div className="flex justify-between items-center mb-3">
-              <div className="flex items-center gap-2">
-                <Car className="h-4 w-4 text-muted-foreground" />
-                <h3 className="font-semibold">Ausgewählte Fahrzeuge</h3>
-              </div>
-              <div className="flex gap-2">
-                {!readOnly && <EditInquiryVehiclesDialog inquiry={inquiry} />}
-                {!readOnly && <DekraNumbersDialog 
-                  reportNumbers={reportNumbers} 
-                />}
-                <Badge variant="outline" className="text-sm">
-                  {inquiry.selected_vehicles.length} {inquiry.selected_vehicles.length === 1 ? 'Fahrzeug' : 'Fahrzeuge'}
-                </Badge>
-                <Badge variant="secondary" className="text-sm font-semibold">
-                  {formatPrice(inquiry.total_price)}
-                </Badge>
-              </div>
+          <div className="rounded-lg border bg-card/50 p-3">
+            <SectionLabel
+              icon={Car}
+              actions={
+                <>
+                  <Badge variant="outline" className="text-[10px] h-5 px-1.5">
+                    {inquiry.selected_vehicles.length} {inquiry.selected_vehicles.length === 1 ? 'Fzg' : 'Fzg'}
+                  </Badge>
+                  <Badge variant="secondary" className="text-[10px] h-5 px-1.5 font-semibold">
+                    {formatPrice(inquiry.total_price)}
+                  </Badge>
+                  {!readOnly && <EditInquiryVehiclesDialog inquiry={inquiry} />}
+                  {!readOnly && <DekraNumbersDialog reportNumbers={reportNumbers} />}
+                </>
+              }
+            >
+              Fahrzeuge
+            </SectionLabel>
+            <div className="space-y-1">
+              {inquiry.selected_vehicles.map((vehicle, index) => {
+                const reportNr = vehicle.report_nr || getReportNumber(vehicle.chassis);
+                const summary = `${vehicle.brand} ${vehicle.model} · DEKRA ${reportNr} · ${vehicle.kilometers.toLocaleString("de-DE")} km · ${formatPrice(vehicle.price)}`;
+                return (
+                  <div
+                    key={index}
+                    className="text-xs truncate text-foreground/90 flex items-center gap-1.5"
+                    title={summary}
+                  >
+                    <span className="text-muted-foreground">·</span>
+                    <span className="font-medium">{vehicle.brand} {vehicle.model}</span>
+                    <span className="text-muted-foreground">· DEKRA {reportNr}</span>
+                    <span className="text-muted-foreground">· {vehicle.kilometers.toLocaleString("de-DE")} km</span>
+                    <span className="text-muted-foreground">· {formatPrice(vehicle.price)}</span>
+                  </div>
+                );
+              })}
             </div>
-            <Collapsible defaultOpen={false}>
-              <CollapsibleTrigger className="flex items-center gap-2 w-full group text-sm text-muted-foreground hover:text-foreground transition-colors mb-3">
-                <ChevronDown className="h-4 w-4 transition-transform group-data-[state=open]:rotate-180" />
-                <span>Details anzeigen</span>
+            <Collapsible defaultOpen={false} className="mt-2">
+              <CollapsibleTrigger className="flex items-center gap-1 group text-[11px] text-muted-foreground hover:text-foreground transition-colors">
+                <ChevronDown className="h-3 w-3 transition-transform group-data-[state=open]:rotate-180" />
+                <span>Details</span>
               </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-3">
-                <div className="space-y-3">
-                  {inquiry.selected_vehicles.map((vehicle, index) => (
-                    <div key={index} className="border rounded-lg p-3">
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Fahrzeug:</span>
-                          <p className="font-medium">{vehicle.brand} {vehicle.model}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">DEKRA-Nr:</span>
-                          <p className="font-medium text-xs">{vehicle.report_nr || getReportNumber(vehicle.chassis)}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Fahrgestellnummer:</span>
-                          <p className="font-medium text-xs">{vehicle.chassis}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Erstzulassung:</span>
-                          <p className="font-medium">{vehicle.first_registration}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Kilometer:</span>
-                          <p className="font-medium">{vehicle.kilometers.toLocaleString("de-DE")} km</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Preis:</span>
-                          <p className="font-medium">
-                            {formatPrice(vehicle.price)}
-                            {isFahrzeuge && <span className="text-xs text-muted-foreground ml-1">brutto</span>}
-                            {!isFahrzeuge && <span className="text-xs text-muted-foreground ml-1">netto</span>}
-                          </p>
-                        </div>
+              <CollapsibleContent className="space-y-2 mt-2">
+                {inquiry.selected_vehicles.map((vehicle, index) => (
+                  <div key={index} className="border rounded-md p-2">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5 text-xs">
+                      <div>
+                        <span className="text-[10px] uppercase text-muted-foreground">Fahrzeug</span>
+                        <p className="font-medium">{vehicle.brand} {vehicle.model}</p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase text-muted-foreground">DEKRA-Nr</span>
+                        <p className="font-medium">{vehicle.report_nr || getReportNumber(vehicle.chassis)}</p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase text-muted-foreground">FIN</span>
+                        <p className="font-medium truncate" title={vehicle.chassis}>{vehicle.chassis}</p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase text-muted-foreground">EZ</span>
+                        <p className="font-medium">{vehicle.first_registration}</p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase text-muted-foreground">Kilometer</span>
+                        <p className="font-medium">{vehicle.kilometers.toLocaleString("de-DE")} km</p>
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase text-muted-foreground">Preis</span>
+                        <p className="font-medium">
+                          {formatPrice(vehicle.price)}
+                          <span className="text-[10px] text-muted-foreground ml-1">{isFahrzeuge ? 'brutto' : 'netto'}</span>
+                        </p>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </CollapsibleContent>
             </Collapsible>
           </div>
 
-          <Separator />
-
           {/* Message */}
           {inquiry.message && (
-            <>
-              <div>
-                <h3 className="font-semibold mb-3">Nachricht</h3>
-                <p className="text-sm whitespace-pre-wrap p-3 bg-muted rounded-lg">{inquiry.message}</p>
-              </div>
-              <Separator />
-            </>
+            <div className="rounded-lg border bg-card/50 p-3">
+              <SectionLabel icon={MessageSquare}>Nachricht</SectionLabel>
+              <p className="text-xs whitespace-pre-wrap max-h-24 overflow-auto text-foreground/90">{inquiry.message}</p>
+            </div>
           )}
 
-          {/* Meta Information */}
-          <div>
-            <h3 className="font-semibold mb-3">Weitere Informationen</h3>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <span className="text-muted-foreground">Erstellt am:</span>
-                  <p className="font-medium">{formatDate(inquiry.created_at)}</p>
-                </div>
-                <div>
-                  <span className="text-muted-foreground">Status:</span>
-                  <div className="mt-1">
-                    <InquiryStatusDropdown 
-                      inquiryId={inquiry.id}
-                      currentStatus={inquiry.status}
-                      statusUpdatedAt={inquiry.status_updated_at}
-                      allowedStatuses={allowedStatuses}
-                    />
-                  </div>
-                </div>
-              </div>
-              
-              {/* Gesamtpreis Section */}
-              <div>
-                <span className="text-muted-foreground">Gesamtpreis:</span>
-                <div className="mt-2 space-y-1">
-                  {isFahrzeuge ? (
-                    <>
-                      {/* Fahrzeuge: Gespeicherter Preis ist Brutto */}
-                      <p className="text-2xl font-bold text-primary">
-                        {formatPrice(inquiry.total_price * (1 - (inquiry.discount_percentage || 0) / 100))}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        inkl. 19% MwSt.
-                        {inquiry.discount_percentage && (
-                          <span className="ml-2 text-green-600 font-medium">
-                            ({inquiry.discount_percentage}% Rabatt gewährt)
-                          </span>
-                        )}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Netto: {formatPrice(calculateNettoFromBrutto(inquiry.total_price, inquiry.discount_percentage))}
-                        {inquiry.discount_percentage && (
-                          <span className="ml-2">
-                            · Brutto vor Rabatt: {formatPrice(inquiry.total_price)}
-                          </span>
-                        )}
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      {/* Insolvenz: Gespeicherter Preis ist Netto */}
-                      <p className="text-2xl font-bold text-primary">
-                        {formatPrice(calculateBruttoFromNetto(inquiry.total_price, inquiry.discount_percentage))}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        inkl. 19% MwSt.
-                        {inquiry.discount_percentage && (
-                          <span className="ml-2 text-green-600 font-medium">
-                            ({inquiry.discount_percentage}% Rabatt gewährt)
-                          </span>
-                        )}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Netto: {formatPrice(inquiry.total_price)}
-                        {inquiry.discount_percentage && (
-                          <span className="ml-2">
-                            · Nach Rabatt: {formatPrice(inquiry.total_price * (1 - inquiry.discount_percentage / 100))}
-                          </span>
-                        )}
-                      </p>
-                    </>
-                  )}
-                </div>
-              </div>
-              
-              {/* Rabatt Section */}
-              {!readOnly && (
-                <div className="flex items-center gap-3">
-                  <DiscountButton 
-                    inquiryId={inquiry.id}
-                    currentDiscount={inquiry.discount_percentage}
-                  />
-                  {inquiry.discount_granted_at && (
-                    <p className="text-xs text-muted-foreground">
-                      Gewährt am: {formatDate(inquiry.discount_granted_at)}
-                    </p>
-                  )}
-                </div>
-              )}
+          {/* Total Price */}
+          <div className={`rounded-lg border bg-card/50 p-3 ${!inquiry.message ? 'lg:col-span-2' : ''}`}>
+            <SectionLabel icon={Wallet}>Gesamtpreis</SectionLabel>
+            <div className="flex items-baseline gap-3 flex-wrap">
+              <p className="text-xl font-bold text-primary leading-tight">{formatPrice(finalPrice)}</p>
+              <p className="text-[11px] text-muted-foreground">
+                inkl. 19% MwSt.
+                <span className="mx-1.5">·</span>
+                Netto: {formatPrice(nettoPrice)}
+                {inquiry.discount_percentage && (
+                  <>
+                    <span className="mx-1.5">·</span>
+                    <span className="text-green-600 font-medium">{inquiry.discount_percentage}% Rabatt</span>
+                    {!isFahrzeuge && (
+                      <>
+                        <span className="mx-1.5">·</span>
+                        <span>Netto vor Rabatt: {formatPrice(inquiry.total_price)}</span>
+                      </>
+                    )}
+                    {isFahrzeuge && (
+                      <>
+                        <span className="mx-1.5">·</span>
+                        <span>Brutto vor Rabatt: {formatPrice(inquiry.total_price)}</span>
+                      </>
+                    )}
+                  </>
+                )}
+              </p>
             </div>
           </div>
 
-          <Separator />
-
-          {/* Notes Section */}
-          <div>
-            <div className="flex items-center gap-2 mb-3">
-              <StickyNote className="h-4 w-4 text-muted-foreground" />
-              <h3 className="font-semibold">Notizen</h3>
-              <Badge variant="outline" className="text-xs">{notes.length}</Badge>
-              <AddNoteButton inquiryId={inquiry.id} />
-            </div>
+          {/* Notes */}
+          <div className="rounded-lg border bg-card/50 p-3 lg:col-span-2">
+            <SectionLabel
+              icon={StickyNote}
+              actions={
+                <>
+                  <Badge variant="outline" className="text-[10px] h-5 px-1.5">{notes.length}</Badge>
+                  <AddNoteButton inquiryId={inquiry.id} />
+                </>
+              }
+            >
+              Notizen
+            </SectionLabel>
             {notesLoading ? (
-              <p className="text-sm text-muted-foreground">Lade Notizen...</p>
+              <p className="text-xs text-muted-foreground">Lade Notizen...</p>
             ) : notes.length === 0 ? (
-              <p className="text-sm text-muted-foreground p-3 bg-muted rounded-lg">Keine Notizen vorhanden</p>
+              <p className="text-xs text-muted-foreground">Keine Notizen vorhanden</p>
             ) : (
-              <ScrollArea className="h-[200px] border rounded-lg p-3">
-                <div className="space-y-3">
+              <ScrollArea className="h-[140px] pr-2">
+                <div className="space-y-2">
                   {notes.map((note) => (
-                    <div key={note.id} className="border-b pb-3 last:border-0 last:pb-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center gap-2">
-                          <span className={`inline-block w-3 h-3 rounded-full ${getUserColor(note.user_email).replace('bg-', 'bg-').replace(' text-', ' ').split(' ')[0]}`}></span>
+                    <div key={note.id} className="border-b pb-2 last:border-0 last:pb-0">
+                      <div className="flex items-center justify-between mb-0.5 gap-2">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className={`inline-block w-2 h-2 rounded-full flex-shrink-0 ${getUserColor(note.user_email).split(' ')[0]}`}></span>
                           {note.user_email && (
-                            <span className="text-xs font-medium text-muted-foreground">
+                            <span className="text-[10px] font-medium text-muted-foreground truncate">
                               {note.user_email}
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-muted-foreground">
-                          {formatDate(note.created_at)}
+                        <p className="text-[10px] text-muted-foreground flex-shrink-0">
+                          {formatDateShort(note.created_at)}
                         </p>
                       </div>
-                      <p className="text-sm whitespace-pre-wrap">{note.note_text}</p>
+                      <p className="text-xs whitespace-pre-wrap">{note.note_text}</p>
                     </div>
                   ))}
                 </div>
