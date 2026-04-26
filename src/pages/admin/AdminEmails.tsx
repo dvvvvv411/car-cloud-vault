@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Edit, Eye } from "lucide-react";
 import { useEmailTemplates } from "@/hooks/useEmailTemplates";
 import { EditEmailTemplateDialog } from "@/components/admin/EditEmailTemplateDialog";
 import { PreviewEmailTemplateDialog } from "@/components/admin/PreviewEmailTemplateDialog";
+import { InquiryConfirmationPreview } from "@/components/admin/InquiryConfirmationPreview";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminEmails() {
