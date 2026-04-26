@@ -17,16 +17,16 @@ const buildSignatureHtml = (logoSrc: string) => `
     <td>
       <div style="font-size: 16px; font-weight: bold; color: #0a1f3d; margin-bottom: 1px;">Philip Neiseke</div>
       <div style="font-size: 12px; color: #4b5563;">Rechtsanwalt</div>
-      <div style="width: 180px; height: 2px; background: #c9a961; margin: 8px 0 12px 0; line-height: 2px; font-size: 0;">&nbsp;</div>
+      <div style="width: 280px; height: 2px; background: #c9a961; margin: 8px 0 12px 0; line-height: 2px; font-size: 0;">&nbsp;</div>
       <div style="margin-bottom: 10px;">
         <img src="${logoSrc}" alt="Neiseke & Hagedorn" width="200" style="display:block; width:200px; height:auto;" />
       </div>
       <div style="font-size: 12px; color: #4b5563; margin-bottom: 6px;">Neiseke &amp; Hagedorn Rechtsanwälte in Partnerschaft PartG mbB</div>
-      <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #1f2a44;">
+      <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #4b5563;">
         <tr><td style="padding: 1px 0;">Kanzlerstr. 1, 40472 Düsseldorf</td></tr>
-        <tr><td style="padding: 1px 0;">Tel: <a href="tel:+4921187971650" style="color:#0a1f3d; text-decoration:none;">0211 87971650</a></td></tr>
-        <tr><td style="padding: 1px 0;">E-Mail: <a href="mailto:p.neiseke@anwaelte-neiseke-hagedorn.de" style="color:#0a1f3d; text-decoration:none;">p.neiseke@anwaelte-neiseke-hagedorn.de</a></td></tr>
-        <tr><td style="padding: 1px 0;">Web: <a href="https://anwaelte-neiseke-hagedorn.de" style="color:#0a1f3d; text-decoration:none;">anwaelte-neiseke-hagedorn.de</a></td></tr>
+        <tr><td style="padding: 1px 0;">Tel: <a href="tel:+4921187971650" style="color:#4b5563; text-decoration:none;">0211 87971650</a></td></tr>
+        <tr><td style="padding: 1px 0;">E-Mail: <a href="mailto:p.neiseke@anwaelte-neiseke-hagedorn.de" style="color:#4b5563; text-decoration:none;">p.neiseke@anwaelte-neiseke-hagedorn.de</a></td></tr>
+        <tr><td style="padding: 1px 0;">Web: <a href="https://anwaelte-neiseke-hagedorn.de" style="color:#4b5563; text-decoration:none;">anwaelte-neiseke-hagedorn.de</a></td></tr>
       </table>
       <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9ca3af; max-width: 520px;">
         Diese E-Mail und etwaige Anhänge enthalten vertrauliche und/oder rechtlich geschützte Informationen. Sollten Sie nicht der richtige Adressat sein oder diese E-Mail irrtümlich erhalten haben, informieren Sie bitte sofort den Absender und löschen Sie diese E-Mail. Das unbefugte Kopieren, Weitergeben oder Verwenden dieser E-Mail ist nicht gestattet.
