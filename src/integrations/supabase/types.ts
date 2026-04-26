@@ -76,7 +76,10 @@ export type Database = {
           resend_api_key: string | null
           resend_sender_email: string | null
           resend_sender_name: string | null
+          seven_api_key: string | null
           slug: string
+          sms_confirmation_template: string | null
+          sms_sender_name: string | null
           updated_at: string | null
         }
         Insert: {
@@ -102,7 +105,10 @@ export type Database = {
           resend_api_key?: string | null
           resend_sender_email?: string | null
           resend_sender_name?: string | null
+          seven_api_key?: string | null
           slug: string
+          sms_confirmation_template?: string | null
+          sms_sender_name?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -128,7 +134,10 @@ export type Database = {
           resend_api_key?: string | null
           resend_sender_email?: string | null
           resend_sender_name?: string | null
+          seven_api_key?: string | null
           slug?: string
+          sms_confirmation_template?: string | null
+          sms_sender_name?: string | null
           updated_at?: string | null
         }
         Relationships: []
