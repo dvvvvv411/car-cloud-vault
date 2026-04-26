@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useCurrentUserVisibleFrom } from "@/hooks/useCurrentUserVisibleFrom";
 
 export type InquiryStatus = "Neu" | "Möchte RG/KV" | "Amtsgericht" | "Amtsgericht Ready" | "RG/KV gesendet" | "Bezahlt" | "Exchanged" | "Kein Interesse";
 
@@ -50,8 +51,10 @@ export interface Inquiry {
 }
 
 export const useInquiries = () => {
+  const { data: visibleFrom } = useCurrentUserVisibleFrom();
+
   return useQuery({
-    queryKey: ["inquiries"],
+    queryKey: ["inquiries", visibleFrom ?? "all"],
     queryFn: async () => {
       const PAGE_SIZE = 1000;
       let allRows: any[] = [];
@@ -61,7 +64,7 @@ export const useInquiries = () => {
       // Wir paginieren in 1000er-Schritten, bis alle Anfragen geladen sind.
       // eslint-disable-next-line no-constant-condition
       while (true) {
-        const { data, error } = await supabase
+        let query = supabase
           .from("inquiries")
           .select(`
             *,
@@ -80,6 +83,12 @@ export const useInquiries = () => {
           .order("created_at", { ascending: false })
           .range(from, from + PAGE_SIZE - 1);
 
+        if (visibleFrom) {
+          query = query.gte("created_at", visibleFrom);
+        }
+
+        const { data, error } = await query;
+
         if (error) throw error;
         if (!data || data.length === 0) break;
 
@@ -87,6 +96,14 @@ export const useInquiries = () => {
 
         if (data.length < PAGE_SIZE) break;
         from += PAGE_SIZE;
+      }
+
+      // Sicherheitsnetz: Client-seitiger Filter, falls Cache schon alte Daten hat.
+      if (visibleFrom) {
+        const cutoff = new Date(visibleFrom).getTime();
+        allRows = allRows.filter(
+          (item) => new Date(item.created_at).getTime() >= cutoff
+        );
       }
 
       return allRows.map(item => ({

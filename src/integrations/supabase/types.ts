@@ -712,18 +712,21 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          inquiries_visible_from: string | null
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
           created_at?: string | null
           id?: string
+          inquiries_visible_from?: string | null
           role?: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
           created_at?: string | null
           id?: string
+          inquiries_visible_from?: string | null
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
@@ -849,6 +852,7 @@ export type Database = {
           created_at: string
           email: string
           id: string
+          inquiries_visible_from: string
           last_sign_in_at: string
           role: Database["public"]["Enums"]["app_role"]
         }[]

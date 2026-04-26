@@ -14,6 +14,7 @@ import { UserPlus, Loader2, KeyRound } from "lucide-react";
 import { useUsers, User } from "@/hooks/useUsers";
 import { AddUserDialog } from "@/components/admin/AddUserDialog";
 import { AdminChangePasswordDialog } from "@/components/admin/AdminChangePasswordDialog";
+import { UserVisibleFromPicker } from "@/components/admin/UserVisibleFromPicker";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
@@ -58,6 +59,7 @@ export default function AdminBenutzer() {
                     <TableHead>Rolle</TableHead>
                     <TableHead>Erstellt am</TableHead>
                     <TableHead>Letzter Login</TableHead>
+                    <TableHead>Anfragen sichtbar ab</TableHead>
                     <TableHead>Aktionen</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -77,6 +79,12 @@ export default function AdminBenutzer() {
                         {user.last_sign_in_at 
                           ? format(new Date(user.last_sign_in_at), 'dd.MM.yyyy HH:mm', { locale: de })
                           : 'Noch nie eingeloggt'}
+                      </TableCell>
+                      <TableCell>
+                        <UserVisibleFromPicker
+                          userId={user.id}
+                          currentValue={user.inquiries_visible_from}
+                        />
                       </TableCell>
                       <TableCell>
                         <Button
