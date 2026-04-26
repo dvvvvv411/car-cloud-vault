@@ -10,6 +10,7 @@ export interface User {
   created_at: string;
   last_sign_in_at: string | null;
   role: UserRole;
+  inquiries_visible_from: string | null;
 }
 
 export const useUsers = () => {
