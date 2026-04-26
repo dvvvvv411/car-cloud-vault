@@ -9,6 +9,7 @@ import { EditEmailTemplateDialog } from "@/components/admin/EditEmailTemplateDia
 import { PreviewEmailTemplateDialog } from "@/components/admin/PreviewEmailTemplateDialog";
 import { InquiryConfirmationPreview } from "@/components/admin/InquiryConfirmationPreview";
 import { SmsConfirmationPreview } from "@/components/admin/SmsConfirmationPreview";
+import { EmailSignaturePreview } from "@/components/admin/EmailSignaturePreview";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AdminEmails() {
@@ -49,6 +50,7 @@ export default function AdminEmails() {
           <TabsTrigger value="templates">Vertragsunterlagen-Templates</TabsTrigger>
           <TabsTrigger value="preview">Anfrage-Bestätigung Email</TabsTrigger>
           <TabsTrigger value="sms">SMS Templates</TabsTrigger>
+          <TabsTrigger value="signature">Email Signatur</TabsTrigger>
         </TabsList>
 
         <TabsContent value="templates" className="space-y-6">
@@ -126,6 +128,10 @@ export default function AdminEmails() {
 
         <TabsContent value="sms">
           <SmsConfirmationPreview />
+        </TabsContent>
+
+        <TabsContent value="signature">
+          <EmailSignaturePreview />
         </TabsContent>
       </Tabs>
     </div>
