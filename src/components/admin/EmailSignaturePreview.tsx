@@ -177,3 +177,12 @@ function SignatureCard() {
     </Card>
   );
 }
+
+export function EmailSignaturePreview() {
+  return (
+    <div className="space-y-6">
+      <SignatureCard />
+      <LiveHtmlEditor />
+    </div>
+  );
+}
