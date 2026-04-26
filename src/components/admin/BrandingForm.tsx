@@ -60,6 +60,7 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
       seven_api_key: branding.seven_api_key || '',
       sms_sender_name: branding.sms_sender_name || '',
       sms_confirmation_template: branding.sms_confirmation_template || '',
+      sms_documents_sent_template: branding.sms_documents_sent_template || '',
     } : {
       is_active: true,
       case_number: '',
@@ -196,6 +197,7 @@ export const BrandingForm = ({ branding, onSuccess, onCancel }: BrandingFormProp
         seven_api_key: data.seven_api_key || null,
         sms_sender_name: data.sms_sender_name || null,
         sms_confirmation_template: data.sms_confirmation_template || null,
+        sms_documents_sent_template: data.sms_documents_sent_template || null,
       };
 
       if (branding) {

@@ -335,6 +335,14 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
         return;
       }
 
+      // Trigger SMS notification (fire-and-forget)
+      supabase.functions
+        .invoke("send-documents-sent-sms", { body: { inquiryId: inquiry.id } })
+        .then(({ error: smsError }) => {
+          if (smsError) console.error("[docs-sms] invoke error:", smsError);
+        })
+        .catch((e) => console.error("[docs-sms] invoke threw:", e));
+
       // Query Cache invalidieren, damit die Liste aktualisiert wird
       queryClient.invalidateQueries({ queryKey: ["inquiries"] });
 

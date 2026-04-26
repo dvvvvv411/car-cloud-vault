@@ -79,6 +79,7 @@ export type Database = {
           seven_api_key: string | null
           slug: string
           sms_confirmation_template: string | null
+          sms_documents_sent_template: string | null
           sms_sender_name: string | null
           updated_at: string | null
         }
@@ -108,6 +109,7 @@ export type Database = {
           seven_api_key?: string | null
           slug: string
           sms_confirmation_template?: string | null
+          sms_documents_sent_template?: string | null
           sms_sender_name?: string | null
           updated_at?: string | null
         }
@@ -137,6 +139,7 @@ export type Database = {
           seven_api_key?: string | null
           slug?: string
           sms_confirmation_template?: string | null
+          sms_documents_sent_template?: string | null
           sms_sender_name?: string | null
           updated_at?: string | null
         }
