@@ -129,96 +129,102 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-8 animate-fade-in pb-8">
-      <div>
-        <h1 className="text-4xl font-bold text-foreground tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground mt-2 text-base">Übersicht über Ihre wichtigsten Kennzahlen</p>
+      <div className="flex items-end justify-between gap-4 flex-wrap">
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-primary/80">Übersicht</span>
+          </div>
+          <h1 className="text-4xl font-bold text-foreground tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground mt-2 text-base">Übersicht über Ihre wichtigsten Kennzahlen</p>
+        </div>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="stat-card group border-border/40">
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+        <div className="admin-stat-card group p-6">
+          <div className="flex items-center justify-between mb-4 relative">
+            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.12em]">
               Fahrzeuge
-            </CardTitle>
-            <div className="p-2.5 rounded-xl bg-primary/10 text-primary group-hover:bg-primary/20 transition-all duration-300 group-hover:scale-110">
+            </span>
+            <div className="p-2.5 rounded-xl bg-primary/10 text-primary group-hover:bg-primary/15 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
               <Car className="h-5 w-5" />
             </div>
-          </CardHeader>
-          <CardContent className="pt-1">
+          </div>
+          <div className="relative">
             {isLoading ? (
               <Skeleton className="h-12 w-20 rounded-lg" />
             ) : (
               <>
-                <div className="text-4xl font-bold text-foreground tracking-tight">{stats.totalVehicles}</div>
+                <div className="text-4xl font-bold text-foreground tracking-tight tabular-nums">{stats.totalVehicles}</div>
                 <p className="text-xs text-muted-foreground mt-2">Ø {stats.avgPrice.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}</p>
               </>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card className="stat-card group border-border/40">
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <div className="admin-stat-card group p-6">
+          <div className="flex items-center justify-between mb-4 relative">
+            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.12em]">
               Anfragen
-            </CardTitle>
-            <div className="p-2.5 rounded-xl bg-chart-2/10 text-chart-2 group-hover:bg-chart-2/20 transition-all duration-300 group-hover:scale-110">
+            </span>
+            <div className="p-2.5 rounded-xl bg-chart-2/10 text-chart-2 group-hover:bg-chart-2/15 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
               <MessageSquare className="h-5 w-5" />
             </div>
-          </CardHeader>
-          <CardContent className="pt-1">
+          </div>
+          <div className="relative">
             {isLoading ? (
               <Skeleton className="h-12 w-20 rounded-lg" />
             ) : (
               <>
-                <div className="text-4xl font-bold text-foreground tracking-tight">{stats.totalInquiries}</div>
+                <div className="text-4xl font-bold text-foreground tracking-tight tabular-nums">{stats.totalInquiries}</div>
                 <p className="text-xs text-muted-foreground mt-2">{stats.newInquiries} neu</p>
               </>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card className="stat-card group border-border/40">
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <div className="admin-stat-card group p-6">
+          <div className="flex items-center justify-between mb-4 relative">
+            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.12em]">
               Leads
-            </CardTitle>
-            <div className="p-2.5 rounded-xl bg-chart-3/10 text-chart-3 group-hover:bg-chart-3/20 transition-all duration-300 group-hover:scale-110">
+            </span>
+            <div className="p-2.5 rounded-xl bg-chart-3/10 text-chart-3 group-hover:bg-chart-3/15 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
               <Users className="h-5 w-5" />
             </div>
-          </CardHeader>
-          <CardContent className="pt-1">
+          </div>
+          <div className="relative">
             {isLoading ? (
               <Skeleton className="h-12 w-20 rounded-lg" />
             ) : (
               <>
-                <div className="text-4xl font-bold text-foreground tracking-tight">{stats.totalLeads}</div>
+                <div className="text-4xl font-bold text-foreground tracking-tight tabular-nums">{stats.totalLeads}</div>
                 <p className="text-xs text-muted-foreground mt-2">{stats.conversionRate.toFixed(1)}% eingeloggt</p>
               </>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card className="stat-card group border-border/40">
-          <CardHeader className="flex flex-row items-center justify-between pb-3">
-            <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <div className="admin-stat-card group p-6">
+          <div className="flex items-center justify-between mb-4 relative">
+            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-[0.12em]">
               Brandings
-            </CardTitle>
-            <div className="p-2.5 rounded-xl bg-chart-4/10 text-chart-4 group-hover:bg-chart-4/20 transition-all duration-300 group-hover:scale-110">
+            </span>
+            <div className="p-2.5 rounded-xl bg-chart-4/10 text-chart-4 group-hover:bg-chart-4/15 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
               <Building2 className="h-5 w-5" />
             </div>
-          </CardHeader>
-          <CardContent className="pt-1">
+          </div>
+          <div className="relative">
             {isLoading ? (
               <Skeleton className="h-12 w-20 rounded-lg" />
             ) : (
               <>
-                <div className="text-4xl font-bold text-foreground tracking-tight">{stats.activeBrandings}</div>
+                <div className="text-4xl font-bold text-foreground tracking-tight tabular-nums">{stats.activeBrandings}</div>
                 <p className="text-xs text-muted-foreground mt-2">Aktive Mandanten</p>
               </>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
 
       {/* Charts Row */}
