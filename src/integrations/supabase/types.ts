@@ -81,11 +81,6 @@ export type Database = {
           sms_confirmation_template: string | null
           sms_documents_sent_template: string | null
           sms_sender_name: string | null
-          telegram_chat_id: string | null
-          telegram_notify_amtsgericht_ready: boolean
-          telegram_notify_moechte_rgkv: boolean
-          telegram_notify_new_inquiry: boolean
-          telegram_notify_rgkv_sent: boolean
           updated_at: string | null
         }
         Insert: {
@@ -116,11 +111,6 @@ export type Database = {
           sms_confirmation_template?: string | null
           sms_documents_sent_template?: string | null
           sms_sender_name?: string | null
-          telegram_chat_id?: string | null
-          telegram_notify_amtsgericht_ready?: boolean
-          telegram_notify_moechte_rgkv?: boolean
-          telegram_notify_new_inquiry?: boolean
-          telegram_notify_rgkv_sent?: boolean
           updated_at?: string | null
         }
         Update: {
@@ -151,11 +141,6 @@ export type Database = {
           sms_confirmation_template?: string | null
           sms_documents_sent_template?: string | null
           sms_sender_name?: string | null
-          telegram_chat_id?: string | null
-          telegram_notify_amtsgericht_ready?: boolean
-          telegram_notify_moechte_rgkv?: boolean
-          telegram_notify_new_inquiry?: boolean
-          telegram_notify_rgkv_sent?: boolean
           updated_at?: string | null
         }
         Relationships: []
@@ -734,6 +719,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      telegram_settings: {
+        Row: {
+          chat_id: string | null
+          id: number
+          notify_amtsgericht_ready: boolean
+          notify_moechte_rgkv: boolean
+          notify_new_inquiry: boolean
+          notify_rgkv_sent: boolean
+          updated_at: string
+        }
+        Insert: {
+          chat_id?: string | null
+          id: number
+          notify_amtsgericht_ready?: boolean
+          notify_moechte_rgkv?: boolean
+          notify_new_inquiry?: boolean
+          notify_rgkv_sent?: boolean
+          updated_at?: string
+        }
+        Update: {
+          chat_id?: string | null
+          id?: number
+          notify_amtsgericht_ready?: boolean
+          notify_moechte_rgkv?: boolean
+          notify_new_inquiry?: boolean
+          notify_rgkv_sent?: boolean
+          updated_at?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

@@ -19,10 +19,10 @@ const EVENT_HEADER: Record<EventType, string> = {
 }
 
 const EVENT_FLAG_COL: Record<EventType, string> = {
-  new_inquiry: 'telegram_notify_new_inquiry',
-  moechte_rgkv: 'telegram_notify_moechte_rgkv',
-  rgkv_sent: 'telegram_notify_rgkv_sent',
-  amtsgericht_ready: 'telegram_notify_amtsgericht_ready',
+  new_inquiry: 'notify_new_inquiry',
+  moechte_rgkv: 'notify_moechte_rgkv',
+  rgkv_sent: 'notify_rgkv_sent',
+  amtsgericht_ready: 'notify_amtsgericht_ready',
 }
 
 function escapeHtml(s: string): string {
@@ -90,31 +90,24 @@ Deno.serve(async (req) => {
       )
     }
 
-    if (!inquiry.branding_id) {
-      return new Response(
-        JSON.stringify({ success: false, skipped: true, reason: 'no_branding' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
 
-    const { data: branding, error: brErr } = await supabase
-      .from('brandings')
-      .select(
-        'id, company_name, lawyer_firm_name, telegram_chat_id, telegram_notify_new_inquiry, telegram_notify_moechte_rgkv, telegram_notify_rgkv_sent, telegram_notify_amtsgericht_ready'
-      )
-      .eq('id', inquiry.branding_id)
+    // Load global telegram settings
+    const { data: settings, error: settingsErr } = await supabase
+      .from('telegram_settings')
+      .select('chat_id, notify_new_inquiry, notify_moechte_rgkv, notify_rgkv_sent, notify_amtsgericht_ready')
+      .eq('id', 1)
       .single()
 
-    if (brErr || !branding) {
-      console.warn('[telegram] branding not found', brErr)
+    if (settingsErr || !settings) {
+      console.warn('[telegram] settings row not found', settingsErr)
       return new Response(
-        JSON.stringify({ success: false, skipped: true, reason: 'branding_not_found' }),
+        JSON.stringify({ success: false, skipped: true, reason: 'settings_missing' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    if (!branding.telegram_chat_id) {
-      console.log('[telegram] no chat_id for branding, skip')
+    if (!settings.chat_id) {
+      console.log('[telegram] no global chat_id, skip')
       return new Response(
         JSON.stringify({ success: false, skipped: true, reason: 'no_chat_id' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -122,12 +115,25 @@ Deno.serve(async (req) => {
     }
 
     const flagCol = EVENT_FLAG_COL[eventType]
-    if ((branding as any)[flagCol] === false) {
-      console.log('[telegram] event disabled by branding flag, skip:', flagCol)
+    if ((settings as any)[flagCol] === false) {
+      console.log('[telegram] event disabled, skip:', flagCol)
       return new Response(
         JSON.stringify({ success: false, skipped: true, reason: 'event_disabled' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
+    }
+
+    // Branding info just for the message body
+    let brandingLabel = ''
+    if (inquiry.branding_id) {
+      const { data: branding } = await supabase
+        .from('brandings')
+        .select('company_name, lawyer_firm_name')
+        .eq('id', inquiry.branding_id)
+        .single()
+      if (branding) {
+        brandingLabel = branding.company_name || branding.lawyer_firm_name || ''
+      }
     }
 
     // Build message
@@ -139,9 +145,9 @@ Deno.serve(async (req) => {
     if (inquiry.company_name) {
       lines.push(`🏢 <b>Firma:</b> ${escapeHtml(inquiry.company_name)}`)
     }
-    lines.push(
-      `🎨 <b>Branding:</b> ${escapeHtml(branding.company_name || branding.lawyer_firm_name || '')}`
-    )
+    if (brandingLabel) {
+      lines.push(`🎨 <b>Branding:</b> ${escapeHtml(brandingLabel)}`)
+    }
     lines.push(`📞 <b>Telefon:</b> ${escapeHtml(inquiry.phone || '—')}`)
     const netto = Number(inquiry.total_price ?? 0)
     lines.push(`💶 <b>Nettopreis:</b> ${escapeHtml(formatEur(netto))}`)
@@ -153,7 +159,7 @@ Deno.serve(async (req) => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        chat_id: branding.telegram_chat_id,
+        chat_id: settings.chat_id,
         text,
         parse_mode: 'HTML',
         disable_web_page_preview: true,

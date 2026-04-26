@@ -1,46 +1,59 @@
-## Korrektur: Ein Bot für alle Brandings
+# Telegram-Integration vollständig globalisieren
 
-Telegram-Bot-Token wird aus den **Supabase Edge Function Secrets** gelesen — nicht mehr pro Branding gespeichert. Pro Branding bleiben nur Chat-ID + Event-Toggles.
+Aktuell ist die Telegram-Konfiguration noch pro Branding gespeichert (`telegram_chat_id`, `telegram_notify_*` auf der `brandings`-Tabelle), obwohl wir nur EINEN globalen Bot haben. Das ergibt keinen Sinn — eine Chat-Gruppe für alle Notifications. Branding wird nur noch als **Info im Text** der Nachricht erwähnt.
 
-## Voraussetzung (du)
+## Was sich ändert
 
-Du wirst nach dem Genehmigen aufgefordert, das Secret **`TELEGRAM_BOT_TOKEN`** anzulegen. Wert ist der Token von **@BotFather** (Format: `123456789:ABC-DEF1234ghIkl-zyx57W2v1u123ew11`).
+### 1. Neue globale Settings-Tabelle
+Neue Tabelle `telegram_settings` (Singleton, eine Zeile):
+- `id` (fixed = 1)
+- `chat_id` (text, nullable)
+- `notify_new_inquiry` (bool, default true)
+- `notify_moechte_rgkv` (bool, default true)
+- `notify_rgkv_sent` (bool, default true)
+- `notify_amtsgericht_ready` (bool, default true)
+- `updated_at`
 
-## Änderungen
+RLS: Nur Admins lesen/schreiben.
 
-### 1. Datenbank
-Spalte `telegram_bot_token` aus `brandings` entfernen (per Migration). Die anderen Telegram-Spalten bleiben:
+### 2. Migration: alte Spalten entfernen
+Drop auf `brandings`:
 - `telegram_chat_id`
 - `telegram_notify_new_inquiry`
 - `telegram_notify_moechte_rgkv`
 - `telegram_notify_rgkv_sent`
 - `telegram_notify_amtsgericht_ready`
 
-### 2. Edge Function `send-telegram-notification`
-- `botToken` aus `Deno.env.get('TELEGRAM_BOT_TOKEN')` lesen statt aus Branding
-- Skip wenn Secret nicht gesetzt ist
-- SELECT auf `brandings` lädt `telegram_bot_token` nicht mehr
-- Skip-Bedingung nur noch: kein `chat_id` gesetzt
+### 3. Edge Function `send-telegram-notification`
+- Liest Chat-ID + Event-Toggles aus `telegram_settings` statt aus `brandings`
+- Branding-Name kommt weiterhin als Feld in den Nachrichtentext (über die `branding_id` der Anfrage joinen)
+- Token bleibt aus `TELEGRAM_BOT_TOKEN` Secret
 
-### 3. Edge Function `telegram-get-updates`
-- Token-Parameter aus dem Request entfernen — Function liest selbst aus `Deno.env.get('TELEGRAM_BOT_TOKEN')`
-- Frontend sendet nur noch `action` und ggf. `chatId`/`text`
+### 4. Edge Function `telegram-get-updates`
+- Bleibt fast identisch (nutzt schon den globalen Token)
+- Test-Nachricht bekommt Chat-ID direkt mitgegeben (wie jetzt)
 
-### 4. Admin-UI `/admin/telegram` (`AdminTelegram.tsx`)
-- Bot-Token-Input + Show/Hide-Button entfernen
-- State `botToken`, `showToken` raus
-- Hinweis-Box am Anfang: „Bot-Token wird zentral als Supabase Secret `TELEGRAM_BOT_TOKEN` verwaltet — gilt für alle Brandings"
-- Setup-Anleitung anpassen: Schritt 1 endet mit „Token kopieren und in Supabase Secrets als `TELEGRAM_BOT_TOKEN` eintragen" (statt unten ins Formular)
-- „Chat-ID automatisch erkennen"-Button & „Test-Nachricht"-Button rufen Functions ohne `botToken` auf
-- Save-Mutation aktualisiert nur noch Chat-ID + Toggles
+### 5. UI `/admin/telegram` (`AdminTelegram.tsx`)
+**Komplett neu, ohne Branding-Auswahl:**
+- Hinweis-Karte: Bot-Token wird als Supabase Secret verwaltet
+- Setup-Anleitung (1× Bot erstellen, 1× in Gruppe einladen, Chat-ID erkennen)
+- **Eine** Chat-ID-Eingabe + „Chat-ID automatisch erkennen"-Button
+- **Eine** Liste der 4 Event-Checkboxes (gilt global)
+- „Speichern" + „Test-Nachricht senden"
+- Beispiel-Vorschau
 
-### 5. Branding-Schema
-Wenn `telegram_bot_token` irgendwo im `Branding`-Type oder in `brandingSchema.ts` referenziert ist — nicht der Fall, also keine Änderung nötig.
+## Technische Details
+
+- Migration legt `telegram_settings` an, seedet Zeile mit `id=1` und übernimmt — falls vorhanden — die erste nicht-leere `telegram_chat_id` aus `brandings` als Default, dann werden die Spalten gedroppt.
+- `send-telegram-notification` Aufrufe in `submit-inquiry` und `useInquiryNotes`/`GenerateDocumentsDialog` ändern sich nicht in der Signatur (nehmen weiter `inquiry_id` + `event_type`); nur die Function intern liest aus der neuen Tabelle.
+- `src/integrations/supabase/types.ts` wird automatisch von der Migration aktualisiert.
 
 ## Dateien
 
-- `supabase/functions/send-telegram-notification/index.ts` — Token aus env
-- `supabase/functions/telegram-get-updates/index.ts` — Token aus env
-- `src/pages/admin/AdminTelegram.tsx` — Token-Input entfernen, UI anpassen
-- `supabase/migrations/<neu>.sql` — Spalte `telegram_bot_token` droppen
-- **Action:** Secret `TELEGRAM_BOT_TOKEN` anlegen
+- **Neu:** `supabase/migrations/<timestamp>_telegram_global_settings.sql`
+- **Bearbeitet:** `src/pages/admin/AdminTelegram.tsx` (Branding-Auswahl raus)
+- **Bearbeitet:** `supabase/functions/send-telegram-notification/index.ts`
+- **Bearbeitet (minor):** `supabase/functions/telegram-get-updates/index.ts` (nur Cleanup falls nötig)
+- **Auto-aktualisiert:** `src/integrations/supabase/types.ts`
+
+Nach Approval setze ich das direkt um.
