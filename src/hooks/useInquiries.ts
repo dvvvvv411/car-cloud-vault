@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useCurrentUserVisibleFrom } from "@/hooks/useCurrentUserVisibleFrom";
 
 export type InquiryStatus = "Neu" | "Möchte RG/KV" | "Amtsgericht" | "Amtsgericht Ready" | "RG/KV gesendet" | "Bezahlt" | "Exchanged" | "Kein Interesse";
 
