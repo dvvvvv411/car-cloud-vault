@@ -35,10 +35,10 @@ const renderTemplate = (
   data: { vorname: string; nachname: string; kanzlei: string; telefon: string }
 ) =>
   tpl
-    .replaceAll('{vorname}', data.vorname)
-    .replaceAll('{nachname}', data.nachname)
-    .replaceAll('{kanzlei}', data.kanzlei)
-    .replaceAll('{telefon}', data.telefon);
+    .split('{vorname}').join(data.vorname)
+    .split('{nachname}').join(data.nachname)
+    .split('{kanzlei}').join(data.kanzlei)
+    .split('{telefon}').join(data.telefon);
 
 export const SmsConfirmationPreview = () => {
   const { toast } = useToast();
