@@ -81,7 +81,6 @@ export type Database = {
           sms_confirmation_template: string | null
           sms_documents_sent_template: string | null
           sms_sender_name: string | null
-          telegram_bot_token: string | null
           telegram_chat_id: string | null
           telegram_notify_amtsgericht_ready: boolean
           telegram_notify_moechte_rgkv: boolean
@@ -117,7 +116,6 @@ export type Database = {
           sms_confirmation_template?: string | null
           sms_documents_sent_template?: string | null
           sms_sender_name?: string | null
-          telegram_bot_token?: string | null
           telegram_chat_id?: string | null
           telegram_notify_amtsgericht_ready?: boolean
           telegram_notify_moechte_rgkv?: boolean
@@ -153,7 +151,6 @@ export type Database = {
           sms_confirmation_template?: string | null
           sms_documents_sent_template?: string | null
           sms_sender_name?: string | null
-          telegram_bot_token?: string | null
           telegram_chat_id?: string | null
           telegram_notify_amtsgericht_ready?: boolean
           telegram_notify_moechte_rgkv?: boolean
