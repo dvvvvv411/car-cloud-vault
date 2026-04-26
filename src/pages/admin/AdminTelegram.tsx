@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -16,13 +16,6 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -33,21 +26,18 @@ import {
   Loader2,
   Send,
   Search,
-  CheckCircle2,
   AlertCircle,
   Bot,
   KeyRound,
 } from "lucide-react";
 
-interface BrandingRow {
-  id: string;
-  company_name: string;
-  lawyer_firm_name: string;
-  telegram_chat_id: string | null;
-  telegram_notify_new_inquiry: boolean;
-  telegram_notify_moechte_rgkv: boolean;
-  telegram_notify_rgkv_sent: boolean;
-  telegram_notify_amtsgericht_ready: boolean;
+interface TelegramSettingsRow {
+  id: number;
+  chat_id: string | null;
+  notify_new_inquiry: boolean;
+  notify_moechte_rgkv: boolean;
+  notify_rgkv_sent: boolean;
+  notify_amtsgericht_ready: boolean;
 }
 
 interface DiscoveredChat {
@@ -62,7 +52,6 @@ interface DiscoveredChat {
 export default function AdminTelegram() {
   const { toast } = useToast();
   const qc = useQueryClient();
-  const [selectedId, setSelectedId] = useState<string>("");
   const [chatId, setChatId] = useState("");
   const [notifyNew, setNotifyNew] = useState(true);
   const [notifyMoechte, setNotifyMoechte] = useState(true);
@@ -74,58 +63,47 @@ export default function AdminTelegram() {
   const [discoverOpen, setDiscoverOpen] = useState(false);
   const [chats, setChats] = useState<DiscoveredChat[]>([]);
 
-  const { data: brandings, isLoading } = useQuery({
-    queryKey: ["brandings-telegram"],
+  const { data: settings, isLoading } = useQuery({
+    queryKey: ["telegram-settings"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("brandings")
+      const { data, error } = await (supabase as any)
+        .from("telegram_settings")
         .select(
-          "id, company_name, lawyer_firm_name, telegram_chat_id, telegram_notify_new_inquiry, telegram_notify_moechte_rgkv, telegram_notify_rgkv_sent, telegram_notify_amtsgericht_ready"
+          "id, chat_id, notify_new_inquiry, notify_moechte_rgkv, notify_rgkv_sent, notify_amtsgericht_ready"
         )
-        .order("company_name");
+        .eq("id", 1)
+        .single();
       if (error) throw error;
-      return (data as unknown) as BrandingRow[];
+      return data as TelegramSettingsRow;
     },
   });
 
-  const branding = useMemo(
-    () => brandings?.find((b) => b.id === selectedId),
-    [brandings, selectedId]
-  );
-
   useEffect(() => {
-    if (brandings && brandings.length > 0 && !selectedId) {
-      setSelectedId(brandings[0].id);
+    if (settings) {
+      setChatId(settings.chat_id || "");
+      setNotifyNew(settings.notify_new_inquiry);
+      setNotifyMoechte(settings.notify_moechte_rgkv);
+      setNotifyRgkvSent(settings.notify_rgkv_sent);
+      setNotifyAmtsgericht(settings.notify_amtsgericht_ready);
     }
-  }, [brandings, selectedId]);
-
-  useEffect(() => {
-    if (branding) {
-      setChatId(branding.telegram_chat_id || "");
-      setNotifyNew(branding.telegram_notify_new_inquiry);
-      setNotifyMoechte(branding.telegram_notify_moechte_rgkv);
-      setNotifyRgkvSent(branding.telegram_notify_rgkv_sent);
-      setNotifyAmtsgericht(branding.telegram_notify_amtsgericht_ready);
-    }
-  }, [branding]);
+  }, [settings]);
 
   const handleSave = async () => {
-    if (!branding) return;
     setSaving(true);
     try {
-      const { error } = await supabase
-        .from("brandings")
+      const { error } = await (supabase as any)
+        .from("telegram_settings")
         .update({
-          telegram_chat_id: chatId.trim() || null,
-          telegram_notify_new_inquiry: notifyNew,
-          telegram_notify_moechte_rgkv: notifyMoechte,
-          telegram_notify_rgkv_sent: notifyRgkvSent,
-          telegram_notify_amtsgericht_ready: notifyAmtsgericht,
+          chat_id: chatId.trim() || null,
+          notify_new_inquiry: notifyNew,
+          notify_moechte_rgkv: notifyMoechte,
+          notify_rgkv_sent: notifyRgkvSent,
+          notify_amtsgericht_ready: notifyAmtsgericht,
         })
-        .eq("id", branding.id);
+        .eq("id", 1);
       if (error) throw error;
       toast({ title: "Telegram-Einstellungen gespeichert" });
-      qc.invalidateQueries({ queryKey: ["brandings-telegram"] });
+      qc.invalidateQueries({ queryKey: ["telegram-settings"] });
     } catch (err: any) {
       toast({
         title: "Fehler beim Speichern",
@@ -183,9 +161,7 @@ export default function AdminTelegram() {
           body: {
             chatId: chatId.trim(),
             action: "send_test",
-            text: `✅ <b>Test-Nachricht</b>\n\nDie Telegram-Integration für <b>${
-              branding?.company_name || "diese Branding"
-            }</b> funktioniert!`,
+            text: `✅ <b>Test-Nachricht</b>\n\nDie globale Telegram-Integration funktioniert!`,
           },
         }
       );
@@ -206,7 +182,7 @@ export default function AdminTelegram() {
     }
   };
 
-  const isConfigured = !!branding?.telegram_chat_id;
+  const isConfigured = !!chatId.trim();
 
   if (isLoading) {
     return (
@@ -222,7 +198,7 @@ export default function AdminTelegram() {
       <div>
         <h2 className="text-3xl font-bold tracking-tight">Telegram</h2>
         <p className="text-muted-foreground">
-          Ein zentraler Bot, pro Branding eigene Chat-Gruppe und Event-Auswahl.
+          Ein zentraler Bot, eine Gruppe — alle Notifications für alle Brandings.
         </p>
       </div>
 
@@ -238,9 +214,7 @@ export default function AdminTelegram() {
             <code className="bg-muted px-1.5 py-0.5 rounded text-foreground">
               TELEGRAM_BOT_TOKEN
             </code>{" "}
-            verwaltet — gilt für <strong>alle Brandings</strong>. Es gibt nur
-            einen Bot, aber jede Branding kann in einer eigenen Gruppe
-            benachrichtigt werden.
+            verwaltet.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -252,79 +226,74 @@ export default function AdminTelegram() {
             <Bot className="h-5 w-5" />
             Setup-Anleitung
           </CardTitle>
-          <CardDescription>
-            So richtest du den Telegram-Bot ein (einmalig pro Branding):
-          </CardDescription>
+          <CardDescription>So richtest du den Telegram-Bot ein:</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div className="rounded-lg border p-4 space-y-2">
-            <p className="font-semibold">1. Bot bei BotFather erstellen (nur einmal nötig)</p>
+            <p className="font-semibold">1. Bot bei BotFather erstellen</p>
             <ol className="list-decimal pl-5 space-y-1 text-muted-foreground">
-              <li>Öffne Telegram und suche nach <code className="bg-muted px-1 rounded">@BotFather</code></li>
-              <li>Sende <code className="bg-muted px-1 rounded">/newbot</code></li>
+              <li>
+                Öffne Telegram und suche nach{" "}
+                <code className="bg-muted px-1 rounded">@BotFather</code>
+              </li>
+              <li>
+                Sende <code className="bg-muted px-1 rounded">/newbot</code>
+              </li>
               <li>Wähle einen Namen (z. B. „Kanzlei Notifications")</li>
-              <li>Wähle einen Username, der auf <code className="bg-muted px-1 rounded">bot</code> endet</li>
-              <li>Kopiere den <strong>Bot-Token</strong> und hinterlege ihn als Supabase Secret <code className="bg-muted px-1 rounded">TELEGRAM_BOT_TOKEN</code> (ist bereits gesetzt, falls du den Token schon einmal eingegeben hast)</li>
+              <li>
+                Kopiere den Bot-Token und hinterlege ihn als Supabase Secret{" "}
+                <code className="bg-muted px-1 rounded">TELEGRAM_BOT_TOKEN</code>
+              </li>
             </ol>
           </div>
 
           <div className="rounded-lg border p-4 space-y-2">
             <p className="font-semibold">2. Bot in deine Gruppe einladen</p>
             <ol className="list-decimal pl-5 space-y-1 text-muted-foreground">
-              <li>Erstelle eine Telegram-Gruppe (oder nutze eine bestehende) — pro Branding eine eigene Gruppe</li>
-              <li>Tippe oben auf den Gruppennamen → <strong>Mitglieder hinzufügen</strong> → suche deinen Bot per Username → hinzufügen</li>
-              <li><strong>Wichtig:</strong> Sende mindestens <strong>eine Nachricht</strong> in die Gruppe (z. B. „test"), sonst kann der Bot die Chat-ID nicht ermitteln</li>
+              <li>Erstelle (oder nutze) eine Telegram-Gruppe für die Notifications</li>
+              <li>
+                Tippe auf den Gruppennamen → <strong>Mitglieder hinzufügen</strong>{" "}
+                → suche deinen Bot per Username → hinzufügen
+              </li>
+              <li>
+                <strong>Wichtig:</strong> Sende mindestens{" "}
+                <strong>eine Nachricht</strong> in die Gruppe (z. B. „test"), sonst
+                kann der Bot die Chat-ID nicht ermitteln
+              </li>
             </ol>
           </div>
 
           <div className="rounded-lg border p-4 space-y-2">
             <p className="font-semibold">3. Chat-ID eintragen & testen</p>
             <ol className="list-decimal pl-5 space-y-1 text-muted-foreground">
-              <li>Branding unten auswählen</li>
-              <li>Klick <strong>„Chat-ID automatisch erkennen"</strong> — das System zeigt alle Gruppen, in denen der Bot aktiv ist</li>
-              <li>Wähle die richtige Gruppe — die Chat-ID wird automatisch eingetragen</li>
-              <li>Klick <strong>„Test-Nachricht senden"</strong> — sollte sofort in der Gruppe ankommen</li>
+              <li>
+                Klick <strong>„Chat-ID automatisch erkennen"</strong>
+              </li>
+              <li>Wähle die richtige Gruppe — die Chat-ID wird übernommen</li>
+              <li>
+                Klick <strong>„Test-Nachricht senden"</strong>
+              </li>
               <li>Speichern nicht vergessen!</li>
             </ol>
           </div>
         </CardContent>
       </Card>
 
-      {/* Branding-Auswahl */}
+      {/* Konfiguration */}
       <Card>
         <CardHeader>
-          <CardTitle>Branding-Konfiguration</CardTitle>
+          <CardTitle>Konfiguration</CardTitle>
           <CardDescription>
-            Pro Branding eigene Chat-Gruppe und Event-Auswahl.
+            Eine Chat-ID, eine Event-Auswahl — gilt für alle Brandings.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div>
-            <Label>Branding</Label>
-            <Select value={selectedId} onValueChange={setSelectedId}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {brandings?.map((b) => (
-                  <SelectItem key={b.id} value={b.id}>
-                    <div className="flex items-center gap-2">
-                      {b.company_name}
-                      {b.telegram_chat_id && (
-                        <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
-                      )}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           {!isConfigured && (
             <div className="flex items-start gap-2 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200">
               <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
               <div>
-                Diese Branding versendet aktuell <strong>keine Telegram-Notifications</strong>. Bitte Chat-ID eintragen.
+                Aktuell werden <strong>keine Telegram-Notifications</strong>{" "}
+                versendet. Bitte Chat-ID eintragen.
               </div>
             </div>
           )}
@@ -349,32 +318,55 @@ export default function AdminTelegram() {
                 ) : (
                   <Search className="h-4 w-4" />
                 )}
-                <span className="ml-2 hidden sm:inline">Chat-ID automatisch erkennen</span>
+                <span className="ml-2 hidden sm:inline">
+                  Chat-ID automatisch erkennen
+                </span>
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Gruppen-IDs starten typischerweise mit <code className="bg-muted px-1 rounded">-100…</code>
+              Gruppen-IDs starten typischerweise mit{" "}
+              <code className="bg-muted px-1 rounded">-100…</code>
             </p>
           </div>
 
           <div className="space-y-3 pt-2 border-t">
-            <Label className="text-base">Welche Events sollen benachrichtigt werden?</Label>
+            <Label className="text-base">
+              Welche Events sollen benachrichtigt werden?
+            </Label>
             <div className="space-y-2">
               <label className="flex items-center gap-3 cursor-pointer">
-                <Checkbox checked={notifyNew} onCheckedChange={(v) => setNotifyNew(!!v)} />
+                <Checkbox
+                  checked={notifyNew}
+                  onCheckedChange={(v) => setNotifyNew(!!v)}
+                />
                 <span>🆕 Neue Anfrage eingegangen</span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer">
-                <Checkbox checked={notifyMoechte} onCheckedChange={(v) => setNotifyMoechte(!!v)} />
-                <span>📝 Status auf <strong>Möchte RG/KV</strong> gesetzt</span>
+                <Checkbox
+                  checked={notifyMoechte}
+                  onCheckedChange={(v) => setNotifyMoechte(!!v)}
+                />
+                <span>
+                  📝 Status auf <strong>Möchte RG/KV</strong> gesetzt
+                </span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer">
-                <Checkbox checked={notifyRgkvSent} onCheckedChange={(v) => setNotifyRgkvSent(!!v)} />
-                <span>📤 Status auf <strong>RG/KV gesendet</strong> gesetzt</span>
+                <Checkbox
+                  checked={notifyRgkvSent}
+                  onCheckedChange={(v) => setNotifyRgkvSent(!!v)}
+                />
+                <span>
+                  📤 Status auf <strong>RG/KV gesendet</strong> gesetzt
+                </span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer">
-                <Checkbox checked={notifyAmtsgericht} onCheckedChange={(v) => setNotifyAmtsgericht(!!v)} />
-                <span>⚖️ Status auf <strong>Amtsgericht Ready</strong> gesetzt</span>
+                <Checkbox
+                  checked={notifyAmtsgericht}
+                  onCheckedChange={(v) => setNotifyAmtsgericht(!!v)}
+                />
+                <span>
+                  ⚖️ Status auf <strong>Amtsgericht Ready</strong> gesetzt
+                </span>
               </label>
             </div>
           </div>
@@ -404,7 +396,9 @@ export default function AdminTelegram() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">Beispiel-Nachricht</CardTitle>
-          <CardDescription>So sieht eine Notification in der Gruppe aus:</CardDescription>
+          <CardDescription>
+            So sieht eine Notification in der Gruppe aus:
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-2xl bg-muted/60 p-4 text-sm leading-relaxed whitespace-pre-wrap font-mono">
@@ -412,7 +406,7 @@ export default function AdminTelegram() {
 
 👤 Name: Max Mustermann
 🏢 Firma: Mustermann GmbH
-🎨 Branding: ${branding?.company_name || "Kanzlei XY"}
+🎨 Branding: Kanzlei XY
 📞 Telefon: +49 176 12345678
 💶 Nettopreis: 12.500,00 €`}
           </div>
@@ -432,7 +426,8 @@ export default function AdminTelegram() {
           <div className="space-y-2 max-h-96 overflow-auto">
             {chats.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-6">
-                Keine Chats gefunden. Schick eine Nachricht in die Gruppe und versuch's nochmal.
+                Keine Chats gefunden. Schick eine Nachricht in die Gruppe und
+                versuch's nochmal.
               </p>
             )}
             {chats.map((chat) => {
