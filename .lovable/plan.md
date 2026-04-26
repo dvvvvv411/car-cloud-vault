@@ -1,58 +1,47 @@
-## Problem
+## Ziel
 
-In `src/components/LawyerContactCard.tsx` (verwendet auf `/insolvenz`) wird das Anwaltsfoto als `<img src={lawyerPhotoUrl} />` gerendert. Damit kann der Nutzer:
-- per Rechtsklick → "Bild speichern unter" das Originalbild herunterladen
-- per Drag & Drop das Bild auf den Desktop ziehen
-- per "Bild untersuchen" / DevTools direkt die `src`-URL als `<img>`-Element sehen und öffnen
+Auf `/admin/preview` einen neuen Tab **"Email Signatur"** hinzufügen, der eine fertige HTML-E-Mail-Signatur für Philip Neiseke rendert. Per Button kann zwischen visueller Vorschau und HTML-Quellcode (mit Copy-Button) gewechselt werden.
 
-Gewünscht: Bild soll für den User möglichst geschützt sein.
+## Inhalt der Signatur
 
-## Lösung
+Daten kommen aus dem Branding `H- S Immobilien und Kfz Handels GmbH`:
 
-Vollständiger Schutz im Browser ist technisch nicht möglich (jeder Inhalt landet im Cache und ist im Network-Tab einsehbar). Wir reduzieren aber alle gängigen Wege deutlich:
+- **Name:** Philip Neiseke
+- **Kanzlei:** Neiseke & Hagedorn
+- **Subtitle:** Rechtsanwälte in Partnerschaft PartG mbB
+- **Adresse:** Kanzlerstr. 1, 40472 Düsseldorf
+- **Telefon:** 0211 87971650
+- **E-Mail:** p.neiseke@anwaelte-neiseke-hagedorn.de
+- **Web:** https://anwaelte-neiseke-hagedorn.de
+- **Logo:** `neiseke-hagedorn-logo-white.png` (aus dem Projekt `neiseke-hagedorn` kopiert nach `src/assets/`). Da das Original ein weißes Logo ist und Signaturen meist auf weißem Hintergrund stehen, wird es in der Signatur auf einem dezenten dunklen Logo-Block (z. B. Primary-Farbe der Kanzlei `#0f3b5b`-artig dunkelblau) eingebettet — alternativ auf transparentem dunklem Container per `<table>`-Zelle mit `bgcolor`. Falls gewünscht, kann später noch eine dunkle Variante getauscht werden.
 
-1. `<img>` durch ein `<div>` mit `background-image` ersetzen — dadurch:
-   - kein Rechtsklick → "Bild speichern unter" mehr (nur generisches Kontextmenü, ohne Bild-Optionen)
-   - kein "Bild in neuem Tab öffnen"
-   - im "Element untersuchen"-Inspector erscheint kein `<img>`-Tag, sondern nur ein leeres `<div>` mit CSS — die URL ist nur in der CSS-Eigenschaft sichtbar
-2. Zusätzlich:
-   - `onContextMenu={(e) => e.preventDefault()}` blockiert das Kontextmenü komplett über dem Bildbereich
-   - `onDragStart={(e) => e.preventDefault()}` und `draggable={false}` verhindern Drag & Drop
-   - `select-none`, `WebkitUserSelect: 'none'`, `WebkitTouchCallout: 'none'` verhindern Auswahl/Long-Press auf iOS
-   - `pointer-events-none` auf dem inneren Bild-Div (Klicks auf Card bleiben weiter möglich, da die Card-Wrapper-Klicks darüberliegen — falls nicht erforderlich, lassen wir es weg, um Kontextmenü-Handler aktiv zu halten). → Wir lassen `pointer-events-none` weg, damit die Event-Handler (`onContextMenu`, `onDragStart`) aktiv bleiben.
+## UI / Komponenten
 
-### Konkrete Änderung in `src/components/LawyerContactCard.tsx` (Zeilen 51–55)
+1. **`src/pages/admin/AdminEmails.tsx`**
+   - Im bestehenden `<Tabs>` einen neuen `<TabsTrigger value="signature">Email Signatur</TabsTrigger>` ergänzen.
+   - Neuen `<TabsContent value="signature">` mit `<EmailSignaturePreview />` rendern.
 
-Ersetze:
-```tsx
-<img 
-  src={lawyerPhotoUrl} 
-  alt={`Rechtsanwalt ${lawyerName}`}
-  className="w-32 h-32 rounded-full object-cover shadow-lg"
-/>
-```
+2. **Neue Komponente `src/components/admin/EmailSignaturePreview.tsx`**
+   - State: `view: 'preview' | 'code'`.
+   - Card mit Header "E-Mail Signatur – Philip Neiseke".
+   - Zwei Buttons: **Vorschau** / **HTML Code** (Toggle, gleicher Stil wie im `AdminEmailSignatureDialog`).
+   - Im Preview-Modus: weißer Container, Signatur via `dangerouslySetInnerHTML`.
+   - Im Code-Modus: read-only `<Textarea>` mit dem HTML + **"In Zwischenablage kopieren"**-Button (Lucide `Copy` Icon, `navigator.clipboard.writeText`, toast).
+   - Konstante `SIGNATURE_HTML` am Dateianfang — Tabellen-basierter HTML-Block (E-Mail-kompatibel), enthält:
+     - 1 Spalte Logo (Bild aus `src/assets/neiseke-hagedorn-logo-white.png`, importiert und im HTML als absolute URL via `window.location.origin + buildSrc` eingebettet — siehe technische Hinweise).
+     - 1 Spalte Kontaktdaten mit den oben gelisteten Feldern, Trennlinie, kleinem Disclaimer.
 
-durch:
-```tsx
-<div
-  role="img"
-  aria-label={`Rechtsanwalt ${lawyerName}`}
-  onContextMenu={(e) => e.preventDefault()}
-  onDragStart={(e) => e.preventDefault()}
-  draggable={false}
-  className="w-32 h-32 rounded-full shadow-lg bg-center bg-cover select-none"
-  style={{
-    backgroundImage: `url("${lawyerPhotoUrl}")`,
-    WebkitUserSelect: 'none',
-    WebkitTouchCallout: 'none',
-  }}
-/>
-```
+3. **Asset-Übernahme**
+   - `src/assets/neiseke-hagedorn-logo-white.png` per `cross_project--copy_project_asset` aus dem Projekt `neiseke-hagedorn` in dieses Projekt kopieren.
 
-## Hinweis zu den Grenzen
+## Technische Hinweise
 
-Das Bild ist weiterhin im Browser-Network-Tab und im Cache als Datei einsehbar — ein 100%iger Schutz ist im Web nicht möglich. Die Änderung blockiert aber alle "üblichen" User-Aktionen (Rechtsklick speichern, Drag & Drop, langer Tap auf Mobile, direktes Sehen als `<img>`-Element im Inspector).
+- Logo via `import logo from '@/assets/neiseke-hagedorn-logo-white.png'` einbinden; im sichtbaren Preview wird das Vite-URL benutzt. Im exportierbaren HTML-Code wird zusätzlich eine **vollständige URL** (basierend auf `window.location.origin + logo`) gerendert, damit der kopierte Code in einem externen E-Mail-Client funktioniert. Zusätzlicher Hinweistext unter dem Code: "Für den produktiven Einsatz das Logo auf einer dauerhaften, öffentlich erreichbaren URL hosten."
+- HTML benutzt `<table>` mit Inline-CSS (E-Mail-Standard) — keine modernen Layout-Features.
+- Kein DB-Schema-Change, keine Edge Function nötig.
 
-## Betroffene Datei
+## Geänderte / neue Dateien
 
-- `src/components/LawyerContactCard.tsx` (5 Zeilen ersetzt)
+- **neu:** `src/components/admin/EmailSignaturePreview.tsx`
+- **neu:** `src/assets/neiseke-hagedorn-logo-white.png` (aus anderem Projekt kopiert)
+- **edit:** `src/pages/admin/AdminEmails.tsx` (neuen Tab einhängen)
