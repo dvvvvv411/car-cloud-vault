@@ -9,14 +9,19 @@ import logoUrl from "@/assets/neiseke-hagedorn-logo.png";
 const buildSignatureHtml = (logoSrc: string) => `
 <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, Helvetica, sans-serif; color: #0a1f3d; font-size: 14px; line-height: 1.5;">
   <tr>
-    <td style="padding-bottom: 10px;">
-      <img src="${logoSrc}" alt="Neiseke & Hagedorn" width="220" style="display:block; width:220px; height:auto;" />
+    <td style="padding-bottom: 14px; font-size: 14px; color: #1f2a44;">
+      Mit freundlichen Grüßen,
     </td>
   </tr>
   <tr>
     <td>
-      <div style="font-size: 15px; font-weight: bold; color: #0a1f3d; margin-bottom: 1px;">Philip Neiseke</div>
-      <div style="font-size: 12px; color: #4b5563; margin-bottom: 8px;">Rechtsanwalt &middot; Neiseke &amp; Hagedorn Rechtsanwälte in Partnerschaft PartG mbB</div>
+      <div style="font-size: 16px; font-weight: bold; color: #0a1f3d; margin-bottom: 1px;">Philip Neiseke</div>
+      <div style="font-size: 12px; color: #4b5563;">Rechtsanwalt</div>
+      <div style="width: 180px; height: 2px; background: #c9a961; margin: 8px 0 12px 0; line-height: 2px; font-size: 0;">&nbsp;</div>
+      <div style="margin-bottom: 10px;">
+        <img src="${logoSrc}" alt="Neiseke & Hagedorn" width="200" style="display:block; width:200px; height:auto;" />
+      </div>
+      <div style="font-size: 12px; color: #4b5563; margin-bottom: 6px;">Neiseke &amp; Hagedorn Rechtsanwälte in Partnerschaft PartG mbB</div>
       <table cellpadding="0" cellspacing="0" border="0" style="font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #1f2a44;">
         <tr><td style="padding: 1px 0;">Kanzlerstr. 1, 40472 Düsseldorf</td></tr>
         <tr><td style="padding: 1px 0;">Tel: <a href="tel:+4921187971650" style="color:#0a1f3d; text-decoration:none;">0211 87971650</a></td></tr>
