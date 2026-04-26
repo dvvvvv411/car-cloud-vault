@@ -293,7 +293,7 @@ export const SmsConfirmationPreview = () => {
 
       <TemplateCard
         title="SMS Dokumente versendet"
-        description="Wird automatisch versendet, sobald der Status auf „RG/KV gesendet" gesetzt wird."
+        description='Wird automatisch versendet, sobald der Status auf „RG/KV gesendet" gesetzt wird.'
         icon={<FileCheck className="h-5 w-5" />}
         badge="Trigger: Status RG/KV gesendet"
         template={documentsSentTpl}
