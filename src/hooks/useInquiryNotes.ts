@@ -2,6 +2,17 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { InquiryStatus } from "./useInquiries";
+import { logActivity } from "./useInquiryActivityLog";
+
+const fetchInquiryName = async (inquiryId: string): Promise<string | null> => {
+  const { data } = await supabase
+    .from("inquiries")
+    .select("first_name, last_name")
+    .eq("id", inquiryId)
+    .maybeSingle();
+  if (!data) return null;
+  return `${data.first_name ?? ""} ${data.last_name ?? ""}`.trim() || null;
+};
 
 export interface InquiryNote {
   id: string;
@@ -65,10 +76,21 @@ export const useCreateInquiryNote = () => {
         .single();
 
       if (error) throw error;
+
+      const inquiryName = await fetchInquiryName(inquiryId);
+      await logActivity({
+        inquiryId,
+        activityType: "note_added",
+        newValue: noteText.length > 100 ? noteText.slice(0, 100) + "…" : noteText,
+        oldValue: noteType === 'mailbox' ? 'mailbox' : 'note',
+        inquiryName,
+      });
+
       return data;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["inquiry-notes", variables.inquiryId] });
+      queryClient.invalidateQueries({ queryKey: ["inquiry-activity-log"] });
       toast({
         title: "Notiz hinzugefügt",
         description: "Die Notiz wurde erfolgreich gespeichert.",
@@ -88,7 +110,17 @@ export const useUpdateInquiryStatus = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ inquiryId, status }: { inquiryId: string; status: InquiryStatus }) => {
+    mutationFn: async ({ inquiryId, status, oldStatus }: { inquiryId: string; status: InquiryStatus; oldStatus?: InquiryStatus }) => {
+      let previousStatus = oldStatus;
+      if (!previousStatus) {
+        const { data: existing } = await supabase
+          .from("inquiries")
+          .select("status")
+          .eq("id", inquiryId)
+          .maybeSingle();
+        previousStatus = existing?.status as InquiryStatus | undefined;
+      }
+
       const { data, error } = await supabase
         .from("inquiries")
         .update({ 
@@ -100,10 +132,23 @@ export const useUpdateInquiryStatus = () => {
         .single();
 
       if (error) throw error;
+
+      if (previousStatus && previousStatus !== status) {
+        const inquiryName = await fetchInquiryName(inquiryId);
+        await logActivity({
+          inquiryId,
+          activityType: "status_change",
+          oldValue: previousStatus,
+          newValue: status,
+          inquiryName,
+        });
+      }
+
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inquiries"] });
+      queryClient.invalidateQueries({ queryKey: ["inquiry-activity-log"] });
       toast({
         title: "Status aktualisiert",
         description: "Der Status wurde erfolgreich geändert.",

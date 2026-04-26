@@ -503,6 +503,39 @@ export type Database = {
           },
         ]
       }
+      inquiry_activity_log: {
+        Row: {
+          activity_type: string
+          created_at: string
+          id: string
+          inquiry_id: string
+          inquiry_name: string | null
+          new_value: string | null
+          old_value: string | null
+          performed_by: string | null
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          id?: string
+          inquiry_id: string
+          inquiry_name?: string | null
+          new_value?: string | null
+          old_value?: string | null
+          performed_by?: string | null
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          id?: string
+          inquiry_id?: string
+          inquiry_name?: string | null
+          new_value?: string | null
+          old_value?: string | null
+          performed_by?: string | null
+        }
+        Relationships: []
+      }
       inquiry_notes: {
         Row: {
           created_at: string

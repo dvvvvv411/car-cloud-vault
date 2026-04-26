@@ -13,6 +13,7 @@ import { InquiryNotesDialog } from "@/components/admin/InquiryNotesDialog";
 import { InquiryDetailsDialog } from "@/components/admin/InquiryDetailsDialog";
 import { DekraNumbersDialog } from "@/components/admin/DekraNumbersDialog";
 import { TransferButton } from "@/components/admin/TransferButton";
+import { ActivityLogPanel } from "@/components/admin/ActivityLogPanel";
 import { GenerateDocumentsDialog } from "@/components/admin/GenerateDocumentsDialog";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { 
@@ -285,6 +286,8 @@ export default function AdminAnfragen() {
         <p className="text-muted-foreground mt-2 text-base">Verwalten Sie Kundenanfragen</p>
       </div>
 
+      <ActivityLogPanel />
+
       {inquiries.length > 0 && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="relative flex-1 w-full">
@@ -483,7 +486,6 @@ export default function AdminAnfragen() {
                             )}
                           </div>
                         </th>
-                        <th className="text-center">Call</th>
                         <th className="text-center">Details</th>
                         <th className="text-center rounded-tr-lg">Aktion</th>
                       </tr>
@@ -591,15 +593,6 @@ export default function AdminAnfragen() {
                               inquiryId={inquiry.id}
                               currentStatus={inquiry.status}
                               statusUpdatedAt={inquiry.status_updated_at}
-                            />
-                          </td>
-                          <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
-                            <Checkbox
-                              checked={inquiry.call_priority}
-                              onCheckedChange={(checked) => 
-                                handleCallPriorityChange(inquiry.id, checked as boolean)
-                              }
-                              aria-label="Als Anruf markieren"
                             />
                           </td>
                           <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
