@@ -31,7 +31,68 @@ const buildSignatureHtml = (logoSrc: string) => `
 </table>
 `.trim();
 
-export function EmailSignaturePreview() {
+const DEFAULT_EDITOR_HTML = `<div style="font-family: Arial, sans-serif; color: #0a1f3d;">
+  <h2 style="margin: 0 0 8px 0;">Hallo Welt</h2>
+  <p>Hier kannst du <strong>HTML</strong> einfügen und live previewen.</p>
+</div>`;
+
+function LiveHtmlEditor() {
+  const [html, setHtml] = useState(DEFAULT_EDITOR_HTML);
+
+  const loadSignature = () => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    setHtml(buildSignatureHtml(`${origin}${logoUrl}`));
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <CardTitle>Live HTML Editor</CardTitle>
+            <CardDescription>
+              Eigenen HTML-Code einfügen und sofort als Vorschau sehen
+            </CardDescription>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={loadSignature}>
+              Aus Signatur laden
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setHtml("")}>
+              Leeren
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              HTML
+            </div>
+            <Textarea
+              value={html}
+              onChange={(e) => setHtml(e.target.value)}
+              placeholder="<div>Dein HTML hier...</div>"
+              className="min-h-[480px] font-mono text-xs"
+            />
+          </div>
+          <div className="space-y-2">
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Vorschau
+            </div>
+            <div
+              className="border rounded-md p-6 bg-white overflow-auto min-h-[480px]"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function SignatureCard() {
   const [view, setView] = useState<"preview" | "code">("preview");
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
