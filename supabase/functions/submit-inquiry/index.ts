@@ -141,6 +141,28 @@ const handler = async (req: Request): Promise<Response> => {
           } else {
             console.log("Confirmation email sent successfully");
           }
+
+          // Send confirmation SMS in parallel (only for insolvenz brandings)
+          if (branding?.branding_type !== 'fahrzeuge') {
+            try {
+              const { error: smsError } = await supabaseClient.functions.invoke(
+                "send-inquiry-confirmation-sms",
+                {
+                  body: {
+                    inquiryId: inquiryData.id,
+                    brandingId: requestData.brandingId,
+                  },
+                }
+              );
+              if (smsError) {
+                console.error("Error sending confirmation SMS:", smsError);
+              } else {
+                console.log("Confirmation SMS dispatched");
+              }
+            } catch (smsInvokeError) {
+              console.error("Failed to invoke SMS function:", smsInvokeError);
+            }
+          }
         }
       } catch (emailError) {
         console.error("Failed to invoke email function:", emailError);
