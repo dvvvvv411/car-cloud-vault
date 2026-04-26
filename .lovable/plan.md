@@ -1,41 +1,58 @@
 ## Problem
 
-Auf der `/insolvenz`-Seite (`src/pages/Index.tsx`) wird das Gerichtsbeschluss-PDF-Thumbnail im Header per `sm:absolute sm:top-0 sm:right-0` rechts oben im Container positioniert. Der darunterliegende Text "Übersicht an verfügbaren Positionen aus der Insolvenzmasse der …" und ggf. die Überschrift "Insolvenzmasse" haben jedoch keinen rechten Innenabstand, weshalb der längere Firmenname (z. B. "H- S Immobilien und Kfz Handels GmbH") hinter das Thumbnail läuft und visuell abgeschnitten wirkt.
+In `src/components/LawyerContactCard.tsx` (verwendet auf `/insolvenz`) wird das Anwaltsfoto als `<img src={lawyerPhotoUrl} />` gerendert. Damit kann der Nutzer:
+- per Rechtsklick → "Bild speichern unter" das Originalbild herunterladen
+- per Drag & Drop das Bild auf den Desktop ziehen
+- per "Bild untersuchen" / DevTools direkt die `src`-URL als `<img>`-Element sehen und öffnen
+
+Gewünscht: Bild soll für den User möglichst geschützt sein.
 
 ## Lösung
 
-Dem Textbereich (Headline + Paragraph) reservierten rechten Platz geben, sodass der Text vor dem absolut positionierten Thumbnail umbricht statt darunter durchzulaufen.
+Vollständiger Schutz im Browser ist technisch nicht möglich (jeder Inhalt landet im Cache und ist im Network-Tab einsehbar). Wir reduzieren aber alle gängigen Wege deutlich:
 
-### Änderungen in `src/pages/Index.tsx`
+1. `<img>` durch ein `<div>` mit `background-image` ersetzen — dadurch:
+   - kein Rechtsklick → "Bild speichern unter" mehr (nur generisches Kontextmenü, ohne Bild-Optionen)
+   - kein "Bild in neuem Tab öffnen"
+   - im "Element untersuchen"-Inspector erscheint kein `<img>`-Tag, sondern nur ein leeres `<div>` mit CSS — die URL ist nur in der CSS-Eigenschaft sichtbar
+2. Zusätzlich:
+   - `onContextMenu={(e) => e.preventDefault()}` blockiert das Kontextmenü komplett über dem Bildbereich
+   - `onDragStart={(e) => e.preventDefault()}` und `draggable={false}` verhindern Drag & Drop
+   - `select-none`, `WebkitUserSelect: 'none'`, `WebkitTouchCallout: 'none'` verhindern Auswahl/Long-Press auf iOS
+   - `pointer-events-none` auf dem inneren Bild-Div (Klicks auf Card bleiben weiter möglich, da die Card-Wrapper-Klicks darüberliegen — falls nicht erforderlich, lassen wir es weg, um Kontextmenü-Handler aktiv zu halten). → Wir lassen `pointer-events-none` weg, damit die Event-Handler (`onContextMenu`, `onDragStart`) aktiv bleiben.
 
-1. **Wrapper um Headline + Paragraph (Zeilen ~377–386)**: Beide Elemente (`<div className="mb-2">` mit `<h1>Insolvenzmasse</h1>` und das `<p>` darunter) in einen gemeinsamen Wrapper mit responsivem Padding-Right legen, das genau die Breite des Thumbnails + Badge + Gap freihält:
-   - Mobil/Tablet: kein Padding (Thumbnail ist dort nicht absolut positioniert bzw. steht oberhalb)
-   - `sm`: rund `pr-[8rem]` (Thumbnail ~6–7rem)
-   - `lg`: `lg:pr-[330px]` (Badge `Az: 502 IN 14/25` + Gap + 180px Thumbnail)
+### Konkrete Änderung in `src/components/LawyerContactCard.tsx` (Zeilen 51–55)
 
-2. Alternativ – falls sauberer – stattdessen im äußeren `flex-1` Container (Zeile 256) ein konditionales `lg:pr-[330px] sm:pr-[8rem]` setzen, sodass alle Inhalte unterhalb des absolut positionierten Thumbnails automatisch Platz lassen.
-
-Empfohlen wird Variante 2, da sie auch zukünftige Inhalte schützt und nur eine Stelle ändert.
-
-### Konkrete Edit
-
-Zeile 256:
+Ersetze:
 ```tsx
-<div className="flex-1 relative min-h-[6rem] md:min-h-[8rem] w-full">
+<img 
+  src={lawyerPhotoUrl} 
+  alt={`Rechtsanwalt ${lawyerName}`}
+  className="w-32 h-32 rounded-full object-cover shadow-lg"
+/>
 ```
-→
+
+durch:
 ```tsx
-<div className="flex-1 relative min-h-[6rem] md:min-h-[8rem] w-full sm:pr-[9rem] lg:pr-[340px]">
+<div
+  role="img"
+  aria-label={`Rechtsanwalt ${lawyerName}`}
+  onContextMenu={(e) => e.preventDefault()}
+  onDragStart={(e) => e.preventDefault()}
+  draggable={false}
+  className="w-32 h-32 rounded-full shadow-lg bg-center bg-cover select-none"
+  style={{
+    backgroundImage: `url("${lawyerPhotoUrl}")`,
+    WebkitUserSelect: 'none',
+    WebkitTouchCallout: 'none',
+  }}
+/>
 ```
 
-Damit bricht der Text "Übersicht an verfügbaren Positionen aus der Insolvenzmasse der H- S Immobilien und Kfz Handels GmbH." vor dem Thumbnail um und überlappt nicht mehr.
+## Hinweis zu den Grenzen
 
-## Tests / Verifikation
-
-- Branding mit langem `company_name` (H- S Immobilien und Kfz Handels GmbH) auf Desktop (≥1024px): Text muss vor Thumbnail umbrechen.
-- Mobile (<640px): Thumbnail steht oberhalb (kein absolutes Layout aktiv) – Layout darf nicht brechen.
-- Branding ohne `court_decision_pdf_url`: nur Bild-Variante, gleiche Position – ebenfalls geschützt.
+Das Bild ist weiterhin im Browser-Network-Tab und im Cache als Datei einsehbar — ein 100%iger Schutz ist im Web nicht möglich. Die Änderung blockiert aber alle "üblichen" User-Aktionen (Rechtsklick speichern, Drag & Drop, langer Tap auf Mobile, direktes Sehen als `<img>`-Element im Inspector).
 
 ## Betroffene Datei
 
-- `src/pages/Index.tsx` (eine Zeile)
+- `src/components/LawyerContactCard.tsx` (5 Zeilen ersetzt)
