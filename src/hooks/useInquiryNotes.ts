@@ -76,10 +76,21 @@ export const useCreateInquiryNote = () => {
         .single();
 
       if (error) throw error;
+
+      const inquiryName = await fetchInquiryName(inquiryId);
+      await logActivity({
+        inquiryId,
+        activityType: "note_added",
+        new_value: noteText.length > 100 ? noteText.slice(0, 100) + "…" : noteText,
+        oldValue: noteType === 'mailbox' ? 'mailbox' : 'note',
+        inquiryName,
+      } as any);
+
       return data;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["inquiry-notes", variables.inquiryId] });
+      queryClient.invalidateQueries({ queryKey: ["inquiry-activity-log"] });
       toast({
         title: "Notiz hinzugefügt",
         description: "Die Notiz wurde erfolgreich gespeichert.",
@@ -99,7 +110,17 @@ export const useUpdateInquiryStatus = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ inquiryId, status }: { inquiryId: string; status: InquiryStatus }) => {
+    mutationFn: async ({ inquiryId, status, oldStatus }: { inquiryId: string; status: InquiryStatus; oldStatus?: InquiryStatus }) => {
+      let previousStatus = oldStatus;
+      if (!previousStatus) {
+        const { data: existing } = await supabase
+          .from("inquiries")
+          .select("status")
+          .eq("id", inquiryId)
+          .maybeSingle();
+        previousStatus = existing?.status as InquiryStatus | undefined;
+      }
+
       const { data, error } = await supabase
         .from("inquiries")
         .update({ 
@@ -111,10 +132,23 @@ export const useUpdateInquiryStatus = () => {
         .single();
 
       if (error) throw error;
+
+      if (previousStatus && previousStatus !== status) {
+        const inquiryName = await fetchInquiryName(inquiryId);
+        await logActivity({
+          inquiryId,
+          activityType: "status_change",
+          oldValue: previousStatus,
+          newValue: status,
+          inquiryName,
+        });
+      }
+
       return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inquiries"] });
+      queryClient.invalidateQueries({ queryKey: ["inquiry-activity-log"] });
       toast({
         title: "Status aktualisiert",
         description: "Der Status wurde erfolgreich geändert.",
