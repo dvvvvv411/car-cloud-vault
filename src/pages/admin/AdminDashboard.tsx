@@ -230,7 +230,7 @@ export default function AdminDashboard() {
       {/* Charts Row */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Status Distribution */}
-        <Card className="modern-card">
+        <Card className="admin-card-elevated border-0">
           <CardHeader>
             <CardTitle className="text-lg font-semibold">Anfragen nach Status</CardTitle>
           </CardHeader>
@@ -266,7 +266,7 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Lead Performance */}
-        <Card className="modern-card">
+        <Card className="admin-card-elevated border-0">
           <CardHeader>
             <CardTitle className="text-lg font-semibold">Lead-Kampagnen Performance</CardTitle>
           </CardHeader>
@@ -302,7 +302,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Timeline Chart */}
-      <Card className="modern-card">
+      <Card className="admin-card-elevated border-0">
         <CardHeader>
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-primary" />
@@ -358,7 +358,7 @@ export default function AdminDashboard() {
       {/* Bottom Row: Tables */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Recent Inquiries */}
-        <Card className="modern-card">
+        <Card className="admin-card-elevated border-0">
           <CardHeader>
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
               <Clock className="h-5 w-5 text-chart-2" />
@@ -396,7 +396,7 @@ export default function AdminDashboard() {
         </Card>
 
         {/* Top Vehicles */}
-        <Card className="modern-card">
+        <Card className="admin-card-elevated border-0">
           <CardHeader>
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
               <Package className="h-5 w-5 text-chart-3" />
