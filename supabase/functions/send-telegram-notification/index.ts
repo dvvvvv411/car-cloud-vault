@@ -90,12 +90,6 @@ Deno.serve(async (req) => {
       )
     }
 
-    if (!inquiry.branding_id) {
-      return new Response(
-        JSON.stringify({ success: false, skipped: true, reason: 'no_branding' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
 
     // Load global telegram settings
     const { data: settings, error: settingsErr } = await supabase
