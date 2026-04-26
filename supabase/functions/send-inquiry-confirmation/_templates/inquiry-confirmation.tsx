@@ -386,7 +386,7 @@ const tdRight = {
 
 const tfootLabel = {
   padding: '14px',
-  textAlign: 'right' as const,
+  textAlign: 'left' as const,
   color: '#4a5568',
   fontSize: '13px',
   fontWeight: 600,
