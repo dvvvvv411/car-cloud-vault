@@ -56,6 +56,14 @@ All colors MUST be HSL.
     
     --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --shadow-hover: 0 4px 12px -2px hsl(217 100% 50% / 0.08);
+    --shadow-elegant: 0 10px 40px -12px hsl(217 100% 50% / 0.12), 0 2px 6px -2px hsl(220 13% 8% / 0.04);
+    --shadow-card: 0 1px 2px 0 hsl(220 13% 8% / 0.04), 0 1px 3px 0 hsl(220 13% 8% / 0.06);
+    --shadow-soft: 0 2px 14px -4px hsl(220 13% 8% / 0.06);
+
+    --gradient-subtle: radial-gradient(ellipse 80% 60% at 50% -20%, hsl(217 100% 50% / 0.06), transparent 70%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(210 17% 99%));
+    --gradient-sidebar: linear-gradient(180deg, hsl(0 0% 99%) 0%, hsl(210 17% 97%) 100%);
+    --gradient-primary-soft: linear-gradient(135deg, hsl(217 100% 50% / 0.08), hsl(217 100% 50% / 0.02));
   }
 
   .dark {
@@ -187,4 +195,63 @@ All colors MUST be HSL.
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* === Modern Admin Polish === */
+  .admin-bg {
+    background-color: hsl(var(--background));
+    background-image:
+      radial-gradient(ellipse 60% 50% at 100% 0%, hsl(217 100% 50% / 0.05), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 0% 100%, hsl(217 100% 50% / 0.03), transparent 60%);
+  }
+
+  .admin-card-elevated {
+    @apply bg-card rounded-2xl border border-border/60 transition-all duration-300;
+    box-shadow: var(--shadow-card);
+  }
+  .admin-card-elevated:hover {
+    box-shadow: var(--shadow-elegant);
+    border-color: hsl(var(--border));
+  }
+
+  .admin-stat-card {
+    @apply relative overflow-hidden bg-card rounded-2xl border border-border/60 transition-all duration-300;
+    background-image: var(--gradient-card);
+    box-shadow: var(--shadow-card);
+  }
+  .admin-stat-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--gradient-primary-soft);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .admin-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-elegant);
+    border-color: hsl(var(--primary) / 0.3);
+  }
+  .admin-stat-card:hover::before { opacity: 1; }
+
+  .admin-section-title {
+    @apply relative pl-3 text-sm font-semibold uppercase tracking-wider text-muted-foreground;
+  }
+  .admin-section-title::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 70%;
+    border-radius: 2px;
+    background: linear-gradient(180deg, hsl(var(--primary)), hsl(var(--primary) / 0.4));
+  }
+
+  @keyframes slide-in-left {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .animate-slide-in-left { animation: slide-in-left 0.3s ease-out forwards; }
 }
