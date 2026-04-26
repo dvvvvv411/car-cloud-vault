@@ -1,120 +1,59 @@
 ## Ziel
 
-1. SMS-Konfiguration (Seven.io) pro Branding einstellbar machen
-2. `/admin/emails` umbenennen in `/admin/preview` mit zusätzlichem Tab "SMS Templates"
-3. Automatisches Bestätigungs-SMS, das parallel zur Bestätigungs-Email versendet wird (max. 160 Zeichen, ohne Fahrzeuge), via **Seven.io REST API** (`https://gateway.seven.io/api/sms`)
+Zweite SMS-Vorlage hinzufügen: "RG/KV gesendet" — wird automatisch versendet, sobald der Status einer Anfrage auf `RG/KV gesendet` gesetzt wird. Inhalt: Hinweis, dass die Dokumente zur Kaufabwicklung per E‑Mail versendet wurden und das Postfach geprüft werden soll. Auch hier max. 160 Zeichen, parallel zur E‑Mail, via Seven.io.
 
----
+## Änderungen
 
-## 1. Datenbank-Änderungen
-
-Migration `brandings` Tabelle: drei neue optionale Spalten
-- `seven_api_key text` — Seven.io API Key (pro Branding)
-- `sms_sender_name text` — max. 11 Zeichen, alphanumerisch + Leerzeichen
-- `sms_confirmation_template text` — Vorlage für Anfrage-Bestätigungs-SMS, mit Platzhaltern wie `{vorname}`, `{nachname}`, `{kanzlei}`, `{telefon}`. Default-Wert:
+### 1. Datenbank
+Neue Spalte in `brandings`:
+- `sms_documents_sent_template TEXT` mit Default-Vorlage (≤160 Zeichen, ohne Umlaute/ß für GSM-7-Sicherheit):
 
 ```
-Hallo {vorname}, vielen Dank fuer Ihre Anfrage. Wir melden uns in Kuerze telefonisch bei Ihnen. Ihr Team {kanzlei}
+Hallo {vorname}, Ihre Vertragsunterlagen wurden soeben per E-Mail an Sie versendet. Bitte pruefen Sie Ihr Postfach (auch Spam). Ihr Team {kanzlei}
 ```
 
-(unter 160 Zeichen, ohne Umlaute → GSM-7-kompatibel, vermeidet Multipart-SMS)
+### 2. Branding-Schema & Form
+- `brandingSchema.ts`: Feld `sms_documents_sent_template` (optional, max. 160) ergänzen.
+- `BrandingForm.tsx`: keine sichtbare Änderung nötig — Templates werden weiterhin nur im Preview-Tab bearbeitet (so wie aktuell auch `sms_confirmation_template`). Wert wird im Submit-Payload mitgespeichert (passthrough, falls vorhanden).
 
-## 2. Branding-Form erweitern
+### 3. Admin Preview (`/admin/preview` → SMS-Tab)
+`SmsConfirmationPreview.tsx` erweitern, sodass beide Vorlagen pro Branding bearbeitbar sind — mit eigener Card, Zeichenzähler, Live-Vorschau und Speichern-Button:
+1. Card "SMS Anfrage-Bestätigung" (bestehend, unverändert).
+2. Neue Card "SMS Dokumente versendet (RG/KV gesendet)" mit identischer UX, gleichen Platzhaltern (`{vorname}`, `{nachname}`, `{kanzlei}`, `{telefon}`).
 
-`src/lib/validation/brandingSchema.ts`:
-- `seven_api_key: z.string().optional()`
-- `sms_sender_name: z.string().max(11, 'Maximal 11 Zeichen').optional().or(z.literal(''))`
-- `sms_confirmation_template: z.string().max(160, 'Max. 160 Zeichen').optional()`
+### 4. Neue Edge Function `send-documents-sent-sms`
+Analog zu `send-inquiry-confirmation-sms`:
+- Input: `{ inquiryId }` (Branding wird über Inquiry geladen).
+- Lädt Inquiry (first_name, last_name, phone, branding_id) und Branding (seven_api_key, sms_sender_name, sms_documents_sent_template, lawyer_firm_name, lawyer_phone).
+- Skippen, wenn SMS nicht konfiguriert oder Telefon ungültig.
+- Nutzt dieselbe `normalizePhone`-Logik (E.164-Normalisierung, deutsche Präfixe, Whitespace/Trennzeichen entfernen).
+- Sendet via Seven.io REST API (`https://gateway.seven.io/api/sms`) mit `X-Api-Key`, Body als `application/x-www-form-urlencoded` mit `to`, `text`, `from`.
+- 160-Zeichen-Cap.
 
-`src/components/admin/BrandingForm.tsx`:
-- Neuer Block **"SMS Konfiguration (Seven.io)"** unter dem Resend-Block mit:
-  - Seven.io API Key (password input)
-  - SMS-Absendername (max. 11 Zeichen, mit Live-Counter)
-  - Hinweis-Text
-- `brandingData`-Insert/Update um die drei Felder ergänzen
+### 5. Trigger beim Statuswechsel
+Zwei Stellen, an denen der Status auf `RG/KV gesendet` gesetzt wird:
 
-`src/hooks/useBranding.ts` Interface um die drei Felder erweitern.
+**a) `useUpdateInquiryStatus` (manueller Wechsel via Dropdown)** — `src/hooks/useInquiryNotes.ts`:
+Nach erfolgreichem Update: Wenn `previousStatus !== "RG/KV gesendet"` und `status === "RG/KV gesendet"`, Edge Function via `supabase.functions.invoke('send-documents-sent-sms', { body: { inquiryId } })` aufrufen (fire-and-forget, Fehler nur loggen, Toast nicht blockieren).
 
-## 3. Routing & Navigation umbenennen
+**b) `GenerateDocumentsDialog.tsx`** (automatischer Wechsel nach E-Mail-Versand) — direkt nach erfolgreichem `update({ status: "RG/KV gesendet" })` ebenfalls Edge Function aufrufen (fire-and-forget).
 
-- `src/App.tsx`: Route `path="emails"` → `path="preview"` (alt als Redirect zu `/admin/preview` erhalten)
-- `src/pages/admin/AdminLayout.tsx`: Nav-Item `Emails` → `Preview`, URL `/admin/emails` → `/admin/preview`
-- Datei `AdminEmails.tsx` umbenannt in `AdminPreview.tsx`
+So wird die SMS in beiden Flows ausgelöst — egal ob Admin den Status manuell ändert oder durch das Versenden der Dokumente automatisch.
 
-## 4. AdminPreview-Seite neu strukturieren
+## Technische Details
 
-Drei Tabs:
-1. **Vertragsunterlagen-Templates** (bestehend)
-2. **Anfrage-Bestätigung Email (Vorschau)** (bestehend)
-3. **SMS Templates** (neu) — `SmsConfirmationPreview` Komponente
+- Default-Template ist GSM-7-konform (keine Umlaute/ß) → 160 Zeichen, kein Multi-Part SMS.
+- Idempotenz: SMS-Versand wird nur ausgelöst, wenn der **vorherige** Status nicht bereits `RG/KV gesendet` war (verhindert Duplikate beim wiederholten Setzen).
+- Fehler beim SMS-Versand brechen den Status-Update-Flow nicht ab (try/catch + console.error).
+- Branding-Spalte wird automatisch in `types.ts` durch das Migrationssystem aktualisiert.
 
-H1 "Emails" → "Preview"
+## Dateien
 
-## 5. Neue Komponente `SmsConfirmationPreview`
-
-`src/components/admin/SmsConfirmationPreview.tsx`:
-- Branding-Auswahl (Dropdown)
-- Beispiel-Anfrage-Auswahl (oder Dummy-Daten)
-- Live-Vorschau des SMS-Texts (Platzhalter ersetzt) mit Zeichenzähler `XX / 160`
-- Anzeige des konfigurierten Absendernamens
-- Hinweis falls Seven.io API Key oder Absendername fehlen → "Diese Branding versendet keine SMS"
-- Editor zum Anpassen des `sms_confirmation_template` direkt im Tab (speichert auf `brandings.sms_confirmation_template`)
-
-## 6. Edge Function: `send-inquiry-confirmation-sms`
-
-Neue Function `supabase/functions/send-inquiry-confirmation-sms/index.ts`:
-- Input: `{ inquiryId, brandingId }`
-- Lädt Branding und Inquiry aus Supabase
-- Wenn `seven_api_key` oder `sms_sender_name` fehlt → silent skip
-- Ersetzt Platzhalter im Template (`{vorname}`, `{nachname}`, `{kanzlei}`, `{telefon}`)
-- Hard-Limit 160 Zeichen (Truncate als Sicherheit)
-
-### Telefonnummern-Normalisierung (zwingend vor Seven.io-Call)
-
-Helper `normalizePhone(raw: string): string | null` in der Edge Function. Regeln in genau dieser Reihenfolge:
-
-1. **Whitespace und Trennzeichen entfernen**: alle Leerzeichen, Tabs, Bindestriche, Schrägstriche, Klammern strippen
-   - `+49 691 200 209 8` → `+496912002098`
-   - `(0176) 1234-5678` → `017612345678`
-2. **Sonstige nicht-Zifferzeichen entfernen** außer führendem `+`
-3. **Deutsche Vorwahl normalisieren auf E.164**:
-   - Beginnt mit `+49` → unverändert (z.B. `+496912002098`)
-   - Beginnt mit `0049` → `+49…` (führende `00` werden zu `+`)
-   - Beginnt mit `49` (ohne `+`, ohne `0`) und Länge plausibel → `+49…`
-   - Beginnt mit `0` (z.B. `0176…`, `0211…`) → `+49` + Rest ohne führende `0`
-     - `0176 12345678` → `+4917612345678`
-     - `0211 54262200` → `+4921154262200`
-   - Sonst (bereits anderes Land mit `+`, z.B. `+43…`) → unverändert lassen
-4. **Validierung**: Ergebnis muss mit `+` beginnen, gefolgt von 8–15 Ziffern. Sonst `null` zurückgeben → SMS skip + Log.
-
-### Seven.io API Call
-
-- POST `https://gateway.seven.io/api/sms`
-- Header:
-  - `X-Api-Key: <branding.seven_api_key>`
-  - `SentWith: Lovable`
-  - `Content-Type: application/x-www-form-urlencoded`
-- Body (`URLSearchParams`):
-  - `to=<normalisierte Nummer>`
-  - `text=<gerenderter Text>`
-  - `from=<branding.sms_sender_name>`
-- Response loggen (`success`, `messages`, `total_price`)
-- Bei HTTP-Fehler oder `success !== "100"` → Error loggen, aber nicht weiterwerfen
-- Kein verify_jwt nötig
-- CORS-Header
-
-## 7. SMS parallel zur Email versenden
-
-`supabase/functions/submit-inquiry/index.ts` erweitern:
-- Nach dem Email-Invoke zusätzlich `send-inquiry-confirmation-sms` invoken
-- Gilt nur für `branding_type === 'insolvenz'`
-- Fehler werden geloggt aber nicht weitergereicht (nicht blockierend)
-
-## 8. Sicherheit
-
-- `seven_api_key` wird nur server-seitig in Edge Functions gelesen (brandings RLS bereits admin-only für Update)
-- Kein API-Key im Frontend exponieren
-
-## Nicht betroffen
-- Fahrzeuge-System-Email/SMS (zunächst nur Insolvenz)
-- Bestehende Email-Templates und Preview bleiben funktional
+- `supabase/migrations/<neu>.sql` — Spalte `sms_documents_sent_template` ergänzen.
+- `src/lib/validation/brandingSchema.ts` — Feld ergänzen.
+- `src/components/admin/BrandingForm.tsx` — Default-Wert + Passthrough im Submit.
+- `src/components/admin/SmsConfirmationPreview.tsx` — zweite Template-Card.
+- `src/hooks/useBranding.ts` — Typ-Erweiterung (falls dort manuell gepflegt).
+- `src/hooks/useInquiryNotes.ts` — SMS-Trigger beim Statuswechsel.
+- `src/components/admin/GenerateDocumentsDialog.tsx` — SMS-Trigger nach Auto-Statuswechsel.
+- `supabase/functions/send-documents-sent-sms/index.ts` — neu.
