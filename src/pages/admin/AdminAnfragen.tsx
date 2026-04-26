@@ -14,7 +14,7 @@ import { InquiryDetailsDialog } from "@/components/admin/InquiryDetailsDialog";
 import { DekraNumbersDialog } from "@/components/admin/DekraNumbersDialog";
 import { TransferButton } from "@/components/admin/TransferButton";
 import { ActivityLogPanel } from "@/components/admin/ActivityLogPanel";
-import { GenerateDocumentsDialog } from "@/components/admin/GenerateDocumentsDialog";
+
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { 
   Pagination, 
@@ -601,10 +601,7 @@ export default function AdminAnfragen() {
                           <td className="p-2 text-center" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center justify-center gap-2">
 {isTransferAdmin && (inquiry.status === "Möchte RG/KV" || inquiry.status === "Amtsgericht Ready") && (
-                                <>
-                                  <GenerateDocumentsDialog inquiry={inquiry} />
-                                  <TransferButton inquiryId={inquiry.id} />
-                                </>
+                                <TransferButton inquiryId={inquiry.id} />
                               )}
                             </div>
                           </td>
@@ -742,10 +739,7 @@ export default function AdminAnfragen() {
                     <InquiryNotesDialog inquiryId={inquiry.id} />
                     <InquiryDetailsDialog inquiry={inquiry} />
                     {isTransferAdmin && (inquiry.status === "Möchte RG/KV" || inquiry.status === "Amtsgericht Ready") && (
-                      <>
-                        <GenerateDocumentsDialog inquiry={inquiry} />
-                        <TransferButton inquiryId={inquiry.id} />
-                      </>
+                      <TransferButton inquiryId={inquiry.id} />
                     )}
                   </div>
                     </div>
