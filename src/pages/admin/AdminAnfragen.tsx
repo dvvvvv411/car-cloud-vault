@@ -286,6 +286,8 @@ export default function AdminAnfragen() {
         <p className="text-muted-foreground mt-2 text-base">Verwalten Sie Kundenanfragen</p>
       </div>
 
+      <ActivityLogPanel />
+
       {inquiries.length > 0 && (
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
           <div className="relative flex-1 w-full">
