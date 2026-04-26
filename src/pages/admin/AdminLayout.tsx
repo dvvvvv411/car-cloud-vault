@@ -61,28 +61,38 @@ export default function AdminLayout() {
 
   const SidebarNav = () => (
     <div className="flex flex-col h-full">
-      <div className="flex-1 py-2">
+      <div className="flex-1 py-3">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs text-muted-foreground/70 uppercase tracking-wider px-4 mb-2">Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-[10px] text-muted-foreground/70 uppercase tracking-[0.12em] font-semibold px-5 mb-2">
+            Navigation
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-1 px-2">
-              {visibleNavItems.map((item) => (
+            <SidebarMenu className="space-y-0.5 px-3">
+              {visibleNavItems.map((item, idx) => (
                 <SidebarMenuItem key={item.url}>
                   <SidebarMenuButton asChild>
-                    <NavLink 
-                      to={item.url} 
+                    <NavLink
+                      to={item.url}
                       end={item.url === '/admin'}
                       className={({ isActive }) =>
-                        `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                          isActive 
-                            ? 'bg-primary/10 text-primary font-medium shadow-sm' 
-                            : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                        `group relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 animate-slide-in-left ${
+                          isActive
+                            ? 'bg-gradient-to-r from-primary/10 to-primary/5 text-primary font-semibold'
+                            : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
                         }`
                       }
+                      style={{ animationDelay: `${idx * 30}ms` }}
                       onClick={() => setMobileOpen(false)}
                     >
-                      <item.icon className="h-5 w-5 flex-shrink-0" />
-                      <span className="text-sm font-medium">{item.title}</span>
+                      {({ isActive }) => (
+                        <>
+                          {isActive && (
+                            <span className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 rounded-r-full bg-primary shadow-[0_0_12px_hsl(var(--primary)/0.5)]" />
+                          )}
+                          <item.icon className={`h-[18px] w-[18px] flex-shrink-0 transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                          <span className="text-sm">{item.title}</span>
+                        </>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -91,25 +101,30 @@ export default function AdminLayout() {
           </SidebarGroupContent>
         </SidebarGroup>
       </div>
-      
-      <div className="p-4 border-t border-border/40 bg-muted/20">
-        <div className="mb-3 px-2 py-1.5 rounded-lg bg-background/60 text-xs text-muted-foreground truncate">
-          {user?.email}
+
+      <div className="p-4 border-t border-border/40 bg-muted/20 backdrop-blur-sm">
+        <div className="mb-3 flex items-center gap-2.5 px-2.5 py-2 rounded-xl bg-background/80 border border-border/40">
+          <div className="h-7 w-7 rounded-full bg-gradient-to-br from-primary to-primary/70 text-primary-foreground flex items-center justify-center text-xs font-semibold flex-shrink-0">
+            {(user?.email || '?').charAt(0).toUpperCase()}
+          </div>
+          <div className="text-xs text-muted-foreground truncate flex-1">
+            {user?.email}
+          </div>
         </div>
         {(isAdmin || isKaltaquiseOnlyUser || isAmtsgerichtOnlyUser) && (
-          <Button 
+          <Button
             onClick={() => setPasswordDialogOpen(true)}
-            variant="outline" 
-            className="w-full justify-start mb-2 hover:bg-accent transition-all duration-200"
+            variant="outline"
+            className="w-full justify-start mb-2 rounded-xl hover:bg-accent hover:border-primary/30 transition-all duration-200"
           >
             <KeyRound className="mr-2 h-4 w-4" />
             <span className="text-sm">Passwort ändern</span>
           </Button>
         )}
-        <Button 
-          onClick={handleLogout} 
-          variant="outline" 
-          className="w-full justify-start hover:bg-destructive hover:text-destructive-foreground transition-all duration-200"
+        <Button
+          onClick={handleLogout}
+          variant="outline"
+          className="w-full justify-start rounded-xl hover:bg-destructive hover:text-destructive-foreground hover:border-destructive transition-all duration-200"
         >
           <LogOut className="mr-2 h-4 w-4" />
           <span className="text-sm">Abmelden</span>
