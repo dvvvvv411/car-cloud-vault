@@ -23,15 +23,76 @@ const buildSignatureHtml = (logoSrc: string) => `
         <tr><td style="padding: 1px 0;">E-Mail: <a href="mailto:p.neiseke@anwaelte-neiseke-hagedorn.de" style="color:#0a1f3d; text-decoration:none;">p.neiseke@anwaelte-neiseke-hagedorn.de</a></td></tr>
         <tr><td style="padding: 1px 0;">Web: <a href="https://anwaelte-neiseke-hagedorn.de" style="color:#0a1f3d; text-decoration:none;">anwaelte-neiseke-hagedorn.de</a></td></tr>
       </table>
-      <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9ca3af; max-width: 480px;">
-        Diese E-Mail kann vertrauliche und/oder rechtlich geschützte Informationen enthalten. Wenn Sie nicht der richtige Adressat sind, informieren Sie bitte den Absender und vernichten Sie diese E-Mail.
+      <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #9ca3af; max-width: 520px;">
+        Diese E-Mail und etwaige Anhänge enthalten vertrauliche und/oder rechtlich geschützte Informationen. Sollten Sie nicht der richtige Adressat sein oder diese E-Mail irrtümlich erhalten haben, informieren Sie bitte sofort den Absender und löschen Sie diese E-Mail. Das unbefugte Kopieren, Weitergeben oder Verwenden dieser E-Mail ist nicht gestattet.
       </div>
     </td>
   </tr>
 </table>
 `.trim();
 
-export function EmailSignaturePreview() {
+const DEFAULT_EDITOR_HTML = `<div style="font-family: Arial, sans-serif; color: #0a1f3d;">
+  <h2 style="margin: 0 0 8px 0;">Hallo Welt</h2>
+  <p>Hier kannst du <strong>HTML</strong> einfügen und live previewen.</p>
+</div>`;
+
+function LiveHtmlEditor() {
+  const [html, setHtml] = useState(DEFAULT_EDITOR_HTML);
+
+  const loadSignature = () => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    setHtml(buildSignatureHtml(`${origin}${logoUrl}`));
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <CardTitle>Live HTML Editor</CardTitle>
+            <CardDescription>
+              Eigenen HTML-Code einfügen und sofort als Vorschau sehen
+            </CardDescription>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={loadSignature}>
+              Aus Signatur laden
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => setHtml("")}>
+              Leeren
+            </Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              HTML
+            </div>
+            <Textarea
+              value={html}
+              onChange={(e) => setHtml(e.target.value)}
+              placeholder="<div>Dein HTML hier...</div>"
+              className="min-h-[480px] font-mono text-xs"
+            />
+          </div>
+          <div className="space-y-2">
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Vorschau
+            </div>
+            <div
+              className="border rounded-md p-6 bg-white overflow-auto min-h-[480px]"
+              dangerouslySetInnerHTML={{ __html: html }}
+            />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function SignatureCard() {
   const [view, setView] = useState<"preview" | "code">("preview");
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
@@ -114,5 +175,14 @@ export function EmailSignaturePreview() {
         )}
       </CardContent>
     </Card>
+  );
+}
+
+export function EmailSignaturePreview() {
+  return (
+    <div className="space-y-6">
+      <SignatureCard />
+      <LiveHtmlEditor />
+    </div>
   );
 }
