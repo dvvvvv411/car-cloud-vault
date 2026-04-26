@@ -55,13 +55,18 @@ export default function AdminLayout() {
   const isKaltaquiseOnlyUser = user?.id === KALTAQUISE_ONLY_USER_ID;
   const isAmtsgerichtOnlyUser = user?.id === AMTSGERICHT_ONLY_USER_ID;
   const isAdmin = user?.email === ADMIN_EMAIL;
-  const visibleNavItems = isAmtsgerichtOnlyUser
-    ? navItems.filter(item => item.url === '/admin/amtsgericht')
-    : isInquiryOnlyUser 
-    ? navItems.filter(item => item.url === '/admin/anfragen' || item.url === '/admin/amtsgericht')
+  const filterUrls = (urls: string[]) =>
+    navGroups
+      .map((g) => ({ ...g, items: g.items.filter((i) => urls.includes(i.url)) }))
+      .filter((g) => g.items.length > 0);
+
+  const visibleNavGroups = isAmtsgerichtOnlyUser
+    ? filterUrls(['/admin/amtsgericht'])
+    : isInquiryOnlyUser
+    ? filterUrls(['/admin/anfragen', '/admin/amtsgericht'])
     : isKaltaquiseOnlyUser
-    ? navItems.filter(item => item.url === '/admin/kaltaquise')
-    : navItems;
+    ? filterUrls(['/admin/kaltaquise'])
+    : navGroups;
 
   useEffect(() => {
     if (isAmtsgerichtOnlyUser && location.pathname === '/admin') {
