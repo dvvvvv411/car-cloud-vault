@@ -81,6 +81,12 @@ export type Database = {
           sms_confirmation_template: string | null
           sms_documents_sent_template: string | null
           sms_sender_name: string | null
+          telegram_bot_token: string | null
+          telegram_chat_id: string | null
+          telegram_notify_amtsgericht_ready: boolean
+          telegram_notify_moechte_rgkv: boolean
+          telegram_notify_new_inquiry: boolean
+          telegram_notify_rgkv_sent: boolean
           updated_at: string | null
         }
         Insert: {
@@ -111,6 +117,12 @@ export type Database = {
           sms_confirmation_template?: string | null
           sms_documents_sent_template?: string | null
           sms_sender_name?: string | null
+          telegram_bot_token?: string | null
+          telegram_chat_id?: string | null
+          telegram_notify_amtsgericht_ready?: boolean
+          telegram_notify_moechte_rgkv?: boolean
+          telegram_notify_new_inquiry?: boolean
+          telegram_notify_rgkv_sent?: boolean
           updated_at?: string | null
         }
         Update: {
@@ -141,6 +153,12 @@ export type Database = {
           sms_confirmation_template?: string | null
           sms_documents_sent_template?: string | null
           sms_sender_name?: string | null
+          telegram_bot_token?: string | null
+          telegram_chat_id?: string | null
+          telegram_notify_amtsgericht_ready?: boolean
+          telegram_notify_moechte_rgkv?: boolean
+          telegram_notify_new_inquiry?: boolean
+          telegram_notify_rgkv_sent?: boolean
           updated_at?: string | null
         }
         Relationships: []
