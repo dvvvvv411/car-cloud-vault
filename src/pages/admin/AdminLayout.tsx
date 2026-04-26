@@ -12,18 +12,36 @@ const KALTAQUISE_ONLY_USER_ID = 'd173101f-803b-4531-8ff3-722be030b267';
 const AMTSGERICHT_ONLY_USER_ID = '32a4a326-41b8-4dc6-be0d-f3defa261c8d';
 const ADMIN_EMAIL = 'admin@admin.de';
 
-const navItems = [
-  { title: 'Dashboard', url: '/admin', icon: LayoutDashboard },
-  { title: 'Positionen', url: '/admin/positionen', icon: Car },
-  { title: 'Fahrzeuge', url: '/admin/fahrzeuge', icon: Car },
-  { title: 'Branding', url: '/admin/branding', icon: Palette },
-  { title: 'Preview', url: '/admin/preview', icon: Eye },
-  { title: 'Telegram', url: '/admin/telegram', icon: Send },
-  { title: 'Anfragen', url: '/admin/anfragen', icon: MessageSquare },
-  { title: 'Amtsgericht', url: '/admin/amtsgericht', icon: Landmark },
-  { title: 'Leads', url: '/admin/leads', icon: UserPlus },
-  { title: 'Kaltaquise', url: '/admin/kaltaquise', icon: Phone },
-  { title: 'Benutzer', url: '/admin/benutzer', icon: Users },
+type NavItem = { title: string; url: string; icon: typeof LayoutDashboard };
+type NavGroup = { label: string | null; items: NavItem[] };
+
+const navGroups: NavGroup[] = [
+  {
+    label: null,
+    items: [
+      { title: 'Dashboard', url: '/admin', icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: 'Betrieb',
+    items: [
+      { title: 'Anfragen', url: '/admin/anfragen', icon: MessageSquare },
+      { title: 'Amtsgericht', url: '/admin/amtsgericht', icon: Landmark },
+      { title: 'Kaltaquise', url: '/admin/kaltaquise', icon: Phone },
+      { title: 'Leads', url: '/admin/leads', icon: UserPlus },
+    ],
+  },
+  {
+    label: 'Einstellungen',
+    items: [
+      { title: 'Branding', url: '/admin/branding', icon: Palette },
+      { title: 'Positionen', url: '/admin/positionen', icon: Car },
+      { title: 'Fahrzeuge', url: '/admin/fahrzeuge', icon: Car },
+      { title: 'Benutzer', url: '/admin/benutzer', icon: Users },
+      { title: 'Preview', url: '/admin/preview', icon: Eye },
+      { title: 'Telegram', url: '/admin/telegram', icon: Send },
+    ],
+  },
 ];
 
 export default function AdminLayout() {
