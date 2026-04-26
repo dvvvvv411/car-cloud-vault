@@ -116,6 +116,12 @@ export default function AdminEmails() {
         open={!!previewingTemplate}
         onOpenChange={(open) => !open && setPreviewingTemplate(null)}
       />
+        </TabsContent>
+
+        <TabsContent value="preview">
+          <InquiryConfirmationPreview />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
