@@ -12,18 +12,36 @@ const KALTAQUISE_ONLY_USER_ID = 'd173101f-803b-4531-8ff3-722be030b267';
 const AMTSGERICHT_ONLY_USER_ID = '32a4a326-41b8-4dc6-be0d-f3defa261c8d';
 const ADMIN_EMAIL = 'admin@admin.de';
 
-const navItems = [
-  { title: 'Dashboard', url: '/admin', icon: LayoutDashboard },
-  { title: 'Positionen', url: '/admin/positionen', icon: Car },
-  { title: 'Fahrzeuge', url: '/admin/fahrzeuge', icon: Car },
-  { title: 'Branding', url: '/admin/branding', icon: Palette },
-  { title: 'Preview', url: '/admin/preview', icon: Eye },
-  { title: 'Telegram', url: '/admin/telegram', icon: Send },
-  { title: 'Anfragen', url: '/admin/anfragen', icon: MessageSquare },
-  { title: 'Amtsgericht', url: '/admin/amtsgericht', icon: Landmark },
-  { title: 'Leads', url: '/admin/leads', icon: UserPlus },
-  { title: 'Kaltaquise', url: '/admin/kaltaquise', icon: Phone },
-  { title: 'Benutzer', url: '/admin/benutzer', icon: Users },
+type NavItem = { title: string; url: string; icon: typeof LayoutDashboard };
+type NavGroup = { label: string | null; items: NavItem[] };
+
+const navGroups: NavGroup[] = [
+  {
+    label: null,
+    items: [
+      { title: 'Dashboard', url: '/admin', icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: 'Betrieb',
+    items: [
+      { title: 'Anfragen', url: '/admin/anfragen', icon: MessageSquare },
+      { title: 'Amtsgericht', url: '/admin/amtsgericht', icon: Landmark },
+      { title: 'Kaltaquise', url: '/admin/kaltaquise', icon: Phone },
+      { title: 'Leads', url: '/admin/leads', icon: UserPlus },
+    ],
+  },
+  {
+    label: 'Einstellungen',
+    items: [
+      { title: 'Branding', url: '/admin/branding', icon: Palette },
+      { title: 'Positionen', url: '/admin/positionen', icon: Car },
+      { title: 'Fahrzeuge', url: '/admin/fahrzeuge', icon: Car },
+      { title: 'Benutzer', url: '/admin/benutzer', icon: Users },
+      { title: 'Preview', url: '/admin/preview', icon: Eye },
+      { title: 'Telegram', url: '/admin/telegram', icon: Send },
+    ],
+  },
 ];
 
 export default function AdminLayout() {
@@ -37,13 +55,18 @@ export default function AdminLayout() {
   const isKaltaquiseOnlyUser = user?.id === KALTAQUISE_ONLY_USER_ID;
   const isAmtsgerichtOnlyUser = user?.id === AMTSGERICHT_ONLY_USER_ID;
   const isAdmin = user?.email === ADMIN_EMAIL;
-  const visibleNavItems = isAmtsgerichtOnlyUser
-    ? navItems.filter(item => item.url === '/admin/amtsgericht')
-    : isInquiryOnlyUser 
-    ? navItems.filter(item => item.url === '/admin/anfragen' || item.url === '/admin/amtsgericht')
+  const filterUrls = (urls: string[]) =>
+    navGroups
+      .map((g) => ({ ...g, items: g.items.filter((i) => urls.includes(i.url)) }))
+      .filter((g) => g.items.length > 0);
+
+  const visibleNavGroups = isAmtsgerichtOnlyUser
+    ? filterUrls(['/admin/amtsgericht'])
+    : isInquiryOnlyUser
+    ? filterUrls(['/admin/anfragen', '/admin/amtsgericht'])
     : isKaltaquiseOnlyUser
-    ? navItems.filter(item => item.url === '/admin/kaltaquise')
-    : navItems;
+    ? filterUrls(['/admin/kaltaquise'])
+    : navGroups;
 
   useEffect(() => {
     if (isAmtsgerichtOnlyUser && location.pathname === '/admin') {
@@ -62,44 +85,47 @@ export default function AdminLayout() {
   const SidebarNav = () => (
     <div className="flex flex-col h-full">
       <div className="flex-1 py-3">
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] text-muted-foreground/70 uppercase tracking-[0.12em] font-semibold px-5 mb-2">
-            Navigation
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-0.5 px-3">
-              {visibleNavItems.map((item, idx) => (
-                <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end={item.url === '/admin'}
-                      className={({ isActive }) =>
-                        `group relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 animate-slide-in-left ${
-                          isActive
-                            ? 'bg-gradient-to-r from-primary/10 to-primary/5 text-primary font-semibold'
-                            : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
-                        }`
-                      }
-                      style={{ animationDelay: `${idx * 30}ms` }}
-                      onClick={() => setMobileOpen(false)}
-                    >
-                      {({ isActive }) => (
-                        <>
-                          {isActive && (
-                            <span className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 rounded-r-full bg-primary shadow-[0_0_12px_hsl(var(--primary)/0.5)]" />
-                          )}
-                          <item.icon className={`h-[18px] w-[18px] flex-shrink-0 transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
-                          <span className="text-sm">{item.title}</span>
-                        </>
-                      )}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {visibleNavGroups.map((group, gIdx) => (
+          <SidebarGroup key={group.label ?? `group-${gIdx}`} className={gIdx > 0 ? 'mt-4' : ''}>
+            {group.label && (
+              <SidebarGroupLabel className="text-[10px] text-muted-foreground/70 uppercase tracking-[0.12em] font-semibold px-5 mb-2">
+                {group.label}
+              </SidebarGroupLabel>
+            )}
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-0.5 px-3">
+                {group.items.map((item) => (
+                  <SidebarMenuItem key={item.url}>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to={item.url}
+                        end={item.url === '/admin'}
+                        className={({ isActive }) =>
+                          `group relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-200 ${
+                            isActive
+                              ? 'bg-gradient-to-r from-primary/10 to-primary/5 text-primary font-semibold'
+                              : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground'
+                          }`
+                        }
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        {({ isActive }) => (
+                          <>
+                            {isActive && (
+                              <span className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 rounded-r-full bg-primary shadow-[0_0_12px_hsl(var(--primary)/0.5)]" />
+                            )}
+                            <item.icon className={`h-[18px] w-[18px] flex-shrink-0 transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                            <span className="text-sm">{item.title}</span>
+                          </>
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </div>
 
       <div className="p-4 border-t border-border/40 bg-muted/20 backdrop-blur-sm">
