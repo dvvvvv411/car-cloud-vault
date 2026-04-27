@@ -230,7 +230,10 @@ export const InquiryConfirmationEmail = ({
                       </>
                     )}
                   </Text>
-                </Section>
+                </td>
+              </tr>
+            </tbody>
+          </table>
               );
             })()}
           </Section>
