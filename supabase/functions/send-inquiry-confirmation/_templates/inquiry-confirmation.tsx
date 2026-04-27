@@ -230,13 +230,13 @@ export const InquiryConfirmationEmail = ({
                       </>
                     )}
                   </Text>
+                </Section>
+              );
+            })()}
                 </td>
               </tr>
             </tbody>
           </table>
-              );
-            })()}
-          </Section>
 
           <Text style={legalFooter}>
             Diese E-Mail wurde automatisch generiert. Bitte antworten Sie
