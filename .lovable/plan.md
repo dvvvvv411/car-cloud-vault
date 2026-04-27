@@ -1,45 +1,43 @@
-# Problem
+Ich habe die aktuellen Logs und den Code geprüft. Für die letzte Anfrage wurde die SMS laut Seven.io tatsächlich um 06:47:49 versendet, aber mit dem damals noch gespeicherten alten Text. Deine Template-Änderung wurde erst danach um 06:51:51 gespeichert. Das erklärt den alten Inhalt.
 
-In der Vorschau (`/admin/preview` → "Anfrage-Bestätigung Email") hat die weiße Karte einen schönen Innenabstand (40px oben/unten, 36px links/rechts) — der Inhalt liegt komfortabel von der Border entfernt.
+Was trotzdem falsch/gefährlich ist: Der SMS-Versand läuft aktuell „fire-and-forget“. Wenn Seven.io ablehnt, das Branding keine SMS-Daten hat, die Nummer ungültig ist oder der Aufruf nicht startet, sieht der Admin nur „Status aktualisiert“ bzw. Telegram kommt an, aber kein klarer SMS-Fehler. Außerdem sollte der Trigger zentraler abgesichert werden.
 
-In der **tatsächlich versendeten E-Mail** (Gmail, Outlook etc.) klebt der Inhalt jedoch direkt an der Border.
+Plan zur Korrektur:
 
-**Ursache:** Die Karte ist als `<Section style={card}>` umgesetzt. React Email rendert `<Section>` als `<table>`. Gmail (und einige andere Clients) **ignorieren CSS-`padding` auf `<table>`-Elementen** — Padding muss zwingend auf das innere `<td>` gesetzt werden. In der iframe-Vorschau funktioniert es, weil Browser das table-padding respektieren.
+1. Statuswechsel „RG/KV gesendet“ robuster machen
+- Den bestehenden Status-Update-Hook so erweitern, dass die SMS-Funktion nicht nur im Hintergrund stumm gestartet wird.
+- Bei „RG/KV gesendet“ soll der SMS-Aufruf ausgewertet werden.
+- Wenn die SMS übersprungen oder abgelehnt wurde, wird eine konkrete Meldung angezeigt, z. B. „SMS nicht gesendet: SMS im Branding nicht konfiguriert“ oder „Telefonnummer ungültig“.
 
-Betroffen sind beide Templates (identische Dateien):
-- `supabase/functions/send-inquiry-confirmation/_templates/inquiry-confirmation.tsx`
-- `supabase/functions/preview-inquiry-confirmation/_templates/inquiry-confirmation.tsx`
+2. Dokumenten-Workflow angleichen
+- Im Dialog, der Dokumente verschickt und danach den Status auf „RG/KV gesendet“ setzt, wird dieselbe SMS-Auswertung eingebaut.
+- Damit ist egal, ob der Status per Dropdown oder nach Dokumentenversand gesetzt wird: SMS und Fehleranzeige verhalten sich gleich.
 
-# Lösung
+3. Edge Function klarere Antworten liefern lassen
+- `send-documents-sent-sms` gibt bereits Gründe wie `sms_not_configured`, `invalid_phone`, `no_branding` zurück.
+- Ich ergänze/vereinheitliche die Rückgabe so, dass Frontend und Logs eindeutig unterscheiden können zwischen:
+  - erfolgreich gesendet
+  - übersprungen wegen fehlender SMS-Konfiguration
+  - ungültige Telefonnummer
+  - Seven.io-Fehler
+  - Anfrage/Branding nicht gefunden
 
-Den Karten-Wrapper so umbauen, dass das Padding auf einer **inneren Tabellenzelle** sitzt und die Border/Background/Border-Radius auf der äußeren Tabelle bleibt. Damit funktioniert der Innenabstand zuverlässig in allen E-Mail-Clients.
+4. Admin-Feedback verbessern
+- Nach Statuswechsel soll die Erfolgsmeldung nicht mehr so tun, als wäre alles erledigt, wenn die SMS fehlt.
+- Vorgesehen:
+  - Status geändert + SMS gesendet: Erfolgsmeldung
+  - Status geändert + Telegram gesendet, aber SMS fehlgeschlagen/übersprungen: Warnmeldung mit Grund
+  - Statusänderung fehlgeschlagen: Fehlermeldung wie bisher
 
-Konkret in beiden Template-Dateien:
+5. SMS-Template-Auswahl absichern
+- In der SMS-Template-Preview wird das aktive SMS-Branding bevorzugt vorausgewählt, damit man nicht wieder versehentlich ein Branding ohne SMS-Konfiguration bearbeitet.
+- Brandings ohne `seven_api_key` oder `sms_sender_name` werden klar als „SMS inaktiv“ markiert.
 
-1. Die Karte wird statt `<Section style={card}>` als explizite Tabelle gerendert:
-   ```tsx
-   <table width="100%" cellPadding={0} cellSpacing={0} role="presentation" style={cardTable}>
-     <tbody>
-       <tr>
-         <td style={cardCell}>
-           {/* gesamter bisheriger Karten-Inhalt */}
-         </td>
-       </tr>
-     </tbody>
-   </table>
-   ```
-2. Style-Objekte anpassen:
-   - `cardTable`: `backgroundColor`, `border: '1px solid #e2e8f0'`, `borderRadius: '12px'`, `borderCollapse: 'separate'` (wichtig, damit `border-radius` greift), `width: '100%'`.
-   - `cardCell`: `padding: '40px 36px'` (für mobile Clients zusätzlich responsive Anpassung möglich, aber nicht zwingend).
-3. `outerContainer` bleibt unverändert (sorgt weiter für den 16px-Außenabstand zum Bildschirmrand).
-
-Beide Dateien (preview + send) müssen identisch geändert werden, damit Vorschau und tatsächlicher Versand übereinstimmen.
-
-# Deployment
-
-Nach den Code-Änderungen die Edge Function `send-inquiry-confirmation` neu deployen, damit der Versand die neue Version verwendet. (`preview-inquiry-confirmation` wird ebenfalls neu deployed, ist aber visuell schon vorher korrekt.)
-
-# Verifikation
-
-- Vorschau im Admin sollte unverändert aussehen (Innenabstand bleibt 40/36px).
-- Eine echte Test-Anfrage absenden und die zugestellte Mail in Gmail prüfen — der Inhalt soll deutlichen Abstand zur grauen Border haben.
+Technische Details:
+- Betroffene Dateien:
+  - `src/hooks/useInquiryNotes.ts`
+  - `src/components/admin/GenerateDocumentsDialog.tsx`
+  - `src/components/admin/SmsConfirmationPreview.tsx`
+  - optional kleine Anpassung in `supabase/functions/send-documents-sent-sms/index.ts`
+- Keine Datenbankänderung nötig.
+- Nach Umsetzung wird die Edge Function neu deployed und mit der betroffenen Anfrage getestet, ohne eine doppelte SMS an echte Kunden auszulösen, sofern möglich über Logik-/Response-Test statt Realversand.
