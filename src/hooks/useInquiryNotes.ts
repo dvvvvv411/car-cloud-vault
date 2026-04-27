@@ -145,13 +145,29 @@ export const useUpdateInquiryStatus = () => {
       }
 
       // Trigger SMS when status changes TO "RG/KV gesendet" (only on transition)
+      let smsResult: { sent: boolean; reason?: string; error?: string } | null = null;
       if (status === "RG/KV gesendet" && previousStatus !== "RG/KV gesendet") {
-        supabase.functions
-          .invoke("send-documents-sent-sms", { body: { inquiryId } })
-          .then(({ error: smsError }) => {
-            if (smsError) console.error("[docs-sms] invoke error:", smsError);
-          })
-          .catch((e) => console.error("[docs-sms] invoke threw:", e));
+        try {
+          const { data: smsData, error: smsError } = await supabase.functions.invoke(
+            "send-documents-sent-sms",
+            { body: { inquiryId } }
+          );
+          if (smsError) {
+            console.error("[docs-sms] invoke error:", smsError);
+            smsResult = { sent: false, error: smsError.message || "invoke_error" };
+          } else if (smsData?.success) {
+            smsResult = { sent: true };
+          } else {
+            smsResult = {
+              sent: false,
+              reason: smsData?.reason,
+              error: smsData?.error,
+            };
+          }
+        } catch (e: any) {
+          console.error("[docs-sms] invoke threw:", e);
+          smsResult = { sent: false, error: e?.message || "invoke_threw" };
+        }
       }
 
       // Trigger Telegram notifications on status transitions
@@ -174,15 +190,42 @@ export const useUpdateInquiryStatus = () => {
         }
       }
 
-      return data;
+      return { data, smsResult };
     },
-    onSuccess: () => {
+    onSuccess: ({ smsResult }) => {
       queryClient.invalidateQueries({ queryKey: ["inquiries"] });
       queryClient.invalidateQueries({ queryKey: ["inquiry-activity-log"] });
-      toast({
-        title: "Status aktualisiert",
-        description: "Der Status wurde erfolgreich geändert.",
-      });
+
+      if (smsResult) {
+        if (smsResult.sent) {
+          toast({
+            title: "Status aktualisiert",
+            description: "Status geändert und SMS an Kunden versendet.",
+          });
+        } else {
+          const reasonMap: Record<string, string> = {
+            sms_not_configured: "SMS im Branding nicht konfiguriert (Seven.io API-Key oder Absendername fehlt).",
+            invalid_phone: "Telefonnummer des Kunden ist ungültig.",
+            no_branding: "Anfrage hat kein Branding zugewiesen.",
+            branding_not_found: "Branding nicht gefunden.",
+            inquiry_not_found: "Anfrage nicht gefunden.",
+          };
+          const desc =
+            (smsResult.reason && reasonMap[smsResult.reason]) ||
+            smsResult.error ||
+            "Unbekannter Fehler beim SMS-Versand.";
+          toast({
+            title: "Status geändert – SMS NICHT versendet",
+            description: desc,
+            variant: "destructive",
+          });
+        }
+      } else {
+        toast({
+          title: "Status aktualisiert",
+          description: "Der Status wurde erfolgreich geändert.",
+        });
+      }
     },
     onError: () => {
       toast({
