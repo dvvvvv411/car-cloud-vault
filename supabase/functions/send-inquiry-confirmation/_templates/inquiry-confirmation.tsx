@@ -60,8 +60,11 @@ export const InquiryConfirmationEmail = ({
       <Preview>{previewText}</Preview>
       <Body style={main}>
         <Container style={outerContainer}>
-          {/* Card */}
-          <Section style={card}>
+          {/* Card — als explizite Tabelle, damit Padding in Gmail erhalten bleibt */}
+          <table width="100%" cellPadding={0} cellSpacing={0} role="presentation" style={cardTable}>
+            <tbody>
+              <tr>
+                <td style={cardCell}>
             {/* Logo */}
             {logoBase64 && (
               <Section style={logoWrapper}>
