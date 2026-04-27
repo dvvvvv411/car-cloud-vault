@@ -60,8 +60,11 @@ export const InquiryConfirmationEmail = ({
       <Preview>{previewText}</Preview>
       <Body style={main}>
         <Container style={outerContainer}>
-          {/* Card */}
-          <Section style={card}>
+          {/* Card — als explizite Tabelle, damit Padding in Gmail erhalten bleibt */}
+          <table width="100%" cellPadding={0} cellSpacing={0} role="presentation" style={cardTable}>
+            <tbody>
+              <tr>
+                <td style={cardCell}>
             {/* Logo */}
             {logoBase64 && (
               <Section style={logoWrapper}>
@@ -230,7 +233,10 @@ export const InquiryConfirmationEmail = ({
                 </Section>
               );
             })()}
-          </Section>
+                </td>
+              </tr>
+            </tbody>
+          </table>
 
           <Text style={legalFooter}>
             Diese E-Mail wurde automatisch generiert. Bitte antworten Sie
@@ -261,10 +267,15 @@ const outerContainer = {
   maxWidth: '640px',
 };
 
-const card = {
+const cardTable = {
   backgroundColor: '#ffffff',
   border: '1px solid #e2e8f0',
   borderRadius: '12px',
+  borderCollapse: 'separate' as const,
+  width: '100%',
+};
+
+const cardCell = {
   padding: '40px 36px',
 };
 
