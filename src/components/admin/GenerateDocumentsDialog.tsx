@@ -335,13 +335,35 @@ export function GenerateDocumentsDialog({ inquiry }: Props) {
         return;
       }
 
-      // Trigger SMS notification (fire-and-forget)
-      supabase.functions
-        .invoke("send-documents-sent-sms", { body: { inquiryId: inquiry.id } })
-        .then(({ error: smsError }) => {
-          if (smsError) console.error("[docs-sms] invoke error:", smsError);
-        })
-        .catch((e) => console.error("[docs-sms] invoke threw:", e));
+      // Trigger SMS notification (await + report result)
+      try {
+        const { data: smsData, error: smsError } = await supabase.functions.invoke(
+          "send-documents-sent-sms",
+          { body: { inquiryId: inquiry.id } }
+        );
+        if (smsError) {
+          console.error("[docs-sms] invoke error:", smsError);
+          toast.warning(`SMS NICHT versendet: ${smsError.message || "invoke_error"}`);
+        } else if (smsData?.success) {
+          toast.success("SMS an Kunden versendet");
+        } else {
+          const reasonMap: Record<string, string> = {
+            sms_not_configured: "SMS im Branding nicht konfiguriert (Seven.io API-Key oder Absendername fehlt).",
+            invalid_phone: "Telefonnummer des Kunden ist ungültig.",
+            no_branding: "Anfrage hat kein Branding zugewiesen.",
+            branding_not_found: "Branding nicht gefunden.",
+            inquiry_not_found: "Anfrage nicht gefunden.",
+          };
+          const desc =
+            (smsData?.reason && reasonMap[smsData.reason]) ||
+            smsData?.error ||
+            "Unbekannter Fehler.";
+          toast.warning(`SMS NICHT versendet: ${desc}`);
+        }
+      } catch (e: any) {
+        console.error("[docs-sms] invoke threw:", e);
+        toast.warning(`SMS NICHT versendet: ${e?.message || "invoke_threw"}`);
+      }
 
       // Trigger Telegram notification (fire-and-forget)
       supabase.functions
