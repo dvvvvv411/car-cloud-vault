@@ -164,7 +164,12 @@ export const SmsConfirmationPreview = () => {
 
   useEffect(() => {
     if (brandings && brandings.length > 0 && !selectedBrandingId) {
-      setSelectedBrandingId(brandings[0].id);
+      // Prefer brandings with active SMS configuration so users don't accidentally
+      // edit templates of brandings that won't actually send SMS.
+      const active = brandings.find(
+        (b) => !!b.seven_api_key && !!b.sms_sender_name
+      );
+      setSelectedBrandingId((active ?? brandings[0]).id);
     }
   }, [brandings, selectedBrandingId]);
 
@@ -252,11 +257,16 @@ export const SmsConfirmationPreview = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {brandings.map((b) => (
-                  <SelectItem key={b.id} value={b.id}>
-                    {b.company_name}
-                  </SelectItem>
-                ))}
+                {brandings.map((b) => {
+                  const active = !!b.seven_api_key && !!b.sms_sender_name;
+                  return (
+                    <SelectItem key={b.id} value={b.id}>
+                      {active ? '✅ ' : '⚠️ '}
+                      {b.company_name}
+                      {!active && ' (SMS inaktiv)'}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
           </div>
