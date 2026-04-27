@@ -267,10 +267,15 @@ const outerContainer = {
   maxWidth: '640px',
 };
 
-const card = {
+const cardTable = {
   backgroundColor: '#ffffff',
   border: '1px solid #e2e8f0',
   borderRadius: '12px',
+  borderCollapse: 'separate' as const,
+  width: '100%',
+};
+
+const cardCell = {
   padding: '40px 36px',
 };
 
